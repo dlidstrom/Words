@@ -2,9 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
-    /// 
+    /// Ternary search tree for string matching.
     /// </summary>
     /// <code>
     /// typedef struct tnode *Tptr;
@@ -17,13 +18,13 @@
     /// int rsearch(Tptr p, char *s)
     /// {
     ///     if (!p) return 0;
-    ///     if (*s < p->splitchar)
-    ///         return rsearch(p->lokid, s);
-    ///     else if (*s > p->splitchar)
-    ///         return rsearch(p->hikid, s);
+    ///     if (*s &lt; p-&gt;splitchar)
+    ///         return rsearch(p-&gt;lokid, s);
+    ///     else if (*s &gt; p->splitchar)
+    ///         return rsearch(p-&gt;hikid, s);
     ///     else {
     ///         if (*s == 0) return 1;
-    ///         return rsearch(p->eqkid, ++s);
+    ///         return rsearch(p-&gt;eqkid, ++s);
     ///     }
     /// }
     /// </code>
@@ -33,14 +34,14 @@
     ///     Tptr p;
     ///     p = root;
     ///     while (p) {
-    ///         if (*s < p->splitchar)
-    ///             p = p->lokid;
-    ///         else if (*s == p->splitchar) {
+    ///         if (*s &lt; p-&gt;splitchar)
+    ///             p = p-&gt;lokid;
+    ///         else if (*s == p-&gt;splitchar) {
     ///             if (*s++ == 0)
     ///                 return 1;
-    ///             p = p->eqkid;
+    ///             p = p-&gt;eqkid;
     ///         } else
-    ///             p = p->hikid;
+    ///             p = p-&gt;hikid;
     ///     }
     ///     return 0;
     /// }
@@ -48,7 +49,7 @@
     public class TernaryTree
     {
         private readonly Language language;
-        private Node m_root = null;
+        private Node root = null;
 
         public TernaryTree(Language language)
         {
@@ -86,7 +87,7 @@
             if (string.IsNullOrWhiteSpace(s))
                 throw new ArgumentException();
 
-            Add(s, 0, ref m_root);
+            Add(s, 0, ref root);
         }
 
         public void Add(params string[] s)
@@ -98,29 +99,8 @@
             {
                 if (item == null)
                     throw new ArgumentNullException("item");
-                Add(item, 0, ref m_root);
+                Add(item, 0, ref root);
             }
-        }
-
-        private Node Add(string s, int pos, ref Node node)
-        {
-            char c = pos == s.Length ? default(char) : s[pos];
-            if (node == null)
-                node = new Node { Char = c, WordEnd = false };
-
-            if (c < node.Char)
-                node.Left = Add(s, pos, ref node.Left);
-            else if (c == node.Char)
-            {
-                if (pos != s.Length)
-                    node.Center = Add(s, pos + 1, ref node.Center);
-                else
-                    node.WordEnd = true;
-            }
-            else
-                node.Right = Add(s, pos, ref node.Right);
-
-            return node;
         }
 
         public bool Contains(string s)
@@ -129,7 +109,7 @@
                 throw new ArgumentException();
 
             int pos = 0;
-            Node node = m_root;
+            Node node = root;
             while (node != null)
             {
                 if (s[pos] < node.Char)
@@ -155,28 +135,83 @@
             var matches = new List<string>();
 
             int pos = 0;
-            Node node = m_root;
+            Node node = root;
             Matches(s, string.Empty, pos, node, matches, limit);
 
             return matches;
         }
 
         /// <summary>
+        /// Traverse tree in sorted order.
+        /// </summary>
+        /// <code>
+        /// void traverse(Tptr p)
+        /// {
+        ///     if (!p) return;
+        ///     traverse(p-&gt;lokid);
+        ///     if (p-&gt;splitchar)
+        ///         traverse(p-&gt;eqkid);
+        ///     else
+        ///         printf("%s/n", (char *) p-&gt;eqkid);
+        ///     traverse(p-&gt;hikid);
+        /// }
+        /// </code>
+        public void Traverse()
+        {
+        }
+
+        public List<string> NearSearch(string s, int d = 1, int limit = 100)
+        {
+            if (string.IsNullOrWhiteSpace(s))
+                throw new ArgumentException();
+
+            var matches = new List<string>();
+
+            int pos = 0;
+            Node node = root;
+            NearSearch(s, string.Empty, pos, node, matches, limit, d);
+
+            return matches;
+        }
+
+        private Node Add(string s, int pos, ref Node node)
+        {
+            char c = pos == s.Length ? default(char) : s[pos];
+            if (node == null)
+                node = new Node { Char = c, WordEnd = false };
+
+            if (c < node.Char)
+                node.Left = Add(s, pos, ref node.Left);
+            else if (c == node.Char)
+            {
+                if (pos != s.Length)
+                    node.Center = Add(s, pos + 1, ref node.Center);
+                else
+                    node.WordEnd = true;
+            }
+            else
+                node.Right = Add(s, pos, ref node.Right);
+
+            return node;
+        }
+
+        /// <summary>
+        /// Performs a matching search.
         /// </summary>
         /// <code>
         /// void pmsearch(Tptr p, char *s)
         /// {
         ///     if (!p) return;
         ///     nodecnt++;
-        ///     if (*s == '.' || *s < p->splitchar)
-        ///         pmsearch(p->lokid, s);
-        ///     if (*s == '.' || *s == p->splitchar)
-        ///         if (p->splitchar && *s)
-        ///             pmsearch(p->eqkid, s+1);
-        ///     if (*s == 0 && p->splitchar == 0)
-        ///         srcharr[srchtop++] = (char *) p->eqkid;
-        ///     if (*s == '.' || *s > p->splitchar)
-        ///         pmsearch(p->hikid, s);
+        ///     if (*s == '.' || *s &lt; p-&gt;splitchar)
+        ///         pmsearch(p-&gt;lokid, s);
+        ///     if (*s == '.' || *s == p-&gt;splitchar)
+        ///         if (p-&gt;splitchar && *s)
+        ///             pmsearch(p-&gt;eqkid, s+1);
+        ///     if (*s == 0 && p-&gt;splitchar == 0)
+        ///         srcharr[srchtop++] = (char *) p-&gt;eqkid;
+        ///     if (*s == '.' || *s &gt; p-&gt;splitchar)
+        ///         pmsearch(p-&gt;hikid, s);
         /// }
         /// </code>
         /// <param name="s"></param>
@@ -184,13 +219,14 @@
         /// <param name="pos"></param>
         /// <param name="node"></param>
         /// <param name="matches"></param>
+        /// <param name="limit"></param>
         private void Matches(string s, string substr, int pos, Node node, List<string> matches, int limit)
         {
             if (node == null || matches.Count >= limit)
                 return;
 
             char c = pos == s.Length ? default(char) : s[pos];
-            if (WildcardMatch(c, node.Char) || c < node.Char)
+            if (WildcardMatchLeft(c, node.Char) || c < node.Char)
                 Matches(s, substr, pos, node.Left, matches, limit);
 
             if (WildcardMatch(c, node.Char) || c == node.Char)
@@ -199,7 +235,7 @@
             if (c == default(char) && node.WordEnd)
                 matches.Add(substr);
 
-            if (WildcardMatch(c, node.Char) || c > node.Char)
+            if (WildcardMatchRight(c, node.Char) || c > node.Char)
                 Matches(s, substr, pos, node.Right, matches, limit);
         }
 
@@ -214,38 +250,30 @@
             return false;
         }
 
-        /// <summary>
-        /// void traverse(Tptr p)
-        /// {
-        ///     if (!p) return;
-        ///     traverse(p->lokid);
-        ///     if (p->splitchar)
-        ///         traverse(p->eqkid);
-        ///     else
-        ///         printf("%s/n", (char *) p->eqkid);
-        ///     traverse(p->hikid);
-        /// }
-        /// </summary>
-        public void Traverse()
+        private bool WildcardMatchLeft(char c, char node)
         {
+            if (c == '?')
+                return true;
+            if (c == '#')
+                return language.Consonants.Min() <= node;
+            if (c == '@')
+                return language.Vowels.Min() <= node;
+            return false;
         }
 
-        public List<string> NearSearch(string s, int d = 1, int limit = 100)
+        private bool WildcardMatchRight(char c, char node)
         {
-            if (string.IsNullOrWhiteSpace(s))
-                throw new ArgumentException();
-
-            var matches = new List<string>();
-
-            int pos = 0;
-            Node node = m_root;
-            NearSearch(s, string.Empty, pos, node, matches, limit, d);
-
-            return matches;
+            if (c == '?')
+                return true;
+            if (c == '#')
+                return language.Consonants.Max() >= node;
+            if (c == '@')
+                return language.Vowels.Max() >= node;
+            return false;
         }
 
         /// <summary>
-        /// 
+        /// Finds matches using a nearest search.
         /// </summary>
         /// <code>
         /// void nearsearch(Tptr p, char *s, int d)
@@ -266,6 +294,13 @@
         ///         nearsearch(p->hikid, s, d);
         /// }
         /// </code>
+        /// <param name="s"></param>
+        /// <param name="substr"></param>
+        /// <param name="pos"></param>
+        /// <param name="node"></param>
+        /// <param name="matches"></param>
+        /// <param name="limit"></param>
+        /// <param name="depth"></param>
         private void NearSearch(string s, string substr, int pos, Node node, List<string> matches, int limit, int depth)
         {
             if (node == null || matches.Count >= limit || depth < 0)
