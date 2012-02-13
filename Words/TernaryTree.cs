@@ -51,6 +51,10 @@
         private readonly Language language;
         private Node root = null;
 
+        /// <summary>
+        /// Initializes a new instance of the TernaryTree class.
+        /// </summary>
+        /// <param name="language"></param>
         public TernaryTree(Language language)
         {
             if (language == null)
@@ -90,6 +94,10 @@
             Add(s, 0, ref root);
         }
 
+        /// <summary>
+        /// Add words to tree.
+        /// </summary>
+        /// <param name="s"></param>
         public void Add(params string[] s)
         {
             if (s == null)
@@ -239,6 +247,12 @@
                 Matches(s, substr, pos, node.Right, matches, limit);
         }
 
+        /// <summary>
+        /// Determines if search should traverse the center node.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="node"></param>
+        /// <returns></returns>
         private bool WildcardMatch(char c, char node)
         {
             if (c == '?')
@@ -250,6 +264,12 @@
             return false;
         }
 
+        /// <summary>
+        /// Determines if search should traverse the left node.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="node"></param>
+        /// <returns></returns>
         private bool WildcardMatchLeft(char c, char node)
         {
             if (c == '?')
@@ -261,6 +281,12 @@
             return false;
         }
 
+        /// <summary>
+        /// Determines if search should traverse the right node.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="node"></param>
+        /// <returns></returns>
         private bool WildcardMatchRight(char c, char node)
         {
             if (c == '?')
