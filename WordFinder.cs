@@ -70,14 +70,19 @@
                                 Type = MatchType.Anagram
                             }));
                 }
+
+                // and near matches
+                var near = tree.NearSearch(input)
+                    .Where(m => m != normalized)
+                    .Select(m => new Match
+                    {
+                        Value = normalizedToOriginal[m],
+                        Type = MatchType.Near
+                    });
+                matches.AddRange(near);
             }
 
             return matches;
-        }
-
-        public List<Match> Near(string input)
-        {
-            return tree.NearSearch(input).Select(m => new Match { Value = m, Type = MatchType.Near }).ToList();
         }
 
         private IEnumerable<string> Randomize(string[] list)

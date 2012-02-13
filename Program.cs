@@ -42,8 +42,7 @@
                     continue;
 
                 stopwatch.Restart();
-                //var matches = wordFinder.Matches(input);
-                var matches = wordFinder.Near(input);
+                var matches = wordFinder.Matches(input);
                 stopwatch.Stop();
                 if (matches.Count > 0)
                 {

@@ -213,29 +213,7 @@
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <code>
-        /// void nearsearch(Tptr p, char *s, int d)
-        /// {
-        ///     if (!p || d < 0) return;
-        ///     nodecnt++;
-        ///     if (d > 0 || *s < p->splitchar)
-        ///         nearsearch(p->lokid, s, d);
-        ///     if (p->splitchar == 0) {
-        ///         if ((int) strlen(s) <= d)
-        ///         srcharr[srchtop++] = (char *) p->eqkid;
-        ///     }
-        ///     else
-        ///         nearsearch(p->eqkid,
-        ///                    *s ? s+1:s,
-        ///                    (*s==p->splitchar) ? d:d-1);
-        ///     if (d > 0 || *s > p->splitchar)
-        ///         nearsearch(p->hikid, s, d);
-        /// }
-        /// </code>
-        public List<string> NearSearch(string s, int limit = 100)
+        public List<string> NearSearch(string s, int d = 1, int limit = 100)
         {
             if (string.IsNullOrWhiteSpace(s))
                 throw new ArgumentException();
@@ -244,37 +222,57 @@
 
             int pos = 0;
             Node node = m_root;
-            NearSearch(s, string.Empty, pos, node, matches, limit, s.Length);
+            NearSearch(s, string.Empty, pos, node, matches, limit, d);
 
             return matches;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <code>
+        /// void nearsearch(Tptr p, char *s, int d)
+        /// {
+        ///     if (!p || d &lt; 0) return;
+        ///     nodecnt++;
+        ///     if (d &gt; 0 || *s &lt; p-&gt;splitchar)
+        ///         nearsearch(p->lokid, s, d);
+        ///     if (p-&gt;splitchar == 0) {
+        ///         if ((int) strlen(s) &lt;= d)
+        ///         srcharr[srchtop++] = (char *) p-&gt;eqkid;
+        ///     }
+        ///     else
+        ///         nearsearch(p->eqkid,
+        ///                    *s ? s+1:s,
+        ///                    (*s==p->splitchar) ? d:d-1);
+        ///     if (d &gt; 0 || *s &gt; p->splitchar)
+        ///         nearsearch(p->hikid, s, d);
+        /// }
+        /// </code>
         private void NearSearch(string s, string substr, int pos, Node node, List<string> matches, int limit, int depth)
         {
             if (node == null || matches.Count >= limit || depth < 0)
                 return;
 
             char c = default(char);
-            char n = default(char);
             if (pos < s.Length)
                 c = s[pos];
-            if (pos < s.Length - 1)
-                n = s[pos + 1];
 
             if (depth > 0 || c < node.Char)
-                NearSearch(s, substr, pos, node, matches, limit, depth);
+                NearSearch(s, substr, pos, node.Left, matches, limit, depth);
 
-            if (node.Char == default(char))
+            if (node.WordEnd)
             {
-                if (s.Length <= depth)
+                if (s.Length - pos <= depth)
                     matches.Add(substr);
             }
             else
             {
+                int newDepth = c == node.Char ? depth : depth - 1;
                 if (c != default(char))
-                    NearSearch(s, substr + c, pos + 1, node.Center, matches, limit, c == node.Char ? depth : depth - 1);
+                    NearSearch(s, substr + node.Char, pos + 1, node.Center, matches, limit, newDepth);
                 else
-                    NearSearch(s, substr, pos, node.Center, matches, limit, c == node.Char ? depth : depth - 1);
+                    NearSearch(s, substr + node.Char, pos, node.Center, matches, limit, newDepth);
             }
 
             if (depth > 0 || c > node.Char)
