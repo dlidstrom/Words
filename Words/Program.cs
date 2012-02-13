@@ -32,23 +32,27 @@
             string input = Console.ReadLine();
             while (input != "q")
             {
-                if (string.IsNullOrWhiteSpace(input))
-                    continue;
-
-                stopwatch.Restart();
-                var matches = wordFinder.Matches(input);
-                stopwatch.Stop();
-                if (matches.Count > 0)
+                do
                 {
-                    Console.WriteLine("Found {0} words matching '{1}':", matches.Count, input);
-                    matches.ForEach(m => Console.WriteLine("{0,-7}: {1}", m.Type, m.Value));
-                }
-                else
-                {
-                    Console.WriteLine("Did not find any words matching '{0}'", input);
-                }
+                    if (string.IsNullOrWhiteSpace(input))
+                        break;
 
-                Console.WriteLine("Search completed in {0} ms", stopwatch.ElapsedMilliseconds);
+                    stopwatch.Restart();
+                    var matches = wordFinder.Matches(input);
+                    stopwatch.Stop();
+                    if (matches.Count > 0)
+                    {
+                        Console.WriteLine("Found {0} words matching '{1}':", matches.Count, input);
+                        matches.ForEach(m => Console.WriteLine("{0,-7}: {1}", m.Type, m.Value));
+                    }
+                    else
+                    {
+                        Console.WriteLine("Did not find any words matching '{0}'", input);
+                    }
+
+                    Console.WriteLine("Search completed in {0:F2} ms", 1000.0 * stopwatch.ElapsedTicks / Stopwatch.Frequency);
+                }
+                while (false);
                 Console.Write(": ");
                 input = Console.ReadLine();
             }
