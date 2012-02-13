@@ -9,20 +9,19 @@
 
     public class WordFinder
     {
-        private readonly TernaryTree tree;
         private readonly Dictionary<string, SortedSet<string>> permutations = new Dictionary<string, SortedSet<string>>();
         private readonly Dictionary<string, string> normalizedToOriginal = new Dictionary<string, string>();
         private readonly CultureInfo cultureInfo;
 
         public WordFinder(string filename, Encoding encoding, Language language)
         {
-            tree = new TernaryTree(language);
+            Tree = new TernaryTree(language);
             this.cultureInfo = language.CultureInfo;
             var lines = File.ReadAllLines(filename, encoding);
             foreach (var word in Randomize(lines))
             {
                 string normalized = word.ToLower(cultureInfo);
-                tree.Add(normalized);
+                Tree.Add(normalized);
 
                 // keep original
                 string added;
@@ -47,10 +46,16 @@
             }
         }
 
+        public TernaryTree Tree
+        {
+            get;
+            private set;
+        }
+
         public List<Match> Matches(string input)
         {
             string normalized = input.ToLower(cultureInfo);
-            var matches = tree.Matches(normalized)
+            var matches = Tree.Matches(normalized)
                 .Select(m => new Match { Value = normalizedToOriginal[m], Type = MatchType.Word })
                 .ToList();
             if (input.IndexOfAny(new char[] { '?', '@', '#', '*' }) < 0)
@@ -72,7 +77,7 @@
                 }
 
                 // and near matches
-                var near = tree.NearSearch(input)
+                var near = Tree.NearSearch(input)
                     .Where(m => m != normalized)
                     .Select(m => new Match
                     {
