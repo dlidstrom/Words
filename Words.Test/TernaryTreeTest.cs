@@ -78,5 +78,24 @@
             // Assert
             Assert.AreEqual(2, matches.Count);
         }
+
+        [TestMethod]
+        public void Traverse()
+        {
+            // Arrange
+            var tree = new TernaryTree(Language.Swedish);
+            tree.Add("abe", "abc", "abd");
+            var visited = new List<string>();
+
+            // Act
+            tree.Traverse(s => visited.Add(s));
+
+            // Assert
+            var expected = new List<string> { "abc", "abd", "abe" };
+            Assert.AreEqual(expected.Count, visited.Count);
+            Assert.AreEqual(expected[0], visited[0]);
+            Assert.AreEqual(expected[1], visited[1]);
+            Assert.AreEqual(expected[2], visited[2]);
+        }
     }
 }

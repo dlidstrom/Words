@@ -164,8 +164,25 @@
         ///     traverse(p-&gt;hikid);
         /// }
         /// </code>
-        public void Traverse()
+        public void Traverse(Action<string> action)
         {
+            if (action == null)
+                throw new ArgumentNullException("action");
+
+            Traverse(root, action, string.Empty);
+        }
+
+        private void Traverse(Node node, Action<string> action, string s)
+        {
+            if (node == null)
+                return;
+
+            Traverse(node.Left, action, s);
+            if (node.WordEnd)
+                action.Invoke(s);
+            else
+                Traverse(node.Center, action, s + node.Char);
+            Traverse(node.Right, action, s);
         }
 
         public List<string> NearSearch(string s, int d = 1, int limit = 100)
