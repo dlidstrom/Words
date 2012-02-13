@@ -1,8 +1,9 @@
-﻿namespace Words
+﻿namespace Words.Console
 {
     using System;
     using System.Diagnostics;
     using System.Text;
+    using Mono.Terminal;
 
     public class Program
     {
@@ -28,8 +29,8 @@
             Console.WriteLine("{0} ms", stopwatch.ElapsedMilliseconds);
 
             Console.WriteLine("Enter word to search for. A single 'q' exits.");
-            Console.Write(": ");
-            string input = Console.ReadLine();
+            var lineEditor = new LineEditor("input");
+            string input = lineEditor.Edit(": ", string.Empty);
             while (input != "q")
             {
                 do
@@ -53,8 +54,7 @@
                     Console.WriteLine("Search completed in {0:F2} ms", 1000.0 * stopwatch.ElapsedTicks / Stopwatch.Frequency);
                 }
                 while (false);
-                Console.Write(": ");
-                input = Console.ReadLine();
+                input = lineEditor.Edit(": ", string.Empty);
             }
         }
     }
