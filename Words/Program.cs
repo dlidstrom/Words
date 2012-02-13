@@ -27,6 +27,7 @@
             Stopwatch stopwatch = new Stopwatch();
             Console.Write("Constructing search tree...");
             stopwatch.Start();
+            //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\sport.txt", Encoding.UTF8, Language.Swedish);
             var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\swedish-word-list-bigger.txt", Encoding.UTF8, Language.Swedish);
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\swedish-word-list", Encoding.UTF8);
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\strange.txt", Encoding.UTF8);

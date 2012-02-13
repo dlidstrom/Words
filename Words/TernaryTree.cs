@@ -89,6 +89,19 @@
             Add(s, 0, ref m_root);
         }
 
+        public void Add(params string[] s)
+        {
+            if (s == null)
+                throw new ArgumentNullException("s");
+
+            foreach (var item in s)
+            {
+                if (item == null)
+                    throw new ArgumentNullException("item");
+                Add(item, 0, ref m_root);
+            }
+        }
+
         private Node Add(string s, int pos, ref Node node)
         {
             char c = pos == s.Length ? default(char) : s[pos];
@@ -177,24 +190,28 @@
                 return;
 
             char c = pos == s.Length ? default(char) : s[pos];
-            if (c < node.Char || WildcardMatch(c, node.Char))
+            if (WildcardMatch(c, node.Char) || c < node.Char)
                 Matches(s, substr, pos, node.Left, matches, limit);
 
-            if (c == node.Char || WildcardMatch(c, node.Char))
+            if (WildcardMatch(c, node.Char) || c == node.Char)
                 Matches(s, substr + node.Char, pos + 1, node.Center, matches, limit);
 
-            if (c == default(char) && node.Char == default(char))
+            if (c == default(char) && node.WordEnd)
                 matches.Add(substr);
 
-            if (c > node.Char || WildcardMatch(c, node.Char))
+            if (WildcardMatch(c, node.Char) || c > node.Char)
                 Matches(s, substr, pos, node.Right, matches, limit);
         }
 
         private bool WildcardMatch(char c, char node)
         {
-            return c == '?'
-                || (c == '#' && language.Consonants.Contains(node))
-                || (c == '@' && language.Vowels.Contains(node));
+            if (c == '?')
+                return true;
+            if (c == '#')
+                return language.Consonants.Contains(node);
+            if (c == '@')
+                return language.Vowels.Contains(node);
+            return false;
         }
 
         /// <summary>
