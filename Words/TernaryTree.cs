@@ -255,9 +255,9 @@
             if (c == '?')
                 return true;
             if (c == '#')
-                return language.Consonants.Min() <= node;
+                return language.Consonants.Min <= node;
             if (c == '@')
-                return language.Vowels.Min() <= node;
+                return language.Vowels.Min <= node;
             return false;
         }
 
@@ -266,9 +266,9 @@
             if (c == '?')
                 return true;
             if (c == '#')
-                return language.Consonants.Max() >= node;
+                return node <= language.Consonants.Max;
             if (c == '@')
-                return language.Vowels.Max() >= node;
+                return node <= language.Vowels.Max;
             return false;
         }
 
