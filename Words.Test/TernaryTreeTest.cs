@@ -64,5 +64,19 @@
             // Assert
             Assert.AreEqual(3, matches.Count);
         }
+
+        [TestMethod]
+        public void NearSearch()
+        {
+            // Arrange
+            var tree = new TernaryTree(Language.Swedish);
+            tree.Add("abcde", "abce", "abcf");
+
+            // Act
+            var matches = tree.NearSearch("abc");
+
+            // Assert
+            Assert.AreEqual(2, matches.Count);
+        }
     }
 }
