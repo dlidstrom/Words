@@ -58,6 +58,16 @@
             var matches = Tree.Matches(normalized)
                 .Select(m => new Match { Value = normalizedToOriginal[m], Type = MatchType.Word })
                 .ToList();
+            matches.AddRange(Anagram(input));
+            matches.AddRange(Near(input));
+
+            return matches;
+        }
+
+        public List<Match> Anagram(string input)
+        {
+            string normalized = input.ToLower(cultureInfo);
+            List<Match> matches = new List<Match>();
             if (input.IndexOfAny(new char[] { '?', '@', '#', '*' }) < 0)
             {
                 // also try to find permutations
@@ -75,19 +85,21 @@
                                 Type = MatchType.Anagram
                             }));
                 }
-
-                // and near matches
-                var near = Tree.NearSearch(input)
-                    .Where(m => m != normalized)
-                    .Select(m => new Match
-                    {
-                        Value = normalizedToOriginal[m],
-                        Type = MatchType.Near
-                    });
-                matches.AddRange(near);
             }
 
             return matches;
+        }
+
+        public List<Match> Near(string input)
+        {
+            string normalized = input.ToLower(cultureInfo);
+            return Tree.NearSearch(input)
+                .Where(m => m != normalized)
+                .Select(m => new Match
+                {
+                    Value = normalizedToOriginal[m],
+                    Type = MatchType.Near
+                }).ToList();
         }
 
         private IEnumerable<string> Randomize(string[] list)
