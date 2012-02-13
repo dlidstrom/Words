@@ -54,6 +54,8 @@
 
         public List<Match> Matches(string input)
         {
+            if (input == null)
+                throw new ArgumentNullException("input");
             string normalized = input.ToLower(cultureInfo);
             var matches = Tree.Matches(normalized)
                 .Select(m => new Match { Value = normalizedToOriginal[m], Type = MatchType.Word })
@@ -66,6 +68,8 @@
 
         public List<Match> Anagram(string input)
         {
+            if (input == null)
+                throw new ArgumentNullException("input");
             string normalized = input.ToLower(cultureInfo);
             List<Match> matches = new List<Match>();
             if (input.IndexOfAny(new char[] { '?', '@', '#', '*' }) < 0)
@@ -92,6 +96,8 @@
 
         public List<Match> Near(string input)
         {
+            if (input == null)
+                throw new ArgumentNullException("input");
             string normalized = input.ToLower(cultureInfo);
             return Tree.NearSearch(input)
                 .Where(m => m != normalized)
