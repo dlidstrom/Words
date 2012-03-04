@@ -4,6 +4,7 @@
     using System.Diagnostics;
     using System.Text;
     using Mono.Terminal;
+    using System.Linq;
 
     public class Program
     {
@@ -24,7 +25,9 @@
             Stopwatch stopwatch = new Stopwatch();
             Console.Write("Constructing search tree...");
             stopwatch.Start();
-            var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\swedish-word-list-bigger.txt", Encoding.UTF8, Language.Swedish);
+            var wordFinder = new WordFinder(@"C:\Users\Daniel\Dropbox\Programming\TernarySearchTree\swedish-word-list-bigger.txt", Encoding.UTF8, Language.Swedish);
+            //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\english-word-list.txt", Encoding.UTF8, Language.English);
+            //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\swedish-english.txt", Encoding.UTF8, Language.Swedish);
             stopwatch.Stop();
             Console.WriteLine("{0} ms", stopwatch.ElapsedMilliseconds);
 
@@ -39,7 +42,7 @@
                         break;
 
                     stopwatch.Restart();
-                    var matches = wordFinder.Matches(input);
+                    var matches = wordFinder.Matches(input, 2, 100);
                     stopwatch.Stop();
                     if (matches.Count > 0)
                     {
@@ -51,7 +54,7 @@
                         Console.WriteLine("Did not find any words matching '{0}'", input);
                     }
 
-                    Console.WriteLine("Search completed in {0:F2} ms", 1000.0 * stopwatch.ElapsedTicks / Stopwatch.Frequency);
+                    Console.WriteLine("Search completed in {0:F2} ms. Visited {1} nodes.", 1000.0 * stopwatch.ElapsedTicks / Stopwatch.Frequency, wordFinder.Nodes);
                 }
                 while (false);
                 input = lineEditor.Edit(": ", string.Empty);

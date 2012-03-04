@@ -14,11 +14,24 @@
             get
             {
                 return new Language
-                {
-                    Vowels = new SortedSet<char> { 'a', 'o', 'u', 'å', 'e', 'i', 'y', 'ä', 'ö' },
-                    Consonants = new SortedSet<char> { 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z' },
-                    CultureInfo = new CultureInfo("sv-SE")
-                };
+                    {
+                        Vowels = new SortedSet<char> { 'a', 'o', 'u', 'å', 'e', 'i', 'y', 'ä', 'ö' },
+                        Consonants = new SortedSet<char> { 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z' },
+                        CultureInfo = new CultureInfo("sv-SE")
+                    };
+            }
+        }
+
+        public static Language English
+        {
+            get
+            {
+                return new Language
+                    {
+                        Vowels = new SortedSet<char> { 'a', 'o', 'u', 'e', 'i', 'y' },
+                        Consonants = new SortedSet<char> { 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z' },
+                        CultureInfo = new CultureInfo("en")
+                    };
             }
         }
     }

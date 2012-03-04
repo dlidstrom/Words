@@ -21,7 +21,6 @@
             foreach (var word in Randomize(lines))
             {
                 string normalized = word.ToLower(cultureInfo);
-                Tree.Add(normalized);
 
                 // keep original
                 string added;
@@ -31,8 +30,17 @@
                 }
                 else
                 {
-                    normalizedToOriginal.Add(normalized, word);
+                    try
+                    {
+                        normalizedToOriginal.Add(normalized, word);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(string.Format("Duplicate word found: {0}", word), ex);
+                    }
                 }
+
+                Tree.Add(normalized);
 
                 // sort characters and use that as key
                 var chars = normalized.ToCharArray();
@@ -52,18 +60,35 @@
             private set;
         }
 
-        public List<Match> Matches(string input)
+        public int Nodes { get; private set; }
+
+        public List<Match> Matches(string input, int d, int limit = 100)
         {
             if (input == null)
                 throw new ArgumentNullException("input");
-            string normalized = input.ToLower(cultureInfo);
-            var matches = Tree.Matches(normalized)
-                .Select(m => new Match { Value = normalizedToOriginal[m], Type = MatchType.Word })
-                .ToList();
-            matches.AddRange(Anagram(input));
-            matches.AddRange(Near(input));
 
+            var matches = new List<Match>();
+            Matches(input, s => matches.Add(s), d, limit);
             return matches;
+        }
+
+        public void Matches(string input, Action<Match> action, int d, int limit = 100)
+        {
+            if (input == null)
+                throw new ArgumentNullException("input");
+            if (action == null)
+                throw new ArgumentNullException("action");
+
+            string normalized = input.ToLower(cultureInfo);
+            foreach (var s in Tree.Matches(normalized, limit).Select(m => new Match { Value = normalizedToOriginal[m], Type = MatchType.Word }))
+                action.Invoke(s);
+            Nodes = Tree.Nodes;
+            foreach (var s in Anagram(input))
+                action.Invoke(s);
+            Nodes += Tree.Nodes;
+            foreach (var s in Near(input, d))
+                action.Invoke(s);
+            Nodes += Tree.Nodes;
         }
 
         public List<Match> Anagram(string input)
@@ -94,12 +119,12 @@
             return matches;
         }
 
-        public List<Match> Near(string input)
+        public List<Match> Near(string input, int d)
         {
             if (input == null)
                 throw new ArgumentNullException("input");
             string normalized = input.ToLower(cultureInfo);
-            return Tree.NearSearch(input)
+            return Tree.NearSearch(normalized, d, 100)
                 .Where(m => m != normalized)
                 .Select(m => new Match
                 {

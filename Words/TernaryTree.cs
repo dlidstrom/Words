@@ -62,6 +62,8 @@
             this.language = language;
         }
 
+        public int Nodes { get; private set; }
+
         /// <summary>
         /// Add word to tree.
         /// </summary>
@@ -144,6 +146,7 @@
 
             int pos = 0;
             Node node = root;
+            Nodes = 0;
             Matches(s, string.Empty, pos, node, matches, limit);
 
             return matches;
@@ -194,6 +197,7 @@
 
             int pos = 0;
             Node node = root;
+            Nodes = 0;
             NearSearch(s, string.Empty, pos, node, matches, limit, d);
 
             return matches;
@@ -249,6 +253,7 @@
         {
             if (node == null || matches.Count >= limit)
                 return;
+            Nodes++;
 
             char c = pos == s.Length ? default(char) : s[pos];
             if (WildcardMatchLeft(c, node.Char) || c < node.Char)
@@ -348,6 +353,8 @@
         {
             if (node == null || matches.Count >= limit || depth < 0)
                 return;
+
+            Nodes++;
 
             char c = default(char);
             if (pos < s.Length)

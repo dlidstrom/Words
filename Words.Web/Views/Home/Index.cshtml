@@ -1,0 +1,59 @@
+﻿@model List<Words.Match>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Sök</h2>
+
+<p>Ange en sökfråga. Använd följande jokertecken:</p>
+<dl>
+    <dt>?</dt>
+        <dd>Matchar alla tecken.</dd>
+    <dt>@@</dt>
+        <dd>Matchar alla vokaler.</dd>
+    <dt>#</dt>
+        <dd>Matchar alla konsonanter.</dd>
+</dl>
+
+@using (Html.BeginForm("Index", "Home", FormMethod.Get))
+{
+    @Html.TextBox("q")
+    <input type="submit" value="Sök" />
+}
+
+@if (Model != null)
+{
+    if (Model.Count == 0)
+    {
+        <p>Hittade 0 resultat.</p>
+    }
+    else
+    {
+        <p>Hittade @Model.Count resultat:</p>
+    }
+        
+    <h3>Ord</h3>
+    <ul>
+    @foreach (var item in Model.Where(m => m.Type == Words.MatchType.Word))
+    {
+         <li>@item.Value</li>
+    }
+    </ul>
+
+    <h3>Anagram</h3>
+    <ul>
+    @foreach (var item in Model.Where(m => m.Type == Words.MatchType.Anagram))
+    {
+         <li>@item.Value</li>
+    }
+    </ul>
+
+    <h3>Nära</h3>
+    <ul>
+    @foreach (var item in Model.Where(m => m.Type == Words.MatchType.Near))
+    {
+         <li>@item.Value</li>
+    }
+    </ul>
+}
