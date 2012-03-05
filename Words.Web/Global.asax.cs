@@ -6,6 +6,7 @@
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
+    using NLog;
     using Raven.Client;
     using Raven.Client.Document;
     using Raven.Client.Embedded;
@@ -19,6 +20,7 @@
 #else
         private static readonly bool isDebug = false;
 #endif
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
         private static WordFinder wordFinder;
         private static IDocumentStore documentStore;
 
@@ -48,6 +50,7 @@
             {
                 if (documentStore == null)
                 {
+                    log.Info("Initializing document store");
                     if (MvcApplication.IsDebug)
                         documentStore = new DocumentStore { ConnectionStringName = "RavenDB" };
                     else
@@ -59,6 +62,7 @@
                     }
 
                     documentStore.Initialize();
+                    log.Info("Document store initialized");
                 }
 
                 return documentStore;
@@ -68,6 +72,7 @@
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
+            filters.Add(new UserTrackerLogAttribute());
         }
 
         public static void RegisterRoutes(RouteCollection routes)
@@ -82,6 +87,7 @@
 
         protected void Application_Start()
         {
+            log.Info("Application starting");
             AreaRegistration.RegisterAllAreas();
 
             RegisterGlobalFilters(GlobalFilters.Filters);
