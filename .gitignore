@@ -31,3 +31,4 @@ _ReSharper*/
 
 Words.Web/App_Data/words.txt
 packages/
+Words.Web/Words.Web.Publish.xml

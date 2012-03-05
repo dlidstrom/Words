@@ -1,22 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.Routing;
-using System.IO;
-using System.Text;
-
-namespace Words.Web
+﻿namespace Words.Web
 {
+    using System;
+    using System.IO;
+    using System.Text;
+    using System.Web;
+    using System.Web.Mvc;
+    using System.Web.Routing;
+    using Raven.Client;
+    using Raven.Client.Document;
+    using Raven.Client.Embedded;
+
     // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
     // visit http://go.microsoft.com/?LinkId=9394801
-
     public class MvcApplication : HttpApplication
     {
+#if DEBUG
+        private static readonly bool isDebug = true;
+#else
+        private static readonly bool isDebug = false;
+#endif
         private static WordFinder wordFinder;
+        private static IDocumentStore documentStore;
 
-        public static WordFinder WordFinder
+        public static bool IsDebug { get { return isDebug; } }
+
+        public static Words.WordFinder WordFinder
         {
             get
             {
@@ -34,6 +42,29 @@ namespace Words.Web
             }
         }
 
+        public static IDocumentStore DocumentStore
+        {
+            get
+            {
+                if (documentStore == null)
+                {
+                    if (MvcApplication.IsDebug)
+                        documentStore = new DocumentStore { ConnectionStringName = "RavenDB" };
+                    else
+                    {
+                        documentStore = new EmbeddableDocumentStore
+                        {
+                            DataDirectory = Path.Combine(AppDomain.CurrentDomain.GetData("DataDirectory").ToString(), "Database")
+                        };
+                    }
+
+                    documentStore.Initialize();
+                }
+
+                return documentStore;
+            }
+        }
+
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
@@ -44,11 +75,9 @@ namespace Words.Web
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
-                "Default", // Route name
-                "{controller}/{action}/{id}", // URL with parameters
-                new { controller = "Home", action = "Index", id = UrlParameter.Optional } // Parameter defaults
-            );
-
+                name: "Default",
+                url: "{controller}/{action}/{id}",
+                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional });
         }
 
         protected void Application_Start()
