@@ -2,10 +2,17 @@
 <html>
 <head>
     <meta charset="utf-8" />
+    <meta name="description" content="Krysshjälpen när du har kört fast i krysset." />
+    <meta name="keywords" content="kryss,korsord,word,feud,ord,hjälp" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta property="fb:admins" content="599746088" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="apple-touch-icon" href="words2x.png" />
     <title>@ViewBag.Title</title>
     <link href='@Url.Content("Content/bootstrap/css/bootstrap.min.css")' rel="stylesheet" type="text/css" />
     <link href='@Url.Content("Content/bootstrap/css/bootstrap-responsive.min.css")' rel="stylesheet" type="text/css" />
+    <link href='@Url.Content("Content/words.css")' rel="stylesheet" type="text/css" />
     <script type="text/javascript">
 
         var _gaq = _gaq || [];
@@ -22,9 +29,31 @@
 </head>
 
 <body>
+    <div id="fb-root" class="span4"></div>
+    <script type="text/javascript">
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/sv_SE/all.js#xfbml=1";
+            fjs.parentNode.insertBefore(js, fjs);
+        } (document, 'script', 'facebook-jssdk'));
+    </script>
     <div class="container">
-        <h1>Krysshjälpen</h1>
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a href="@Url.Action("Index", "Home")" class="brand">
+                        <i class="icon-home icon-white"></i>
+                        Krysshjälpen
+                    </a>
+                </div>
+            </div>
+        </div>
         @RenderBody()
+        <div class="row">
+            <div class="fb-like span4" data-href="http://krysshjalpen.se" data-send="false" data-layout="button_count" data-width="450" data-show-faces="true" data-font="arial"></div>
+        </div>
     </div>
 </body>
 </html>

@@ -4,65 +4,92 @@
     ViewBag.Title = "Krysshjälpen";
 }
 
-<p>Ange en sökfråga. Använd följande jokertecken:</p>
-<dl>
-    <dt>?</dt>
-        <dd>Matchar alla tecken.</dd>
-    <dt>@@</dt>
-        <dd>Matchar alla vokaler.</dd>
-    <dt>#</dt>
-        <dd>Matchar alla konsonanter.</dd>
-</dl>
+<div class="row">
+    <div class="span8">
+        @using (Html.BeginForm("Index", "Home", FormMethod.Get, new { @class = "well form-search" }))
+        {
+            @Html.TextBox("q", null, new { @class = "input-large", placeholder = "Ange sökterm" })
+            <button type="submit" class="btn btn-primary">
+                <i class="icon-search icon-white"></i>
+                Sök
+            </button>
+        }
 
-@using (Html.BeginForm("Index", "Home", FormMethod.Get))
+        @if (Model != null)
+        {
+            <p>Sökningen tog @(string.Format("{0:F2} ms", Model.ElapsedMilliseconds)).
+            @if (Model.Count == 0)
+            {
+                <text>Hittade 0 resultat.</text>
+            }
+            else
+            {
+                <text>Hittade @Model.Count resultat:</text>
+            }
+            </p>
+
+            if (Model.Words.Count > 0)
+            {        
+                <h3>Ord</h3>
+                <ul>
+                @foreach (var item in Model.Words)
+                {
+                     <li>@item</li>
+                }
+                </ul>
+            }
+
+            if (Model.Anagrams.Count > 0)
+            {
+                <h3>Anagram</h3>
+                <ul>
+                @foreach (var item in Model.Anagrams)
+                {
+                     <li>@item</li>
+                }
+                </ul>
+            }
+
+            if (Model.Near.Count > 0)
+            {
+                <h3>Nära</h3>
+                <ul>
+                @foreach (var item in Model.Near)
+                {
+                     <li>@item</li>
+                }
+                </ul>
+            }
+        }
+    </div>
+</div>
+
+@if (Model == null)
 {
-    @Html.TextBox("q")
-    <input type="submit" value="Sök" />
-}
-
-@if (Model != null)
-{
-    <p>Sökningen tog @(string.Format("{0:F2} ms", Model.ElapsedMilliseconds)).
-    @if (Model.Count == 0)
-    {
-        <text>Hittade 0 resultat.</text>
-    }
-    else
-    {
-        <text>Hittade @Model.Count resultat:</text>
-    }
-    </p>
-
-    if (Model.Words.Count > 0)
-    {        
-        <h3>Ord</h3>
-        <ul>
-        @foreach (var item in Model.Words)
-        {
-             <li>@item</li>
-        }
-        </ul>
-    }
-
-    if (Model.Anagrams.Count > 0)
-    {
-        <h3>Anagram</h3>
-        <ul>
-        @foreach (var item in Model.Anagrams)
-        {
-             <li>@item</li>
-        }
-        </ul>
-    }
-
-    if (Model.Near.Count > 0)
-    {
-        <h3>Nära</h3>
-        <ul>
-        @foreach (var item in Model.Near)
-        {
-             <li>@item</li>
-        }
-        </ul>
-    }
+    <div class="row">
+        <div class="span4">
+            <table class="table table-striped table-bordered table-condensed">
+                <caption>Tillgängliga specialtecken</caption>
+                <tr>
+                    <th>Tecken</th><th>Betydelse</th>
+                </tr>
+                <tr>
+                    <td>?</td><td>Valfritt tecken</td>
+                </tr>
+                <tr>
+                    <td>@@</td><td>Valfri vokal</td>
+                </tr>
+                <tr>
+                    <td>#</td><td>Valfri konsonant</td>
+                </tr>
+            </table>
+        </div>
+        <div class="span4">
+            <p>Specialtecken kan användas för att ange okända tecken. Exempelsökning:</p>
+            <dl>
+                <dt>@@bborr?</dt><dt>Söker efter ett ord som börjar med vokal och slutar med valfritt tecken
+                (rätt svar: abborre)</dt>
+            </dl>
+        </div>
+    </div>
 }
