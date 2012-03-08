@@ -1,13 +1,17 @@
 ﻿namespace Words.Web.Controllers
 {
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Web.Mvc;
+    using NLog;
     using Words.Web.Models;
     using Words.Web.ViewModels;
 
     public class HomeController : Controller
     {
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// See http://forums.asp.net/t/1671805.aspx/1.
         /// </summary>
@@ -31,6 +35,7 @@
                 millis = 1000.0 * sw.ElapsedTicks / Stopwatch.Frequency;
                 nodes = MvcApplication.WordFinder.Nodes;
                 results = new ResultsViewModel(matches, millis);
+                log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1},{2:F2}", q, nodes, millis);
             }
 
             // save query
