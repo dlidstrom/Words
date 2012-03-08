@@ -8,7 +8,17 @@
     <div class="span8">
         @using (Html.BeginForm("Index", "Home", FormMethod.Get, new { @class = "well form-search" }))
         {
-            @Html.TextBox("q", null, new { @class = "input-large", placeholder = "Ange sökterm" })
+            @Html.TextBox(
+                "q",
+                null,
+                new
+                {
+                    @class = "input-large",
+                    placeholder = "Ange sökterm",
+                    autocorrect = "off",
+                    autocapitalize = "off",
+                    autocomplete = "off"
+                })
             <button type="submit" class="btn btn-primary">
                 <i class="icon-search icon-white"></i>
                 Sök
