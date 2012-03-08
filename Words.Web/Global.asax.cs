@@ -44,24 +44,27 @@
         {
             get
             {
-                if (documentStore == null)
+                lock (typeof(MvcApplication))
                 {
-                    log.Info("Initializing document store");
-                    if (MvcApplication.IsDebug)
-                        documentStore = new DocumentStore { ConnectionStringName = "RavenDB" };
-                    else
+                    if (documentStore == null)
                     {
-                        documentStore = new EmbeddableDocumentStore
+                        log.Info("Initializing document store");
+                        if (MvcApplication.IsDebug)
+                            documentStore = new DocumentStore { ConnectionStringName = "RavenDB" };
+                        else
                         {
-                            DataDirectory = Path.Combine(AppDomain.CurrentDomain.GetData("DataDirectory").ToString(), "Database")
-                        };
+                            documentStore = new EmbeddableDocumentStore
+                            {
+                                DataDirectory = Path.Combine(AppDomain.CurrentDomain.GetData("DataDirectory").ToString(), "Database")
+                            };
+                        }
+
+                        documentStore.Initialize();
+                        log.Info("Document store initialized");
                     }
 
-                    documentStore.Initialize();
-                    log.Info("Document store initialized");
+                    return documentStore;
                 }
-
-                return documentStore;
             }
         }
 
@@ -89,6 +92,7 @@
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
             LoadDictionary();
+            Task.Factory.StartNew(() => DocumentStore);
         }
 
         protected void Application_End()
