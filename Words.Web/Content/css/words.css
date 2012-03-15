@@ -10,7 +10,7 @@
 }
 
 .navbar .brand {
-	color: Black;
-	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 30px rgba(255, 255, 255, 0.125);
+	color: White;
+	text-shadow: 0 0 1px #FFFFFF, 0 0 2px #FFFFFF, 0 0 3px #FFFFFF, 0 0 4px #FF00DE, 0 0 7px #FF00DE, 0 0 8px #FF00DE, 0 0 10px #FF00DE, 0 0 15px #FF00DE;
 	font-weight: bold;
 }
