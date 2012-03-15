@@ -15,35 +15,36 @@
         /// <summary>
         /// See http://forums.asp.net/t/1671805.aspx/1.
         /// </summary>
+        /// <returns></returns>
+        public ActionResult Index()
+        {
+            return View(new QueryViewModel());
+        }
+
+        /// <summary>
+        /// Perform a query.
+        /// </summary>
         /// <param name="q"></param>
         /// <returns></returns>
-        public ActionResult Index(string q)
+        public PartialViewResult Search(QueryViewModel q)
         {
-            if (q == null)
-                return View();
+            if (q == null || !ModelState.IsValid || string.IsNullOrWhiteSpace(q.Text))
+                return PartialView("_Results", null);
 
-            ResultsViewModel results;
-            double millis = 0;
-            int nodes = 0;
-            if (string.IsNullOrWhiteSpace(q))
-                results = new ResultsViewModel(Enumerable.Empty<Words.Match>(), 0);
-            else
-            {
-                var sw = Stopwatch.StartNew();
-                var matches = MvcApplication.WordFinder.Matches(q, 2);
-                sw.Stop();
-                millis = 1000.0 * sw.ElapsedTicks / Stopwatch.Frequency;
-                nodes = MvcApplication.WordFinder.Nodes;
-                results = new ResultsViewModel(matches, millis);
-                log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1},{2:F2}", q, nodes, millis);
-            }
+            var sw = Stopwatch.StartNew();
+            var matches = MvcApplication.WordFinder.Matches(q.Text, 2);
+            sw.Stop();
+            double millis = 1000.0 * sw.ElapsedTicks / Stopwatch.Frequency;
+            int nodes = MvcApplication.WordFinder.Nodes;
+            var results = new ResultsViewModel(matches, millis);
+            log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1},{2:F2}", q.Text, nodes, millis);
 
             // save query
             using (var session = MvcApplication.DocumentStore.OpenSession())
             {
                 session.Store(new Query
                 {
-                    Text = q,
+                    Text = q.Text,
                     Nodes = nodes,
                     ElapsedMilliseconds = millis
                 });
@@ -51,7 +52,7 @@
                 session.SaveChanges();
             }
 
-            return View(results);
+            return PartialView("_Results", results);
         }
     }
 }

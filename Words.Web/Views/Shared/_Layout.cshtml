@@ -6,13 +6,20 @@
     <meta name="keywords" content="kryss,korsord,word,feud,ord,hjälp" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta property="fb:admins" content="599746088" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <link rel="apple-touch-icon" href="words2x.png" />
+    <link rel="apple-touch-icon" href='@Url.Content("words2x.png")' />
+    <meta property="fb:admins" content="599746088" />
+    <meta name="msvalidate.01" content="2E150FE6FB6C648F5A4506F5E49CFF3A" />
     <title>@ViewBag.Title</title>
     <link href='@Url.Content("Content/bootstrap/css/bootstrap.min.css")' rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        body {
+        	padding-top: 40px;
+        }
+    </style>
     <link href='@Url.Content("Content/bootstrap/css/bootstrap-responsive.min.css")' rel="stylesheet" type="text/css" />
-    <link href='@Url.Content("Content/words.css")' rel="stylesheet" type="text/css" />
+    <link href='@Url.Content("Content/css/words.css")' rel="stylesheet" type="text/css" />
+    <link href='@Url.Content("Content/css/add2home.css")' rel="stylesheet" type="text/css" />
     <script type="text/javascript">
 
         var _gaq = _gaq || [];
@@ -40,20 +47,56 @@
         } (document, 'script', 'facebook-jssdk'));
     </script>
     <div class="container">
-        <div class="navbar">
+        <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container">
-                    <a href="@Url.Action("Index", "Home")" class="brand">
-                        <i class="icon-home icon-white"></i>
-                        Krysshjälpen
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
                     </a>
+                    <a href="@Url.Action("Index")" class="brand">Krysshjälpen</a>
+                    <div class="nav-collapse">
+                        <ul class="nav">
+                            <li class="active">
+                                <a href="@Url.Action("Index")">
+                                    <i class="icon-home icon-white"></i>
+                                    Hem
+                                </a>
+                            </li>
+                            <li>
+                                <a href="mailto:info@krysshjalpen.se">
+                                    <i class="icon-envelope icon-white"></i>
+                                    Kontakt
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <div class="fb-like" data-href="http://krysshjalpen.se" data-send="false" data-layout="button_count" data-width="450" data-show-faces="true" data-font="arial"></div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
         @RenderBody()
-        <div class="row">
-            <div class="fb-like span4" data-href="http://krysshjalpen.se" data-send="false" data-layout="button_count" data-width="450" data-show-faces="true" data-font="arial"></div>
-        </div>
     </div>
+    <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/mvc/3.0/jquery.validate.unobtrusive.min.js"></script>
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/mvc/3.0/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript" src="@Url.Content("Content/bootstrap/js/bootstrap.min.js")"></script>
+    <script type="text/javascript">
+        var addToHomeConfig = {
+            expire: 2,
+            touchIcon: true,
+            returningVisitor: true
+        };
+    </script>
+    <script type="text/javascript" src="@Url.Content("Content/js/add2home.js")" charset="utf-8"></script>
 </body>
 </html>
