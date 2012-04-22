@@ -2,24 +2,20 @@
 {
     using System.Diagnostics;
     using System.Globalization;
-    using System.Linq;
     using System.Net;
     using System.Web.Mvc;
     using NLog;
-    using Words.Web.Models;
-    using Words.Web.ViewModels;
+    using Models;
+    using ViewModels;
 
-    public class HomeController : Controller
+    public class SvdNianController : Controller
     {
-        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        /// <summary>
-        /// See http://forums.asp.net/t/1671805.aspx/1.
-        /// </summary>
-        /// <returns></returns>
+        // GET: /SvdNian/
         public ActionResult Index()
         {
-            return View(new QueryViewModel());
+            return View(new NianQueryViewModel());
         }
 
         /// <summary>
@@ -27,7 +23,7 @@
         /// </summary>
         /// <param name="q"></param>
         /// <returns></returns>
-        public ActionResult Search(QueryViewModel q)
+        public ActionResult Search(NianQueryViewModel q)
         {
             if (q == null || !ModelState.IsValid || string.IsNullOrWhiteSpace(q.Text))
             {
@@ -36,19 +32,19 @@
             }
 
             var sw = Stopwatch.StartNew();
-            var matches = MvcApplication.WordFinder.Matches(q.Text, 2);
+            var matches = MvcApplication.NianFinder.Nine(q.Text);
             sw.Stop();
             double millis = 1000.0 * sw.ElapsedTicks / Stopwatch.Frequency;
             int nodes = MvcApplication.WordFinder.Nodes;
             var results = new ResultsViewModel(q.Text, matches, millis, nodes);
-            log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1},{2:F2}", q.Text, nodes, millis);
+            Log.Info(CultureInfo.InvariantCulture, "Nian query '{0}',{1},{2:F2}", q.Text, nodes, millis);
 
             // save query
             using (var session = MvcApplication.DocumentStore.OpenSession())
             {
                 session.Store(new Query
                 {
-                    Type = QueryType.Word,
+                    Type = QueryType.Nian,
                     Text = q.Text,
                     Nodes = nodes,
                     ElapsedMilliseconds = millis

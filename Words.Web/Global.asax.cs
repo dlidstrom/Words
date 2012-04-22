@@ -1,6 +1,7 @@
 ﻿namespace Words.Web
 {
     using System;
+    using System.Globalization;
     using System.IO;
     using System.Text;
     using System.Threading;
@@ -19,24 +20,35 @@
     public class MvcApplication : HttpApplication
     {
 #if DEBUG
-        private static readonly bool isDebug = true;
+        private const bool IsDebugFlag = true;
 #else
-        private static readonly bool isDebug = false;
+        private const bool IsDebugFlag = false;
 #endif
-        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private static readonly AutoResetEvent LoadingEvent = new AutoResetEvent(false);
         private static WordFinder wordFinder;
-        private static AutoResetEvent loadingEvent = new AutoResetEvent(false);
+        private static NianFinder nianFinder;
         private static IDocumentStore documentStore;
 
-        public static bool IsDebug { get { return isDebug; } }
+        public static bool IsDebug { get { return IsDebugFlag; } }
 
-        public static Words.WordFinder WordFinder
+        public static WordFinder WordFinder
         {
             get
             {
-                if (wordFinder == null && !loadingEvent.WaitOne(20000))
+                if (wordFinder == null && !LoadingEvent.WaitOne(20000))
                     throw new Exception("Failed to load dictionary");
                 return wordFinder;
+            }
+        }
+
+        public static NianFinder NianFinder
+        {
+            get
+            {
+                if (nianFinder == null && !LoadingEvent.WaitOne(20000))
+                    throw new Exception("Failed to load nian");
+                return nianFinder;
             }
         }
 
@@ -48,8 +60,8 @@
                 {
                     if (documentStore == null)
                     {
-                        log.Info("Initializing document store");
-                        if (MvcApplication.IsDebug)
+                        Log.Info("Initializing document store");
+                        if (IsDebug)
                             documentStore = new DocumentStore { ConnectionStringName = "RavenDB" };
                         else
                         {
@@ -60,7 +72,7 @@
                         }
 
                         documentStore.Initialize();
-                        log.Info("Document store initialized");
+                        Log.Info("Document store initialized");
                     }
 
                     return documentStore;
@@ -86,7 +98,7 @@
 
         protected void Application_Start()
         {
-            log.Info("Application starting");
+            Log.Info("Application starting");
             AreaRegistration.RegisterAllAreas();
 
             RegisterGlobalFilters(GlobalFilters.Filters);
@@ -97,23 +109,22 @@
 
         protected void Application_End()
         {
-            log.Info("Application ending");
+            Log.Info("Application ending");
             documentStore.Dispose();
         }
 
-        private void LoadDictionary()
+        private static void LoadDictionary()
         {
             Task.Factory.StartNew(() =>
                 {
-                    log.Info("Loading dictionary");
+                    Log.Info("Loading dictionary");
                     object dir = AppDomain.CurrentDomain.GetData("DataDirectory");
                     string filename = Path.Combine(dir.ToString(), "words.txt");
-                    wordFinder = new WordFinder(
-                        filename,
-                        Encoding.UTF8,
-                        Language.Swedish);
-                    loadingEvent.Set();
-                    log.Info("Dictionary loaded");
+                    string language = Path.Combine(dir.ToString(), "nian.txt");
+                    wordFinder = new WordFinder(filename, Encoding.UTF8, Language.Swedish);
+                    nianFinder = new NianFinder(language, Encoding.UTF8, new CultureInfo("sv-SE"));
+                    LoadingEvent.Set();
+                    Log.Info("Dictionary loaded");
                 });
         }
     }

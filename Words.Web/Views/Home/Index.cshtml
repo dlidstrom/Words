@@ -2,7 +2,68 @@
 
 @{
     ViewBag.Title = "Krysshjälpen";
+    ViewBag.HomeTabClass = "active";
 }
+
+@section scripts
+{
+    <script src="@Url.Content("~/Content/js/home.index.js")" type="text/javascript"></script>
+}
+
+@* header, items *@
+<script type="text/html" id="home-results-table">
+    <div class="row">
+        <div class="span4"><h3><%= header %></h3></div>
+    </div>
+    <% _.each(items, function(item) { %>
+    <div class="row">
+        <div class="span6">
+            <table class="table table-bordered table-striped table-condensed">
+                <tr>
+                    <td><%=item%></td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href='http://www.google.se/search?query=<%=item%>' target="_blank">
+                            <img src='Content/images/g.png' alt="Google" />
+                        </a>
+                    </td>
+                    <td>
+                        <a href='http://sv.wikipedia.org/wiki/<%=item%>' target="_blank">
+                            <img src='Content/images/w.png' alt="Wikipedia" />
+                        </a>
+                    </td>
+                    <td>
+                        <a href='http://www.ne.se/sok?q=<%=item%>' target="_blank">
+                            <img src='Content/images/ne.png' alt="NE" />
+                        </a>
+                    </td>
+                    <td>
+                        <a href='http://synonymer.se/?query=<%=escape(item)%>' target="_blank">
+                            <img src='Content/images/s.png' alt="Synonymer" />
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <% }); %>
+</script>
+
+@* elapsedMilliseconds, count *@
+<script type="text/html" id="home-results-header">
+    <div class="row">
+        <div class="span4">
+            <p>Sökningen tog <%=elapsedMilliseconds.toFixed(2)%> ms.
+                <% if (count==0) { %>
+                Hittade 0 resultat.
+                <% } else { %>
+                Hittade <%=count%> resultat:
+                <% } %>
+            </p>
+        </div>
+    </div>
+</script>
 
 <div class="row">
     <div class="span8">
@@ -14,7 +75,9 @@
                 HttpMethod = "GET",
                 InsertionMode = System.Web.Mvc.Ajax.InsertionMode.Replace,
                 UpdateTargetId = "content",
-                LoadingElementId = "progress"
+                LoadingElementId = "progress",
+                OnSuccess = "w.searchSuccess",
+                OnFailure = "w.searchFailure"
             }, new { @class = "well form-search" }))
         {
             @Html.TextBoxFor(
@@ -37,6 +100,9 @@
     </div>
 </div>
 
-<div id="content" class="row">
+<div id="content">
     @Html.Partial("_Help")
 </div>
+<div id="home-results-words"></div>
+<div id="home-results-anagrams"></div>
+<div id="home-results-near"></div>

@@ -1,47 +1,72 @@
 ﻿@model ResultsViewModel
 
-<div class="span4">
-    <p>Sökningen tog @string.Format("{0:F2} ms", Model.ElapsedMilliseconds).
-    @if (Model.Count == 0)
+@helper CreateTable(string header, IEnumerable<string> items)
+{
+    <div class="row">
+        <div class="span4"><h3>@header</h3></div>
+    </div>
+    foreach (var item in items)
     {
-        <text>Hittade 0 resultat.</text>
+    <div class="row">
+        <div class="span6">
+            <table class="table table-bordered table-striped table-condensed">
+                <tr>
+                    <td>@item</td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href='@string.Format("http://www.google.se/search?query={0}", item)' target="_blank">
+                            <img src='@Url.Content("Content/images/g.png")' alt="Google" />
+                        </a>
+                    </td>
+                    <td>
+                        <a href='@string.Format("http://sv.wikipedia.org/wiki/{0}", item)' target="_blank">
+                            <img src='@Url.Content("Content/images/w.png")' alt="Wikipedia" />
+                        </a>
+                    </td>
+                    <td>
+                        <a href='@string.Format("http://www.ne.se/sok?q={0}", item)' target="_blank">
+                            <img src='@Url.Content("Content/images/ne.png")' alt="NE" />
+                        </a>
+                    </td>
+                    <td>
+                        <a href='@string.Format("http://synonymer.se/?query={0}", HttpUtility.UrlEncode(item))' target="_blank">
+                            <img src='@Url.Content("Content/images/s.png")' alt="Synonymer" />
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
     }
-    else
-    {
-        <text>Hittade @Model.Count resultat:</text>
-    }
-    </p>
+}
 
-    @if (Model.Words.Count > 0)
-    {
-        <h3>Ord</h3>
-        <ul>
-        @foreach (var item in Model.Words)
+<div class="row">
+    <div class="span4">
+        <p>Sökningen tog @string.Format("{0:F2} ms", Model.ElapsedMilliseconds).
+        @if (Model.Count == 0)
         {
-                <li>@item</li>
+            <text>Hittade 0 resultat.</text>
         }
-        </ul>
-    }
-
-    @if (Model.Anagrams.Count > 0)
-    {
-        <h3>Anagram</h3>
-        <ul>
-        @foreach (var item in Model.Anagrams)
+        else
         {
-                <li>@item</li>
+            <text>Hittade @Model.Count resultat:</text>
         }
-        </ul>
-    }
-
-    @if (Model.Near.Count > 0)
-    {
-        <h3>Nära</h3>
-        <ul>
-        @foreach (var item in Model.Near)
-        {
-                <li>@item</li>
-        }
-        </ul>
-    }
+        </p>
+    </div>
 </div>
+
+@if (Model.Words.Count > 0)
+{
+    @CreateTable("Ord", Model.Words)
+}
+
+@if (Model.Anagrams.Count > 0)
+{
+    @CreateTable("Anagram", Model.Anagrams)
+}
+
+@if (Model.Near.Count > 0)
+{
+    @CreateTable("Nära", Model.Near)
+}
