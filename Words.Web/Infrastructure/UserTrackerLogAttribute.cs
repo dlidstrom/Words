@@ -10,14 +10,14 @@
 
     public class UserTrackerLogAttribute : ActionFilterAttribute
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public override void OnActionExecuted(ActionExecutedContext filterContext)
         {
             var actionDescriptor = filterContext.ActionDescriptor;
             string controllerName = actionDescriptor.ControllerDescriptor.ControllerName;
             string actionName = actionDescriptor.ActionName;
-            string userName = filterContext.HttpContext.User.Identity.Name.ToString();
+            string userName = filterContext.HttpContext.User.Identity.Name;
             DateTime timeStamp = filterContext.HttpContext.Timestamp;
             string query = string.Empty;
             if (filterContext.RouteData.Values["q"] != null)
@@ -32,7 +32,7 @@
             if (!string.IsNullOrEmpty(query))
                 message.AppendFormat("Query={0}|", query);
 
-            logger.Info(message.ToString());
+            Log.Info(message.ToString());
             base.OnActionExecuted(filterContext);
         }
 
@@ -59,9 +59,10 @@
                    .FirstOrDefault();
             }
 
-            IPAddress result;
-            if (!IPAddress.TryParse(remoteAddress, out result))
-                result = IPAddress.None;
+            // trickery needed because TryParse throws ArgumentNullException
+            var result = IPAddress.None;
+            if (remoteAddress != null)
+                IPAddress.TryParse(remoteAddress, out result);
 
             return result;
         }

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     /// <summary>
     /// Ternary search tree for string matching.
@@ -49,7 +48,7 @@
     public class TernaryTree
     {
         private readonly Language language;
-        private Node root = null;
+        private Node root;
 
         /// <summary>
         /// Initializes a new instance of the TernaryTree class.
@@ -91,7 +90,7 @@
         public void Add(string s)
         {
             if (string.IsNullOrWhiteSpace(s))
-                throw new ArgumentException();
+                throw new ArgumentException("s");
 
             Add(s, 0, ref root);
         }
@@ -106,11 +105,7 @@
                 throw new ArgumentNullException("s");
 
             foreach (var item in s)
-            {
-                if (item == null)
-                    throw new ArgumentNullException("item");
-                Add(item, 0, ref root);
-            }
+                Add(item);
         }
 
         public bool Contains(string s)
@@ -144,7 +139,7 @@
 
             var matches = new List<string>();
 
-            int pos = 0;
+            const int pos = 0;
             Node node = root;
             Nodes = 0;
             Matches(s, string.Empty, pos, node, matches, limit);
@@ -195,7 +190,7 @@
 
             var matches = new List<string>();
 
-            int pos = 0;
+            const int pos = 0;
             Node node = root;
             Nodes = 0;
             NearSearch(s, string.Empty, pos, node, matches, limit, d);
@@ -203,7 +198,7 @@
             return matches;
         }
 
-        private Node Add(string s, int pos, ref Node node)
+        private static Node Add(string s, int pos, ref Node node)
         {
             char c = pos == s.Length ? default(char) : s[pos];
             if (node == null)

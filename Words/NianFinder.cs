@@ -35,23 +35,24 @@ namespace Words
             if (input.Length != 9)
                 throw new ArgumentException("Invalid length (must be 9 characters)", "input");
 
-            var matches = new List<Match>();
-            SortedSet<string> combs = Combinations(input);
+            SortedSet<string> combinations = Combinations(input);
             int e = input.Count(c => c == 'e');
             for (int i = 0; i < e; i++)
             {
                 int ix = input.IndexOf('e');
                 input = input.Substring(0, ix) + 'é' + input.Substring(ix + 1);
 
-                combs.UnionWith(Combinations(input));
+                combinations.UnionWith(Combinations(input));
             }
 
-            foreach (var comb in combs)
+            var matches = new List<Match>();
+            foreach (var combination in combinations)
             {
                 SortedSet<string> list;
-                if (permutations.TryGetValue(comb, out list))
+                if (permutations.TryGetValue(combination, out list))
                 {
-                    matches.AddRange(list.Select(m => new Match { Value = m, Type = MatchType.Anagram }));
+                    var anagrams = list.Select(m => new Match { Value = m, Type = MatchType.Anagram });
+                    matches.AddRange(anagrams);
                 }
             }
 
@@ -59,7 +60,7 @@ namespace Words
             return matches;
         }
 
-        static SortedSet<string> Combinations(string arr)
+        private static SortedSet<string> Combinations(string arr)
         {
             var result = new SortedSet<string>();
             char middle = arr[4];

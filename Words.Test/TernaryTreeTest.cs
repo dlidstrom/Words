@@ -1,9 +1,6 @@
 ﻿namespace Words.Test
 {
-    using System;
-    using System.Text;
     using System.Collections.Generic;
-    using System.Linq;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -88,7 +85,7 @@
             var visited = new List<string>();
 
             // Act
-            tree.Traverse(s => visited.Add(s));
+            tree.Traverse(visited.Add);
 
             // Assert
             var expected = new List<string> { "abc", "abd", "abe" };

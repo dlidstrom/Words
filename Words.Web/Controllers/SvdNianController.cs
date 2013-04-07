@@ -4,8 +4,8 @@
     using System.Globalization;
     using System.Net;
     using System.Web.Mvc;
-    using NLog;
     using Models;
+    using NLog;
     using ViewModels;
 
     public class SvdNianController : Controller

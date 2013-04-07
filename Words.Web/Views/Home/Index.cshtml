@@ -3,11 +3,7 @@
 @{
     ViewBag.Title = "Krysshjälpen";
     ViewBag.HomeTabClass = "active";
-}
-
-@section scripts
-{
-    <script src="@Url.Content("~/Content/js/home.index.js")" type="text/javascript"></script>
+    Bundles.Reference("Content/js/home.index.js");
 }
 
 @* header, items *@

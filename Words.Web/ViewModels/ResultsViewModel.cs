@@ -3,12 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Web;
 
     public class ResultsViewModel
     {
-        public ResultsViewModel(string query, IEnumerable<Match> matches, double elapsedMilliseconds, int nodes)
+        public ResultsViewModel(string query, IList<Match> matches, double elapsedMilliseconds, int nodes)
         {
+            if (matches == null) throw new ArgumentNullException("matches");
+
             Query = query;
             Words = matches.Where(m => m.Type == MatchType.Word).Select(m => m.Value).ToList();
             Anagrams = matches.Where(m => m.Type == MatchType.Anagram).Select(m => m.Value).ToList();

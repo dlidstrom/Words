@@ -1,25 +1,27 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Bundles.Reference("Content/css/words.css");
+    Bundles.Reference("Content/css/add2home.css");
+}
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <meta name="description" content="Krysshjälpen när du har kört fast i krysset." />
     <meta name="keywords" content="kryss,korsord,word,feud,ord,hjälp" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <link rel="apple-touch-icon" href='@Url.Content("words2x.png")' />
     <meta property="fb:admins" content="599746088" />
     <meta name="msvalidate.01" content="2E150FE6FB6C648F5A4506F5E49CFF3A" />
     <title>@ViewBag.Title</title>
-    <link href='@Url.Content("~/Content/bootstrap/css/bootstrap.min.css")' rel="stylesheet" type="text/css" />
     <style type="text/css">
         body {
-        	padding-top: 40px;
+            padding-top: 40px;
         }
     </style>
-    <link href='@Url.Content("~/Content/bootstrap/css/bootstrap-responsive.min.css")' rel="stylesheet" type="text/css" />
-    <link href='@Url.Content("~/Content/css/words.css")' rel="stylesheet" type="text/css" />
-    <link href='@Url.Content("~/Content/css/add2home.css")' rel="stylesheet" type="text/css" />
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    @Bundles.RenderStylesheets()
     @if (!Html.IsDebug())
     {
         <script type="text/javascript">
@@ -40,9 +42,8 @@
         </script>
     }
 </head>
-
 <body>
-    <div id="fb-root" class="span4"></div>
+    <div id="fb-root"></div>
     @if (!Html.IsDebug())
     {
         <script type="text/javascript">
@@ -57,7 +58,7 @@
         </script>
     }
     <div class="container">
-        <div class="navbar navbar-fixed-top">
+        <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container">
                     <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -97,24 +98,14 @@
         </div>
         @RenderBody()
     </div>
-    <!--[if lt IE 9]>
-    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
     <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
     <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/mvc/3.0/jquery.validate.unobtrusive.min.js"></script>
     <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/mvc/3.0/jquery.unobtrusive-ajax.min.js"></script>
-    <script type="text/javascript" src="@Url.Content("~/Content/underscore/underscore-min.js")"></script>
-    <script type="text/javascript" src="@Url.Content("~/Content/bootstrap/js/bootstrap.min.js")"></script>
-    <script type="text/javascript">
-        var addToHomeConfig = {
-            expire: 20,
-            startDelay: 20000,
-            touchIcon: true,
-            returningVisitor: true
-        };
-    </script>
-    <script type="text/javascript" src="@Url.Content("~/Content/js/add2home.js")" charset="utf-8"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+    <script type="text/javascript" src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    @Bundles.RenderScripts()
     @RenderSection("scripts", false)
     @if (IsSectionDefined("Init"))
     {

@@ -2,16 +2,15 @@
 {
     using System.Diagnostics;
     using System.Globalization;
-    using System.Linq;
     using System.Net;
     using System.Web.Mvc;
+    using Models;
     using NLog;
-    using Words.Web.Models;
-    using Words.Web.ViewModels;
+    using ViewModels;
 
     public class HomeController : Controller
     {
-        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// See http://forums.asp.net/t/1671805.aspx/1.
@@ -41,7 +40,7 @@
             double millis = 1000.0 * sw.ElapsedTicks / Stopwatch.Frequency;
             int nodes = MvcApplication.WordFinder.Nodes;
             var results = new ResultsViewModel(q.Text, matches, millis, nodes);
-            log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1},{2:F2}", q.Text, nodes, millis);
+            Log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1},{2:F2}", q.Text, nodes, millis);
 
             // save query
             using (var session = MvcApplication.DocumentStore.OpenSession())
