@@ -3,11 +3,7 @@
 @{
     ViewBag.Title = "Krysshjälpen";
     ViewBag.NianTabClass = "active";
-}
-
-@section scripts
-{
-    <script src="@Url.Content("~/Content/js/nian.index.js")" type="text/javascript"></script>
+    Bundles.Reference("Content/js/nian.index.js");
 }
 
 <script type="text/html" id="nian-results">
