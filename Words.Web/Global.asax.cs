@@ -13,7 +13,6 @@
     using NLog;
     using Raven.Client;
     using Raven.Client.Document;
-    using Raven.Client.Embedded;
 
     // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
     // visit http://go.microsoft.com/?LinkId=9394801
@@ -65,9 +64,9 @@
                             documentStore = new DocumentStore { ConnectionStringName = "RavenDB" };
                         else
                         {
-                            documentStore = new EmbeddableDocumentStore
+                            documentStore = new DocumentStore
                             {
-                                DataDirectory = Path.Combine(AppDomain.CurrentDomain.GetData("DataDirectory").ToString(), "Database")
+                                ConnectionStringName = "RavenDB"
                             };
                         }
 
