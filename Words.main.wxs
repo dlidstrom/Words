@@ -47,6 +47,12 @@
                     Source="$(var.Words_App)\Web.config" />
             </Component>
             <Directory Id="WordsWeb_AppData" Name="App_Data">
+              <Component Id="nian_txt" Guid="*" Win64="yes">
+                <File KeyPath="yes" Source="Words.Web\App_Data\nian.txt" />
+              </Component>
+              <Component Id="words_txt" Guid="*" Win64="yes">
+                <File KeyPath="yes" Source="Words.Web\App_Data\words.txt" />
+              </Component>
               <Component Id="WordsWeb_AppData" Guid="{f2c135ee-45a0-4bad-9b62-da73417dcac9}"
                          SharedDllRefCount="no" KeyPath="no" NeverOverwrite="no" Permanent="no" Transitive="no"
                          Win64="yes" Location="either">
@@ -107,6 +113,8 @@
 
     <Feature Id="Service" Level="1">
       <ComponentRef Id="Words.Web.config" />
+      <ComponentRef Id="nian_txt" />
+      <ComponentRef Id="words_txt" />
       <ComponentRef Id="WordsWeb_AppData" />
       <ComponentRef Id="WordsWeb_Logs" />
       <ComponentRef Id="AppPool" />
