@@ -38,3 +38,5 @@ Words.Web/App_Data/saol.txt
 .vs
 Words.Web/cassette-cache
 Tools
+Build/_build
+_install

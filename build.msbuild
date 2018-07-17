@@ -7,7 +7,7 @@
     <WixTasksPath>WixTasks.dll</WixTasksPath>
     <!-- for AssemblyInfo element -->
     <MSBuildCommunityTasksPath>.\</MSBuildCommunityTasksPath>
-    <OutputName>Krysshjälpen.Installer</OutputName>
+    <OutputName>Words.Installer</OutputName>
     <OutputType>Package</OutputType>
     <OutputDirectory>$(MSBuildProjectDirectory)\Build\_build</OutputDirectory>
     <InstallDirectory>_install</InstallDirectory>

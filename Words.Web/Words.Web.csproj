@@ -14,7 +14,6 @@
     <RootNamespace>Words.Web</RootNamespace>
     <AssemblyName>Words.Web</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
-    <MvcBuildViews Condition="'$(Configuration)' == 'Release'">true</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Snittlistan\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -226,9 +225,6 @@
   </Target>
   <Target Name="AfterBuild">
   </Target> -->
-  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
-    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
-  </Target>
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">

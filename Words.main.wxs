@@ -89,35 +89,31 @@
                         IdleTimeout="0" />
       </Component>
       <Component Id="WordsWebSite" Guid="{114fd608-76b4-4418-9438-8aa53099ffb5}">
-        <!-- Creates the MinaGlosor web site -->
-        <iis:WebSite Id="MinaGlosorWebSite" Description="MinaGlosor" Directory="MinaGlosorWebDir">
-          <iis:WebAddress Id="Binding1" Port="443" Header="minaglosor.se" Secure="yes" />
-          <iis:WebAddress Id="Binding2" Port="443" Header="www.minaglosor.se" Secure="yes" />
-          <iis:WebAddress Id="Binding3" Port="81" />
-          <iis:WebAddress Id="Binding4" Port="80" Header="minaglosor.se" />
-          <iis:WebAddress Id="Binding5" Port="80" Header="www.minaglosor.se" />
-          <iis:WebApplication Id="MinaGlosorApplication" Name="MinaGlosor" WebAppPool="AppPool" />
+        <!-- Creates the Words web site -->
+        <iis:WebSite Id="WordsWebSite" Description="Words" Directory="WordsWebDir">
+          <iis:WebAddress Id="Binding1" Port="443" Header="krysshjalpen.se" Secure="yes" />
+          <iis:WebAddress Id="Binding2" Port="443" Header="www.krysshjalpen.se" Secure="yes" />
+          <iis:WebAddress Id="Binding3" Port="443" Header="xn--krysshjlpen-r8a.se" Secure="yes" />
+          <iis:WebAddress Id="Binding4" Port="443" Header="www.xn--krysshjlpen-r8a.se" Secure="yes" />
+          <iis:WebAddress Id="Binding5" Port="80" Header="krysshjalpen.se" />
+          <iis:WebAddress Id="Binding6" Port="80" Header="www.krysshjalpen.se" />
+          <iis:WebAddress Id="Binding7" Port="80" Header="xn--krysshjlpen-r8a.se" />
+          <iis:WebAddress Id="Binding8" Port="80" Header="www.xn--krysshjlpen-r8a.se" />
+          <iis:WebAddress Id="Binding9" Port="82" />
+          <iis:WebApplication Id="WordsApplication" Name="Words" WebAppPool="AppPool" />
         </iis:WebSite>
       </Component>
     </Directory>
 
     <Feature Id="Service" Level="1">
-      <ComponentRef Id="MinaGlosor.Web.config" />
-      <ComponentRef Id="MinaGlosorWeb_AppData" />
-      <ComponentRef Id="MinaGlosorWeb_Logs" />
-      <!--
-      <ComponentRef Id="MinaGlosor.Queue.WindowsServiceHost.exe" />
-      <ComponentRef Id="MinaGlosor.Queue.WindowsServiceHost.exe.config" />
-      <ComponentRef Id="MinaGlosorQueue_Logs" />
-    -->
+      <ComponentRef Id="Words.Web.config" />
+      <ComponentRef Id="WordsWeb_AppData" />
+      <ComponentRef Id="WordsWeb_Logs" />
       <ComponentRef Id="AppPool" />
-      <ComponentRef Id="MinaGlosorWebSite" />
+      <ComponentRef Id="WordsWebSite" />
     </Feature>
     <Feature Id="Libraries" Level="1">
-      <ComponentGroupRef Id="MinaGlosorWebLib" />
-      <!--
-      <ComponentGroupRef Id="MinaGlosorQueueLib" />
-    -->
+      <ComponentGroupRef Id="WordsWebLib" />
     </Feature>
   </Product>
 </Wix>
