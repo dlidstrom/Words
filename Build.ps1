@@ -25,14 +25,12 @@ $day = [int](Get-Date).DayOfWeek
 # http://stackoverflow.com/a/3879077
 $staged = & "${env:ProgramFiles(x86)}\Git\cmd\git.exe" "diff-index" "--cached" "--name-status" "-r" "--ignore-submodules" "HEAD" "--"
 if ($staged) {
-    #throw
-    Write-Host -Fore Red "There are staged changes. Commit them first or unstage and reset all changes before building.`n$($staged -join "`n")"
+    throw "There are staged changes. Commit them first or unstage and reset all changes before building.`n$($staged -join "`n")"
 }
 
 $diffs = & "${env:ProgramFiles(x86)}\Git\cmd\git.exe" "diff-files" "--name-status" "-r" "--ignore-submodules" "--"
 if ($diffs) {
-    #throw
-    Write-Host -Fore Red "There are local changes. Reset all changes before building.`n$($diffs -join "`n")"
+    throw "There are local changes. Reset all changes before building.`n$($diffs -join "`n")"
 }
 
 # http://stackoverflow.com/a/1593246
