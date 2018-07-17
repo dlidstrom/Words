@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <!-- IIS needs to be installed -->
+  <Property Id="IIS_MAJOR_VERSION">
+    <RegistrySearch Id="CheckIISVersion" Root="HKLM" Key="SOFTWARE\Microsoft\InetStp" Name="MajorVersion" Type="raw" />
+  </Property>
+  <Condition Message="IIS must be installed">
+    Installed OR IIS_MAJOR_VERSION
+  </Condition>
+  <Property Id="ASPNET45">
+    <RegistrySearch Id="CheckApplicationDevelopment" Root="HKLM" Key="SOFTWARE\Microsoft\InetStp\Components" Name="ASPNET45" Type="raw" />
+  </Property>
+  <Condition Message="IIS needs to have ASP.NET 4.6 installed.">
+    ASPNET45
+  </Condition>
+  <Property Id="MSMQ">
+    <RegistrySearch Id="CheckMsmq" Root="HKLM" Key="SOFTWARE\Microsoft\MSMQ\Setup" Name="Msmq_CoreInstalled" Type="raw" />
+  </Property>
+  <Condition Message="MSMQ needs to be installed.">
+    MSMQ
+  </Condition>
+</Include>

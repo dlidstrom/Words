@@ -1,0 +1,137 @@
+<Project Name="Words" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+    Version is required. Run like this:
+    msbuild build.msbuild /property:Version=1.0.0
+  -->
+  <PropertyGroup>
+    <WixTasksPath>WixTasks.dll</WixTasksPath>
+    <!-- for AssemblyInfo element -->
+    <MSBuildCommunityTasksPath>.\</MSBuildCommunityTasksPath>
+    <OutputName>Krysshjälpen.Installer</OutputName>
+    <OutputType>Package</OutputType>
+    <OutputDirectory>$(MSBuildProjectDirectory)\Build\_build</OutputDirectory>
+    <InstallDirectory>_install</InstallDirectory>
+  </PropertyGroup>
+
+  <Import Project="Tools\wix311-binaries\wix.targets" />
+  <Import Project="Tools\MSBuild.Community.Tasks.v1.5.0.235\MSBuild.Community.Tasks.Targets" />
+
+  <ItemGroup>
+    <WordsWebProject Include="Words.Web\Words.Web.csproj" />
+    <AssemblyVersionFiles Include="**\Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <Target Name="All">
+    <CallTarget Targets="Initialize;Build;WixPrepare;Wix" />
+  </Target>
+
+  <Target Name="Wix">
+    <CallTarget Targets="Cop;Heat;Candle;Light" />
+  </Target>
+
+  <Target Name="Initialize">
+    <Message Text="Verifying command line..." />
+
+    <!-- check the required properties (http://stackoverflow.com/a/2746543) -->
+    <ItemGroup>
+      <_RequiredProperties Include="Version">
+        <Value>$(Version)</Value>
+      </_RequiredProperties>
+    </ItemGroup>
+    <Error Condition ="'%(_RequiredProperties.Value)'=='' " Text=" Missing required property [%(_RequiredProperties.Identity)]" />
+
+    <RemoveDir Directories="$(OutputDirectory)" />
+  </Target>
+
+  <Target Name="AssemblyVersion" Inputs="@(AssemblyVersionFiles)" Outputs="UpdatedAssemblyVersionFiles" DependsOnTargets="Initialize">
+    <Attrib Files="%(AssemblyVersionFiles.FullPath)" Normal="true"/>
+    <AssemblyInfo CodeLanguage="CS"
+                  OutputFile="%(AssemblyVersionFiles.FullPath)"
+                  AssemblyProduct="Krysshjälpen"
+                  AssemblyTitle="Krysshjälpen"
+                  AssemblyCompany="Daniel Lidström AB"
+                  AssemblyCopyright="Copyright © Daniel Lidström AB"
+                  AssemblyVersion="$(Version)"
+                  AssemblyFileVersion="$(Version)"
+                  AssemblyInformationalVersion="$(Version)"
+                  Guid="30361d85-6867-4d36-8c11-bf516cfcc109">
+        <Output TaskParameter="OutputFile" ItemName="UpdatedAssemblyVersionFiles" />
+    </AssemblyInfo>
+  </Target>
+
+  <!-- Build the application -->
+  <Target Name="Build" DependsOnTargets="AssemblyVersion">
+    <!-- web projects -->
+    <MSBuild Projects="@(WordsWebProject)" Properties="Configuration=Release;UseWPP_CopyWebApplication=True;PipelineDependsOnBuild=False;OutDir=$(OutputDirectory)\WordsWeb" />
+  </Target>
+
+  <!-- Preparations for WiX -->
+  <Target Name="WixPrepare">
+    <!-- Move files that are handled in main -->
+    <Move SourceFiles="$(OutputDirectory)\WordsWeb\_PublishedWebsites\Words.Web\Web.config"
+          DestinationFolder="$(OutputDirectory)\app\Words" />
+
+    <!-- Copy everything except configuration files -->
+    <ItemGroup>
+      <WordsWeb_Libraries Include="$(OutputDirectory)\WordsWeb\_PublishedWebsites\Words.Web\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(WordsWeb_Libraries)" DestinationFolder="$(OutputDirectory)\lib\Words.Web\%(RecursiveDir)" />
+  </Target>
+
+  <Target Name="Cop">
+    <Exec Command="Tools\wix311-binaries\WixCop.exe -indent:2 *.wxs" />
+  </Target>
+
+  <!-- Generate components for libraries -->
+  <Target Name="Heat">
+    <HeatDirectory SuppressCom="true"
+                   SuppressRegistry="true"
+                   Directory="$(OutputDirectory)\lib\Words.Web"
+                   OutputFile="$(OutputDirectory)\tmp\Words.Web.lib.wxs"
+                   ToolPath="Tools\wix311-binaries"
+                   ComponentGroupName="WordsWebLib"
+                   AutogenerateGuids="true"
+                   SuppressUniqueIds="true"
+                   SuppressFragments="true"
+                   PreprocessorVariable="var.WordsWeb_Lib"
+                   SuppressRootDirectory="true"
+                   DirectoryRefId="WordsWebDir" />
+    <XslTransformation XmlInputPaths="$(OutputDirectory)\tmp\Words.Web.lib.wxs"
+                       OutputPaths="$(OutputDirectory)\tmp\Words.Web.lib.transformed.wxs"
+                       XslInputPath="project_prefix.xsl" />
+    <XslTransformation XmlInputPaths="$(OutputDirectory)\tmp\Words.Web.lib.transformed.wxs"
+                       OutputPaths="$(OutputDirectory)\tmp\Words.Web.lib.transformed64.wxs"
+                       XslInputPath="Build\add_64bit.xsl" />
+  </Target>
+
+  <Target Name="Candle">
+    <!-- Reference wix files to include -->
+    <ItemGroup>
+      <WixSources Include="Words.main.wxs" />
+      <WixSources Include="$(OutputDirectory)\tmp\Words.Web.lib.transformed64.wxs" />
+    </ItemGroup>
+    <Candle OutputFile="$(OutputDirectory)\tmp\"
+            SourceFiles="%(WixSources.FullPath)"
+            ToolPath="Tools\wix311-binaries"
+            DefineConstants="Words_App=$(OutputDirectory)\app\Words;WordsWeb_Lib=$(OutputDirectory)\lib\Words.Web;Version=$(Version)"
+            Extensions="Tools\wix311-binaries\WixUtilExtension.dll;Tools\wix311-binaries\WiXNetFxExtension.dll;Tools\wix311-binaries\WixIIsExtension.dll" />
+  </Target>
+
+  <Target Name="Light">
+    <!-- Reference wixobj files to include  -->
+    <ItemGroup>
+      <WixObjects Include="$(OutputDirectory)\tmp\*.wixobj" />
+    </ItemGroup>
+    <Light ObjectFiles="@(WixObjects)"
+           OutputFile="$(OutputDirectory)\Words.msi"
+           ToolPath="Tools/wix311-binaries"
+           Extensions="Tools/wix311-binaries/WixUtilExtension.dll;Tools/wix311-binaries/WiXNetFxExtension.dll;Tools\wix311-binaries\WixIIsExtension.dll"
+           SuppressSpecificWarnings="1076" />
+    <MakeDir Directories="$(InstallDirectory)\$(Version)" />
+    <ItemGroup>
+      <InstallFiles Include="$(OutputDirectory)\Words.msi" />
+    </ItemGroup>
+    <Copy SourceFiles="@(InstallFiles);WordsInstall.ps1"
+          DestinationFolder="$(InstallDirectory)\$(Version)" />
+  </Target>
+</Project>

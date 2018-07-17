@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" xmlns:iis="http://schemas.microsoft.com/wix/IIsExtension">
+
+  <!-- unique identifier for this package, DO NOT CHANGE! -->
+  <?define UpgradeCode="{27d3b34e-248f-4ee8-9883-1e25ba43f8b4}"?>
+  <?define ProductName="Words"?>
+
+  <Product Id="*"
+           UpgradeCode="$(var.UpgradeCode)"
+           Name="$(var.ProductName)"
+           Manufacturer="Daniel Lidstrom AB"
+           Language="1033"
+           Version="$(var.Version)">
+    <Package Id="*"
+             Description="Words installer"
+             InstallerVersion="500"
+             Languages="1033"
+             Compressed="yes"
+             SummaryCodepage="1252"
+             Platform="x64" />
+    <Media Id="1" Cabinet="service.cab" EmbedCab="yes" />
+    <Icon Id="icon.ico" SourceFile="Words.Web\favicon.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+
+    <MajorUpgrade DowngradeErrorMessage="A later version of this product is already installed. Setup will now exit." />
+    <Property Id="ALLUSERS" Value="1" />
+    <PropertyRef Id="NETFRAMEWORK40FULLINSTALLROOTDIR" />
+
+    <!-- will break when supported by WiX -->
+    <Property Id="WIX_IS_NETFRAMEWORK_47_OR_LATER_INSTALLED" Value="0" />
+    <PropertyRef Id="NETFRAMEWORK45" />
+    <Condition Message="[ProductName] Requires .NET Framework 4.7 or later to be installed"><![CDATA[Installed OR (NETFRAMEWORK45 AND NETFRAMEWORK45 >= "#460805")]]></Condition>
+
+    <Condition Message="ADMINISTRATOR_PASSWORD variable must be set in the command line">
+      Installed OR ADMINISTRATOR_PASSWORD
+    </Condition>
+
+    <?include conditions.wxi?>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder" Name="PFiles">
+        <Directory Id="INSTALLDIR" Name="Words">
+          <Directory Id="WordsWebDir" Name="Words.Web">
+            <Component Id="Words.Web.config" Guid="*" Win64="yes">
+              <File Id="Words.Web.config"
+                    KeyPath="yes"
+                    Source="$(var.Words_App)\Web.config" />
+            </Component>
+            <Directory Id="WordsWeb_AppData" Name="App_Data">
+              <Component Id="WordsWeb_AppData" Guid="{f2c135ee-45a0-4bad-9b62-da73417dcac9}"
+                         SharedDllRefCount="no" KeyPath="no" NeverOverwrite="no" Permanent="no" Transitive="no"
+                         Win64="yes" Location="either">
+                <CreateFolder>
+                  <util:PermissionEx GenericAll="yes"
+                                     CreateFile="yes"
+                                     ChangePermission="yes"
+                                     Delete="yes"
+                                     DeleteChild="yes"
+                                     User="IIS_IUSRS" />
+                </CreateFolder>
+              </Component>
+            </Directory>
+            <Directory Id="WordsWeb_Logs" Name="Logs">
+              <Component Id="WordsWeb_Logs" Guid="{5f4390da-9f3c-4a81-8579-d37eebb85389}"
+                         SharedDllRefCount="no" KeyPath="no" NeverOverwrite="no" Permanent="no" Transitive="no"
+                         Win64="yes" Location="either">
+                <CreateFolder>
+                  <util:PermissionEx GenericAll="yes"
+                                     CreateFile="yes"
+                                     ChangePermission="yes"
+                                     Delete="yes"
+                                     DeleteChild="yes"
+                                     User="IIS_IUSRS" />
+                </CreateFolder>
+              </Component>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+      <Component Id="AppPool" Guid="{55143143-47f7-4803-9e76-108a50e0481f}" Permanent="yes" Win64="yes">
+        <!-- Create an application pool. Disable idle timeout.
+             Keep the application active for 24 hours then recycle the worker process. -->
+        <iis:WebAppPool Id="AppPool"
+                        Name="Words"
+                        ManagedPipelineMode="Integrated"
+                        ManagedRuntimeVersion="v4.0"
+                        Identity="applicationPoolIdentity"
+                        RecycleMinutes="1440"
+                        IdleTimeout="0" />
+      </Component>
+      <Component Id="WordsWebSite" Guid="{114fd608-76b4-4418-9438-8aa53099ffb5}">
+        <!-- Creates the MinaGlosor web site -->
+        <iis:WebSite Id="MinaGlosorWebSite" Description="MinaGlosor" Directory="MinaGlosorWebDir">
+          <iis:WebAddress Id="Binding1" Port="443" Header="minaglosor.se" Secure="yes" />
+          <iis:WebAddress Id="Binding2" Port="443" Header="www.minaglosor.se" Secure="yes" />
+          <iis:WebAddress Id="Binding3" Port="81" />
+          <iis:WebAddress Id="Binding4" Port="80" Header="minaglosor.se" />
+          <iis:WebAddress Id="Binding5" Port="80" Header="www.minaglosor.se" />
+          <iis:WebApplication Id="MinaGlosorApplication" Name="MinaGlosor" WebAppPool="AppPool" />
+        </iis:WebSite>
+      </Component>
+    </Directory>
+
+    <Feature Id="Service" Level="1">
+      <ComponentRef Id="MinaGlosor.Web.config" />
+      <ComponentRef Id="MinaGlosorWeb_AppData" />
+      <ComponentRef Id="MinaGlosorWeb_Logs" />
+      <!--
+      <ComponentRef Id="MinaGlosor.Queue.WindowsServiceHost.exe" />
+      <ComponentRef Id="MinaGlosor.Queue.WindowsServiceHost.exe.config" />
+      <ComponentRef Id="MinaGlosorQueue_Logs" />
+    -->
+      <ComponentRef Id="AppPool" />
+      <ComponentRef Id="MinaGlosorWebSite" />
+    </Feature>
+    <Feature Id="Libraries" Level="1">
+      <ComponentGroupRef Id="MinaGlosorWebLib" />
+      <!--
+      <ComponentGroupRef Id="MinaGlosorQueueLib" />
+    -->
+    </Feature>
+  </Product>
+</Wix>
