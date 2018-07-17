@@ -78,7 +78,7 @@ $pinfo.FileName = "msiexec.exe"
 $pinfo.RedirectStandardError = $true
 $pinfo.RedirectStandardOutput = $true
 $pinfo.UseShellExecute = $false
-$pinfo.Arguments = "/l* MinaGlosor_install.log /i MinaGlosor.msi $settingsJoined"
+$pinfo.Arguments = "/l* Words_install.log /i Words.msi $settingsJoined"
 $p = New-Object System.Diagnostics.Process
 $p.StartInfo = $pinfo
 $p.Start() | Out-Null
