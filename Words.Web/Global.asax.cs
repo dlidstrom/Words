@@ -69,17 +69,25 @@
 
         protected void Application_BeginRequest()
         {
-            if (Context.IsDebuggingEnabled)
+            if (Context.IsDebuggingEnabled || Context.Request.Url.ToString().Contains("localhost:"))
             {
                 return;
             }
 
-            if (Context.Request.IsSecureConnection == false
-                && Context.Request.Url.ToString().Contains("localhost:") == false)
+            if (Context.Request.IsSecureConnection == false)
             {
                 Response.Clear();
                 Response.Status = "301 Moved Permanently";
                 Response.AddHeader("Location", Context.Request.Url.ToString().Insert(4, "s"));
+                Response.End();
+                return;
+            }
+
+            if (Context.Request.Url.Host == "krysshjalpen.se")
+            {
+                Response.Clear();
+                Response.Status = "301 Moved Permanently";
+                Response.AddHeader("Location", "https://krysshjälpen.se");
                 Response.End();
             }
         }
