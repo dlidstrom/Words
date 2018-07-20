@@ -161,6 +161,9 @@
     <Content Include="Content\js\add2home.js" />
     <Content Include="Content\js\home.index.js" />
     <Content Include="cassette-cache\**\*.*" />
+    <Content Include="googlec8ec88eb3409129c.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="NLog.config">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
