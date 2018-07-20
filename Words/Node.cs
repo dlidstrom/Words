@@ -1,5 +1,8 @@
 ﻿namespace Words
 {
+    using System.Diagnostics;
+
+    [DebuggerDisplay("Char = {Char}, WordEnd = {WordEnd}, Left = {Left?.Char}, Center = {Center?.Char}, Right = {Right?.Char}")]
     public class Node
     {
         public char Char { get; set; }
@@ -10,7 +13,7 @@
 
         public override string ToString()
         {
-            return string.Format("Char = {0}, WordEnd = {1}, Left = {2}, Center = {3}, Right = {4}", Char, WordEnd, Left.Char, Center.Char, Right.Char);
+            return $"Char = {Char}, WordEnd = {WordEnd}, Left = {Left.Char}, Center = {Center.Char}, Right = {Right.Char}";
         }
     }
 }

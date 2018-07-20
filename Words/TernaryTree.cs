@@ -56,9 +56,7 @@
         /// <param name="language"></param>
         public TernaryTree(Language language)
         {
-            if (language == null)
-                throw new ArgumentNullException("language");
-            this.language = language;
+            this.language = language ?? throw new ArgumentNullException(nameof(language));
         }
 
         public int Nodes { get; private set; }
@@ -102,7 +100,7 @@
         public void Add(params string[] s)
         {
             if (s == null)
-                throw new ArgumentNullException("s");
+                throw new ArgumentNullException(nameof(s));
 
             foreach (var item in s)
                 Add(item);
@@ -165,7 +163,7 @@
         public void Traverse(Action<string> action)
         {
             if (action == null)
-                throw new ArgumentNullException("action");
+                throw new ArgumentNullException(nameof(action));
 
             Traverse(root, action, string.Empty);
         }

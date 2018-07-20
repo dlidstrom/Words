@@ -13,20 +13,23 @@
         private readonly Dictionary<string, string> normalizedToOriginal = new Dictionary<string, string>();
         private readonly CultureInfo cultureInfo;
 
-        public WordFinder(string filename, Encoding encoding, Language language)
+        public WordFinder(
+            string filename,
+            Encoding encoding,
+            Language language)
         {
             Tree = new TernaryTree(language);
             cultureInfo = language.CultureInfo;
             var lines = File.ReadAllLines(filename, encoding);
-            foreach (var word in Randomize(lines))
+            var words = Randomize(lines);
+            foreach (var word in words)
             {
                 string normalized = word.ToLower(cultureInfo);
 
                 // keep original
-                string added;
-                if (normalizedToOriginal.TryGetValue(normalized, out added) && added != word)
+                if (normalizedToOriginal.TryGetValue(normalized, out var added) && added != word)
                 {
-                    throw new Exception(string.Format("Two words normalize to the same value: {0} and {1} -> {2}", word, added, normalized));
+                    throw new Exception($"Two words normalize to the same value: {word} and {added} -> {normalized}");
                 }
 
                 try
@@ -35,7 +38,7 @@
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception(string.Format("Duplicate word found: {0}", word), ex);
+                    throw new Exception($"Duplicate word found: {word}", ex);
                 }
 
                 Tree.Add(normalized);
@@ -44,18 +47,16 @@
                 var chars = normalized.ToCharArray();
                 Array.Sort(chars);
                 var key = new string(chars);
-                SortedSet<string> list;
-                if (permutations.TryGetValue(key, out list))
+                if (permutations.TryGetValue(key, out var list))
                     list.Add(word);
                 else
                     permutations.Add(key, new SortedSet<string> { word });
             }
         }
 
-        public TernaryTree Tree
+        private TernaryTree Tree
         {
             get;
-            private set;
         }
 
         public int Nodes { get; private set; }
@@ -63,19 +64,19 @@
         public List<Match> Matches(string input, int d, int limit = 100)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
 
             var matches = new List<Match>();
             Matches(input, matches.Add, d, limit);
             return matches;
         }
 
-        public void Matches(string input, Action<Match> action, int d, int limit = 100)
+        private void Matches(string input, Action<Match> action, int d, int limit = 100)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             if (action == null)
-                throw new ArgumentNullException("action");
+                throw new ArgumentNullException(nameof(action));
 
             string normalized = input.ToLower(cultureInfo);
             foreach (var s in Tree.Matches(normalized, limit).Select(m => new Match { Value = normalizedToOriginal[m], Type = MatchType.Word }))
@@ -89,10 +90,10 @@
             Nodes += Tree.Nodes;
         }
 
-        public List<Match> Anagram(string input)
+        private List<Match> Anagram(string input)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             string normalized = input.ToLower(cultureInfo);
             var matches = new List<Match>();
             if (input.IndexOfAny(new[] { '?', '@', '#', '*' }) < 0)
@@ -101,8 +102,7 @@
                 var chars = normalized.ToCharArray();
                 Array.Sort(chars);
                 var key = new string(chars);
-                SortedSet<string> list;
-                if (permutations.TryGetValue(key, out list))
+                if (permutations.TryGetValue(key, out var list))
                 {
                     matches.AddRange(
                         list.Where(m => m.ToLower(cultureInfo) != normalized)
@@ -117,10 +117,10 @@
             return matches;
         }
 
-        public List<Match> Near(string input, int d)
+        private List<Match> Near(string input, int d)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             string normalized = input.ToLower(cultureInfo);
             return Tree.NearSearch(normalized, d)
                 .Where(m => m != normalized)
