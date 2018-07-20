@@ -1,6 +1,7 @@
 ﻿namespace Words.Console
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
     using Mono.Terminal;
@@ -12,7 +13,26 @@
         {
             try
             {
-                new Program().Run();
+                var x = new TernaryTree(Language.Swedish);
+                x.Add("hat");
+                x.Add("it");
+                x.Add("is");
+                x.Add("a");
+                var stack = new Stack<Node>();
+                stack.Push(x.root);
+                while (stack.Count > 0)
+                {
+                    var node = stack.Pop();
+                    if (node.WordEnd) continue;
+                    Console.WriteLine(node.Char);
+                    if (node.Center != null)
+                        stack.Push(node.Center);
+                    if (node.Left != null)
+                        stack.Push(node.Left);
+                    if (node.Right != null)
+                        stack.Push(node.Right);
+                }
+                //new Program().Run();
             }
             catch (Exception ex)
             {
@@ -25,7 +45,7 @@
             Stopwatch stopwatch = new Stopwatch();
             Console.Write("Constructing search tree...");
             stopwatch.Start();
-            var wordFinder = new WordFinder(@"C:\Users\Daniel\Dropbox\Programming\TernarySearchTree\swedish-word-list-bigger.txt", Encoding.UTF8, Language.Swedish);
+            var wordFinder = new WordFinder(@"C:\Programming\Words\Words.Web\App_Data\words.txt", Encoding.UTF8, Language.Swedish);
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\english-word-list.txt", Encoding.UTF8, Language.English);
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\swedish-english.txt", Encoding.UTF8, Language.Swedish);
             stopwatch.Stop();
