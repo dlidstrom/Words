@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Data;
+    using System.Text;
 
     /// <summary>
     /// Ternary search tree for string matching.
@@ -372,6 +374,45 @@
 
             if (depth > 0 || c > node.Char)
                 NearSearch(s, substr, pos, node.Right, matches, limit, depth);
+        }
+
+        public SuccinctTree EncodeSuccinct()
+        {
+            var encodingBuilder = new StringBuilder("10");
+            var nodes = new List<SuccinctNode>();
+            var stack = new Stack<Node>();
+            stack.Push(root);
+            while (stack.Count > 0)
+            {
+                var children = 0;
+                var node = stack.Pop();
+                if (node.WordEnd) continue;
+
+                if (node.Center != null)
+                {
+                    stack.Push(node.Center);
+                    children++;
+                }
+
+                if (node.Left != null)
+                {
+                    stack.Push(node.Left);
+                    children++;
+                }
+
+                if (node.Right != null)
+                {
+                    stack.Push(node.Right);
+                    children++;
+                }
+
+                encodingBuilder.Append(new string('1', children));
+                encodingBuilder.Append("0");
+                nodes.Add(new SuccinctNode(node, children));
+            }
+
+            var encoding = encodingBuilder.ToString();
+            return new SuccinctTree(encoding, nodes.ToArray());
         }
     }
 }

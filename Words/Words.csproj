@@ -44,6 +44,8 @@
     <Compile Include="NianFinder.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SuccinctNode.cs" />
+    <Compile Include="SuccinctTree.cs" />
     <Compile Include="TernaryTree.cs" />
     <Compile Include="WordFinder.cs" />
   </ItemGroup>

@@ -1,12 +1,12 @@
 ﻿namespace Words.Test
 {
     using System.Collections.Generic;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
-    [TestClass]
+    [TestFixture]
     public class TernaryTreeTest
     {
-        [TestMethod]
+        [Test]
         public void RegularSearch()
         {
             // Arrange
@@ -20,7 +20,7 @@
             Assert.AreEqual(1, matches.Count);
         }
 
-        [TestMethod]
+        [Test]
         public void WildCardSearch()
         {
             // Arrange
@@ -34,7 +34,7 @@
             Assert.AreEqual(2, matches.Count);
         }
 
-        [TestMethod]
+        [Test]
         public void VowelsSearch()
         {
             // Arrange
@@ -48,7 +48,7 @@
             Assert.AreEqual(3, matches.Count);
         }
 
-        [TestMethod]
+        [Test]
         public void ConsonantsSearch()
         {
             // Arrange
@@ -62,7 +62,7 @@
             Assert.AreEqual(3, matches.Count);
         }
 
-        [TestMethod]
+        [Test]
         public void NearSearch()
         {
             // Arrange
@@ -76,7 +76,7 @@
             Assert.AreEqual(2, matches.Count);
         }
 
-        [TestMethod]
+        [Test]
         public void Traverse()
         {
             // Arrange
