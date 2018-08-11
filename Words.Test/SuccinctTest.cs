@@ -17,7 +17,7 @@
             var tree = ternaryTree.EncodeSuccinct();
 
             // Assert
-            tree.Traverse();
+            tree.Contains("ab");
         }
 
         [TestCaseSource(nameof(SelectSource))]
@@ -27,7 +27,7 @@
             var tree = new SuccinctTree("11000001", null);
 
             // Act
-            var actual = tree.Select(selectIndex);
+            var actual = tree.Select(1, selectIndex);
 
             // Assert
             Assert.That(actual, Is.EqualTo(selectValue));
@@ -40,7 +40,7 @@
             var tree = new SuccinctTree("11000001", null);
 
             // Act
-            var actual = tree.Rank(rankIndex);
+            var actual = tree.Rank(1, rankIndex);
 
             // Assert
             Assert.That(actual, Is.EqualTo(rankValue));
