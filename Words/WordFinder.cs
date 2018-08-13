@@ -54,7 +54,7 @@
             }
         }
 
-        private TernaryTree Tree
+        public TernaryTree Tree
         {
             get;
         }

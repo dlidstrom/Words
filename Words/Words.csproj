@@ -38,6 +38,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BitWriter.cs" />
     <Compile Include="Language.cs" />
     <Compile Include="Match.cs" />
     <Compile Include="MatchType.cs" />

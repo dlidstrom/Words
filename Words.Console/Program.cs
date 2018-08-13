@@ -1,11 +1,9 @@
 ﻿namespace Words.Console
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
     using Mono.Terminal;
-    using System.Linq;
 
     public class Program
     {
@@ -13,25 +11,8 @@
         {
             try
             {
-                var x = new TernaryTree(Language.Swedish);
-                x.Add("hat");
-                x.Add("it");
-                x.Add("is");
-                x.Add("a");
-                var stack = new Stack<Node>();
-                stack.Push(x.root);
-                while (stack.Count > 0)
-                {
-                    var node = stack.Pop();
-                    if (node.WordEnd) continue;
-                    Console.WriteLine(node.Char);
-                    if (node.Center != null)
-                        stack.Push(node.Center);
-                    if (node.Left != null)
-                        stack.Push(node.Left);
-                    if (node.Right != null)
-                        stack.Push(node.Right);
-                }
+                var wordFinder = new WordFinder(@"C:\Programming\Words\Words.Web\App_Data\words.txt", Encoding.UTF8, Language.Swedish);
+                var tree = wordFinder.Tree.EncodeSuccinct();
                 //new Program().Run();
             }
             catch (Exception ex)
