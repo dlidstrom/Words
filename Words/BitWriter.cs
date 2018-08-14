@@ -9,7 +9,7 @@
         private readonly List<byte> bits = new List<byte>();
         private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-        public void Write(uint data, int numBits)
+        public void Write(int data, int numBits)
         {
             for (var i = numBits - 1; i >= 0; i--)
             {

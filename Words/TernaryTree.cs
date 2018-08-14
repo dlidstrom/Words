@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Text;
 
     /// <summary>
     /// Ternary search tree for string matching.
@@ -377,7 +376,8 @@
 
         public SuccinctTree EncodeSuccinct()
         {
-            var encodingBuilder = new StringBuilder("10");
+            var writer = new BitWriter();
+            writer.Write(0x02, 2);
             var nodes = new List<SuccinctNode>();
             var stack = new Stack<Node>();
             stack.Push(root);
@@ -405,12 +405,16 @@
                     children++;
                 }
 
-                encodingBuilder.Append(new string('1', children));
-                encodingBuilder.Append("0");
+                for (var i = 0; i < children; i++)
+                {
+                    writer.Write(1, 1);
+                }
+
+                writer.Write(0, 1);
                 nodes.Add(new SuccinctNode(node, children));
             }
 
-            var encoding = encodingBuilder.ToString();
+            var encoding = writer.GetData();
             return new SuccinctTree(encoding, nodes.ToArray());
         }
     }

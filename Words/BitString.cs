@@ -7,7 +7,23 @@
         private static readonly byte[] MaskTop = {
             0x3f, 0x1f, 0x0f, 0x07, 0x03, 0x01, 0x00
         };
-        private static readonly Dictionary<char, uint> Base64Cache = new Dictionary<char, uint> {
+
+        private static readonly int[] BitsInByte =
+        {
+            0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2,
+            3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3,
+            3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3,
+            4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4,
+            3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5,
+            6, 6, 7, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4,
+            4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5,
+            6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 2, 3, 3, 4, 3, 4, 4, 5,
+            3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 3,
+            4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6,
+            6, 7, 6, 7, 7, 8
+        };
+
+        private static readonly Dictionary<char, int> Base64Cache = new Dictionary<char, int> {
             { 'A' , 0 },
             { 'B' , 1 },
             { 'C' , 2 },
@@ -83,12 +99,12 @@
             length = bytes.Length * W;
         }
 
-        public uint Get(int p, int n)
+        public int Get(int p, int n)
         {
             // case 1: bits lie within the given byte
             if (p % W + n <= W)
             {
-                var u = (ORD(bytes[p / W | 0]) & MaskTop[p % W]) >>
+                var u = (ORD(bytes[p / W]) & MaskTop[p % W]) >>
                         (W - p % W - n);
                 return u;
 
@@ -96,7 +112,7 @@
             }
             else
             {
-                var result = ORD(bytes[p / W | 0]) &
+                var result = ORD(bytes[p / W]) &
                              MaskTop[p % W];
 
                 var l = W - p % W;
@@ -105,14 +121,14 @@
 
                 while (n >= W)
                 {
-                    result = (result << W) | ORD(bytes[p / W | 0]);
+                    result = (result << W) | ORD(bytes[p / W]);
                     p += W;
                     n -= W;
                 }
 
                 if (n > 0)
                 {
-                    result = (result << n) | (ORD(bytes[p / W | 0]) >>
+                    result = (result << n) | (ORD(bytes[p / W]) >>
                                               (W - n));
                 }
 
@@ -120,7 +136,20 @@
             }
         }
 
-        private uint ORD(char c)
+        public int Count(int p, int n)
+        {
+            var count = 0;
+            while (n >= 8)
+            {
+                count += BitsInByte[Get(p, 8)];
+                p += 8;
+                n -= 8;
+            }
+
+            return count + BitsInByte[Get(p, n)];
+        }
+
+        private int ORD(char c)
         {
             return Base64Cache[c];
         }

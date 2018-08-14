@@ -7,7 +7,7 @@
     public class BitWriterTest
     {
         [TestCaseSource(nameof(TestDataSource))]
-        public void VerifyData(uint[] bits, string expected)
+        public void VerifyData(int[] bits, string expected)
         {
             // Arrange
             var bitWriter = new BitWriter();

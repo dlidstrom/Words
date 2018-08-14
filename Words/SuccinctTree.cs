@@ -4,12 +4,14 @@
 
     public class SuccinctTree
     {
-        private readonly string encoding;
+        private readonly BitString encoding;
         private readonly SuccinctNode[] nodes;
+        private readonly RankDirectory directory;
 
         public SuccinctTree(string encoding, SuccinctNode[] nodes)
         {
-            this.encoding = encoding;
+            this.encoding = new BitString(encoding);
+            directory = RankDirectory.Create(encoding, 2 * nodes.Length + 1, 32 * 32, 32);
             this.nodes = nodes;
         }
 
@@ -68,24 +70,13 @@
 
         public int Select(int which, int index)
         {
-            var pos = 0;
-            while (true)
-            {
-                if (Rank(which, pos) == index)
-                    return pos;
-
-                pos++;
-            }
+            var select = directory.Select(which, index);
+            return select;
         }
 
         public int Rank(int which, int position)
         {
-            var rank = 0;
-            for (var i = 0; i <= position; i++)
-            {
-                if (encoding[i] == '1') rank++;
-            }
-
+            var rank = directory.Rank(which, position);
             return rank;
         }
     }
