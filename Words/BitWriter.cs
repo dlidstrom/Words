@@ -24,7 +24,7 @@
             }
         }
 
-        public string GetData()
+        public (string data, int totalBits) GetData()
         {
             var chars = new StringBuilder();
             var b = 0;
@@ -47,7 +47,7 @@
                 chars.Append(Chars[b << (W - i)]);
             }
 
-            return chars.ToString();
+            return (data: chars.ToString(), totalBits: bits.Count);
         }
     }
 }

@@ -17,7 +17,7 @@
             var tree = ternaryTree.EncodeSuccinct();
 
             // Assert
-            tree.Contains("ab");
+            Assert.That(tree.Contains("ab"));
         }
 
         [TestCaseSource(nameof(SelectSource))]
@@ -28,7 +28,7 @@
             writer.Write(0x03, 2);
             writer.Write(0, 5);
             writer.Write(1, 1);
-            var tree = new SuccinctTree(writer.GetData(), new SuccinctNode[5]);
+            var tree = new SuccinctTree(writer.GetData().data, new SuccinctNode[5]);
 
             // Act
             var actual = tree.Select(1, selectIndex);
@@ -45,7 +45,7 @@
             writer.Write(0x03, 2);
             writer.Write(0, 5);
             writer.Write(1, 1);
-            var tree = new SuccinctTree(writer.GetData(), new SuccinctNode[5]);
+            var tree = new SuccinctTree(writer.GetData().data, new SuccinctNode[5]);
 
             // Act
             var actual = tree.Rank(1, rankIndex);

@@ -29,30 +29,7 @@
                 SuccinctNode right = null;
                 SuccinctNode center = null;
 
-                // figure out which is which
-                // center is always first child
-                // left is < center
-                // right is > center
-                switch (node.Children)
-                {
-                    case 3:
-                        {
-                            // load nodes 1-3 from nodeIndex
-                            // select0(i + 1) - i
-                            break;
-                        }
-
-                    case 2:
-                        {
-                            break;
-                        }
-
-                    case 1:
-                        {
-                            break;
-                        }
-                }
-
+                LoadChildren(nodeIndex, ref center, ref left, ref right);
                 if (s[pos] < node.Char)
                     node = left;
                 else if (s[pos] > node.Char)
@@ -66,6 +43,38 @@
             }
 
             return false;
+        }
+
+        private void LoadChildren(
+            int nodeIndex,
+            ref SuccinctNode center,
+            ref SuccinctNode left,
+            ref SuccinctNode right)
+        {
+            // figure out which is which
+            // center is always first child
+            // left is < center
+            // right is > center
+            var numberOfChildren = 0;
+            switch (numberOfChildren)
+            {
+                case 3:
+                {
+                    // load nodes 1-3 from nodeIndex
+                    // select0(i + 1) - i
+                    break;
+                }
+
+                case 2:
+                {
+                    break;
+                }
+
+                case 1:
+                {
+                    break;
+                }
+            }
         }
 
         public int Select(int which, int index)

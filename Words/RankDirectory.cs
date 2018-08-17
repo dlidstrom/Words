@@ -13,20 +13,21 @@
         private readonly int l2Bits;
         private readonly int sectionBits;
 
-        public RankDirectory(
-            string directoryData,
+        private RankDirectory(string directoryData,
             string bitData,
             int numBits,
             int l1Size,
-            int l2Size)
+            int l2Size,
+            int l1Bits,
+            int l2Bits)
         {
             directory = new BitString(directoryData);
             data = new BitString(bitData);
             this.numBits = numBits;
             this.l1Size = l1Size;
             this.l2Size = l2Size;
-            l1Bits = (int)Math.Ceiling(Math.Log(numBits) / Math.Log(2));
-            l2Bits = (int)Math.Ceiling(Math.Log(l1Size) / Math.Log(2));
+            this.l1Bits = l1Bits;
+            this.l2Bits = l2Bits;
             sectionBits = (l1Size / l2Size - 1) * l2Bits + l1Bits;
         }
 
@@ -61,7 +62,14 @@
                 }
             }
 
-            return new RankDirectory(directory.GetData(), data, numBits, l1Size, l2Size);
+            return new RankDirectory(
+                directory.GetData().data,
+                data,
+                numBits,
+                l1Size,
+                l2Size,
+                l1Bits,
+                l2Bits);
         }
 
         public int Rank(int which, int x)

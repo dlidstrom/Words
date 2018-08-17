@@ -48,6 +48,7 @@
     public class TernaryTree
     {
         private readonly Language language;
+        private readonly List<Node> nodes = new List<Node>();
         private Node root;
 
         /// <summary>
@@ -196,11 +197,14 @@
             return matches;
         }
 
-        private static Node Add(string s, int pos, ref Node node)
+        private Node Add(string s, int pos, ref Node node)
         {
             char c = pos == s.Length ? default(char) : s[pos];
             if (node == null)
+            {
                 node = new Node { Char = c, WordEnd = false };
+                nodes.Add(node);
+            }
 
             if (c < node.Char)
                 node.Left = Add(s, pos, ref node.Left);
@@ -378,7 +382,7 @@
         {
             var writer = new BitWriter();
             writer.Write(0x02, 2);
-            var nodes = new List<SuccinctNode>();
+            var succinctNodes = new List<SuccinctNode>();
             var stack = new Stack<Node>();
             stack.Push(root);
             while (stack.Count > 0)
@@ -387,9 +391,9 @@
                 var node = stack.Pop();
                 //if (node.WordEnd) continue;
 
-                if (node.Center != null)
+                if (node.Right != null)
                 {
-                    stack.Push(node.Center);
+                    stack.Push(node.Right);
                     children++;
                 }
 
@@ -399,9 +403,9 @@
                     children++;
                 }
 
-                if (node.Right != null)
+                if (node.Center != null)
                 {
-                    stack.Push(node.Right);
+                    stack.Push(node.Center);
                     children++;
                 }
 
@@ -411,11 +415,21 @@
                 }
 
                 writer.Write(0, 1);
-                nodes.Add(new SuccinctNode(node, children));
+                succinctNodes.Add(new SuccinctNode(node, children));
             }
 
             var encoding = writer.GetData();
-            return new SuccinctTree(encoding, nodes.ToArray());
+            var expectedBits = 2 * nodes.Count + 1;
+            if (encoding.totalBits != expectedBits)
+            {
+                var message = string.Format(
+                    "Unexpected number of bits. Expected 2 * nodes.Count + 1 = {0} but got {1}.",
+                    expectedBits,
+                    encoding.totalBits);
+                throw new ApplicationException(message);
+            }
+
+            return new SuccinctTree(encoding.data, succinctNodes.ToArray());
         }
     }
 }
