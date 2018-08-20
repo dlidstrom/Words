@@ -17,7 +17,23 @@
             var tree = ternaryTree.EncodeSuccinct();
 
             // Assert
+            ternaryTree.Contains("ab");
             Assert.That(tree.Contains("ab"));
+        }
+
+        [Test]
+        public void RegularSearch()
+        {
+            // Arrange
+            var ternaryTree = new TernaryTree(Language.Swedish);
+            ternaryTree.Add("a", "b");
+            var tree = ternaryTree.EncodeSuccinct();
+
+            // Act
+            var matches = tree.Matches("b");
+
+            // Assert
+            Assert.AreEqual(1, matches.Count);
         }
 
         [TestCaseSource(nameof(SelectSource))]
@@ -28,7 +44,7 @@
             writer.Write(0x03, 2);
             writer.Write(0, 5);
             writer.Write(1, 1);
-            var tree = new SuccinctTree(writer.GetData().data, new SuccinctNode[5]);
+            var tree = new SuccinctTree(writer.GetData().data, new SuccinctNode[5], null);
 
             // Act
             var actual = tree.Select(1, selectIndex);
@@ -45,7 +61,7 @@
             writer.Write(0x03, 2);
             writer.Write(0, 5);
             writer.Write(1, 1);
-            var tree = new SuccinctTree(writer.GetData().data, new SuccinctNode[5]);
+            var tree = new SuccinctTree(writer.GetData().data, new SuccinctNode[5], null);
 
             // Act
             var actual = tree.Rank(1, rankIndex);

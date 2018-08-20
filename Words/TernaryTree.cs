@@ -385,6 +385,7 @@
             var succinctNodes = new List<SuccinctNode>();
             var stack = new Stack<Node>();
             stack.Push(root);
+            var nodeIndex = 0;
             while (stack.Count > 0)
             {
                 var children = 0;
@@ -415,7 +416,7 @@
                 }
 
                 writer.Write(0, 1);
-                succinctNodes.Add(new SuccinctNode(node, children));
+                succinctNodes.Add(new SuccinctNode(node, children, nodeIndex++));
             }
 
             var encoding = writer.GetData();
@@ -429,7 +430,7 @@
                 throw new ApplicationException(message);
             }
 
-            return new SuccinctTree(encoding.data, succinctNodes.ToArray());
+            return new SuccinctTree(encoding.data, succinctNodes.ToArray(), language);
         }
     }
 }

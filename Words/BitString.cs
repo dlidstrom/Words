@@ -89,22 +89,23 @@
             { '-' , 62 },
             { '_' , 63 }
         };
-        private readonly string bytes;
         private int length;
         private int W = 6;
 
         public BitString(string str)
         {
-            bytes = str;
-            length = bytes.Length * W;
+            Bytes = str;
+            length = Bytes.Length * W;
         }
+
+        public string Bytes { get; }
 
         public int Get(int p, int n)
         {
             // case 1: bits lie within the given byte
             if (p % W + n <= W)
             {
-                var u = (ORD(bytes[p / W]) & MaskTop[p % W]) >>
+                var u = (ORD(Bytes[p / W]) & MaskTop[p % W]) >>
                         (W - p % W - n);
                 return u;
 
@@ -112,7 +113,7 @@
             }
             else
             {
-                var result = ORD(bytes[p / W]) &
+                var result = ORD(Bytes[p / W]) &
                              MaskTop[p % W];
 
                 var l = W - p % W;
@@ -121,14 +122,14 @@
 
                 while (n >= W)
                 {
-                    result = (result << W) | ORD(bytes[p / W]);
+                    result = (result << W) | ORD(Bytes[p / W]);
                     p += W;
                     n -= W;
                 }
 
                 if (n > 0)
                 {
-                    result = (result << n) | (ORD(bytes[p / W]) >>
+                    result = (result << n) | (ORD(Bytes[p / W]) >>
                                               (W - n));
                 }
 

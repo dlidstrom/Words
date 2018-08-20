@@ -11,10 +11,10 @@
         {
             // Arrange
             var tree = new TernaryTree(Language.Swedish);
-            tree.Add("abcd", "aecd");
+            tree.Add("a", "b");
 
             // Act
-            var matches = tree.Matches("aecd");
+            var matches = tree.Matches("b");
 
             // Assert
             Assert.AreEqual(1, matches.Count);

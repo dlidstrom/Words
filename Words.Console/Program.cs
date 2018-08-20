@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.IO;
     using System.Text;
     using Mono.Terminal;
 
@@ -13,6 +14,14 @@
             {
                 var wordFinder = new WordFinder(@"C:\Programming\Words\Words.Web\App_Data\words.txt", Encoding.UTF8, Language.Swedish);
                 var tree = wordFinder.Tree.EncodeSuccinct();
+                File.WriteAllText(@"C:\Programming\words.bin", tree.Encoding.Bytes);
+                using (var writer = new StreamWriter(@"C:\Programming\text.bin"))
+                {
+                    foreach (var succinctNode in tree.Nodes)
+                    {
+                        writer.Write(succinctNode.Char);
+                    }
+                }
                 //new Program().Run();
             }
             catch (Exception ex)
