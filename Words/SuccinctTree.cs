@@ -31,8 +31,21 @@
 
             const int pos = 0;
             var node = nodes[0];
-            //Nodes = 0;
             Matches(s, string.Empty, pos, node, matches, limit);
+
+            return matches;
+        }
+
+        public List<string> NearSearch(string s, int d = 1, int limit = 100)
+        {
+            if (string.IsNullOrWhiteSpace(s))
+                throw new ArgumentException();
+
+            var matches = new List<string>();
+
+            const int pos = 0;
+            var node = nodes[0];
+            NearSearch(s, string.Empty, pos, node, matches, limit, d);
 
             return matches;
         }
@@ -47,7 +60,6 @@
         {
             if (node == null || matches.Count >= limit)
                 return;
-            //Nodes++;
             (var center, var left, var right) = LoadChildren(node.NodeIndex);
             Console.WriteLine($"Visiting {node}, Left = {left?.Char}, Center = {center?.Char}, Right = {right?.Char}");
 
@@ -98,6 +110,37 @@
             return false;
         }
 
+        private void NearSearch(string s, string substr, int pos, SuccinctNode node, List<string> matches, int limit, int depth)
+        {
+            if (node == null || matches.Count >= limit || depth < 0)
+                return;
+
+            (var center, var left, var right) = LoadChildren(node.NodeIndex);
+            char c = default(char);
+            if (pos < s.Length)
+                c = s[pos];
+
+            if (depth > 0 || c < node.Char)
+                NearSearch(s, substr, pos, left, matches, limit, depth);
+
+            if (node.WordEnd)
+            {
+                if (s.Length - pos <= depth)
+                    matches.Add(substr);
+            }
+            else
+            {
+                int newDepth = c == node.Char ? depth : depth - 1;
+                if (c != default(char))
+                    NearSearch(s, substr + node.Char, pos + 1, center, matches, limit, newDepth);
+                else
+                    NearSearch(s, substr + node.Char, pos, center, matches, limit, newDepth);
+            }
+
+            if (depth > 0 || c > node.Char)
+                NearSearch(s, substr, pos, right, matches, limit, depth);
+        }
+
         private (SuccinctNode center, SuccinctNode left, SuccinctNode right) LoadChildren(
             int nodeIndex)
         {
@@ -143,20 +186,6 @@
                     return (null, null, null);
                 }
             }
-
-            throw new ApplicationException($"Unexpected number of children: {numberOfChildren}");
-        }
-
-        public int Select(int which, int index)
-        {
-            var select = directory.Select(which, index);
-            return select;
-        }
-
-        public int Rank(int which, int position)
-        {
-            var rank = directory.Rank(which, position);
-            return rank;
         }
     }
 }
