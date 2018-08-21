@@ -11,7 +11,7 @@
         {
             // Arrange
             var tree = new TernaryTree(Language.Swedish);
-            tree.Add("a", "b");
+            tree.Add("a", "b", "c");
 
             // Act
             var matches = tree.Matches("b");

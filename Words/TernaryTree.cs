@@ -250,6 +250,7 @@
         {
             if (node == null || matches.Count >= limit)
                 return;
+            Console.WriteLine($"Visiting {node}");
             Nodes++;
 
             char c = pos == s.Length ? default(char) : s[pos];
@@ -383,30 +384,29 @@
             var writer = new BitWriter();
             writer.Write(0x02, 2);
             var succinctNodes = new List<SuccinctNode>();
-            var stack = new Stack<Node>();
-            stack.Push(root);
+            var queue = new Queue<Node>();
+            queue.Enqueue(root);
             var nodeIndex = 0;
-            while (stack.Count > 0)
+            while (queue.Count > 0)
             {
                 var children = 0;
-                var node = stack.Pop();
-                //if (node.WordEnd) continue;
+                var node = queue.Dequeue();
 
-                if (node.Right != null)
+                if (node.Center != null)
                 {
-                    stack.Push(node.Right);
+                    queue.Enqueue(node.Center);
                     children++;
                 }
 
                 if (node.Left != null)
                 {
-                    stack.Push(node.Left);
+                    queue.Enqueue(node.Left);
                     children++;
                 }
 
-                if (node.Center != null)
+                if (node.Right != null)
                 {
-                    stack.Push(node.Center);
+                    queue.Enqueue(node.Right);
                     children++;
                 }
 

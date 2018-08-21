@@ -20,5 +20,10 @@
         public int Children { get; }
 
         public int NodeIndex { get; }
+
+        public override string ToString()
+        {
+            return $"{nameof(Char)} = {Char}, {nameof(WordEnd)} = {WordEnd}";
+        }
     }
 }

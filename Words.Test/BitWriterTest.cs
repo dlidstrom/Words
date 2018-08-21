@@ -7,7 +7,7 @@
     public class BitWriterTest
     {
         [TestCaseSource(nameof(TestDataSource))]
-        public void VerifyData(int[] bits, string expected)
+        public void VerifyData(int[] bits, (string data, int totalBits) expected)
         {
             // Arrange
             var bitWriter = new BitWriter();
@@ -27,9 +27,9 @@
         {
             get
             {
-                yield return new TestCaseData(new[] { 0u }, "A");
-                yield return new TestCaseData(new[] { 1u }, "g");
-                yield return new TestCaseData(new[] { 1u, 1u }, "w");
+                yield return new TestCaseData(new[] { 0u }, ("A", 1));
+                yield return new TestCaseData(new[] { 1u }, ("g", 1));
+                yield return new TestCaseData(new[] { 1u, 1u }, ("w", 2));
             }
         }
     }

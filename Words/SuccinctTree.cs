@@ -22,31 +22,6 @@
 
         public ReadOnlyCollection<SuccinctNode> Nodes => new ReadOnlyCollection<SuccinctNode>(nodes);
 
-        public bool Contains(string s)
-        {
-            if (string.IsNullOrWhiteSpace(s))
-                throw new ArgumentException();
-
-            int pos = 0;
-            SuccinctNode node = nodes[0];
-            while (node != null)
-            {
-                (var center, var left, var right) = LoadChildren(node.NodeIndex);
-                if (s[pos] < node.Char)
-                    node = left;
-                else if (s[pos] > node.Char)
-                    node = right;
-                else
-                {
-                    if (++pos >= s.Length)
-                        return node.WordEnd;
-                    node = center;
-                }
-            }
-
-            return false;
-        }
-
         public List<string> Matches(string s, int limit = 100)
         {
             if (string.IsNullOrWhiteSpace(s))
@@ -62,11 +37,6 @@
             return matches;
         }
 
-        private (int x, int y) Xxx()
-        {
-            return (1, 2);
-        }
-
         private void Matches(
             string s,
             string substr,
@@ -79,6 +49,7 @@
                 return;
             //Nodes++;
             (var center, var left, var right) = LoadChildren(node.NodeIndex);
+            Console.WriteLine($"Visiting {node}, Left = {left?.Char}, Center = {center?.Char}, Right = {right?.Char}");
 
             char c = pos == s.Length ? default(char) : s[pos];
             if (WildcardMatchLeft(c, node.Char) || c < node.Char)
@@ -165,6 +136,11 @@
                 {
                     var center = nodes[firstChild];
                     return (center, null, null);
+                }
+
+                default:
+                {
+                    return (null, null, null);
                 }
             }
 
