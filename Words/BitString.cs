@@ -89,13 +89,12 @@
             { '-' , 62 },
             { '_' , 63 }
         };
-        private int length;
-        private int W = 6;
+
+        private const int W = 6;
 
         public BitString(string str)
         {
             Bytes = str;
-            length = Bytes.Length * W;
         }
 
         public string Bytes { get; }
@@ -108,33 +107,30 @@
                 var u = (ORD(Bytes[p / W]) & MaskTop[p % W]) >>
                         (W - p % W - n);
                 return u;
-
-                // case 2: bits lie incompletely in the given byte
             }
-            else
+
+            // case 2: bits lie incompletely in the given byte
+            var result = ORD(Bytes[p / W]) &
+                         MaskTop[p % W];
+
+            var l = W - p % W;
+            p += l;
+            n -= l;
+
+            while (n >= W)
             {
-                var result = ORD(Bytes[p / W]) &
-                             MaskTop[p % W];
-
-                var l = W - p % W;
-                p += l;
-                n -= l;
-
-                while (n >= W)
-                {
-                    result = (result << W) | ORD(Bytes[p / W]);
-                    p += W;
-                    n -= W;
-                }
-
-                if (n > 0)
-                {
-                    result = (result << n) | (ORD(Bytes[p / W]) >>
-                                              (W - n));
-                }
-
-                return result;
+                result = (result << W) | ORD(Bytes[p / W]);
+                p += W;
+                n -= W;
             }
+
+            if (n > 0)
+            {
+                result = (result << n) | (ORD(Bytes[p / W]) >>
+                                          (W - n));
+            }
+
+            return result;
         }
 
         public int Count(int p, int n)

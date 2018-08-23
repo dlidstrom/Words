@@ -2,22 +2,19 @@
 {
     using System.Diagnostics;
 
-    [DebuggerDisplay("Char = {Char} WordEnd = {WordEnd} Children = {Children} NodeIndex = {NodeIndex}")]
+    [DebuggerDisplay("Char = {Char} WordEnd = {WordEnd} NodeIndex = {NodeIndex}")]
     public class SuccinctNode
     {
-        public SuccinctNode(Node node, int children, int nodeIndex)
+        public SuccinctNode(char c, bool wordEnd, int nodeIndex)
         {
-            Char = node.Char;
-            WordEnd = node.WordEnd;
-            Children = children;
+            Char = c;
+            WordEnd = wordEnd;
             NodeIndex = nodeIndex;
         }
 
         public char Char { get; }
 
         public bool WordEnd { get; }
-
-        public int Children { get; }
 
         public int NodeIndex { get; }
 

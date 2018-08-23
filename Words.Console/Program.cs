@@ -6,9 +6,9 @@
     using System.Text;
     using Mono.Terminal;
 
-    public class Program
+    public static class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             try
             {
@@ -17,10 +17,7 @@
                 File.WriteAllText(@"C:\Programming\words.bin", tree.Encoding.Bytes);
                 using (var writer = new StreamWriter(@"C:\Programming\text.bin"))
                 {
-                    foreach (var succinctNode in tree.Nodes)
-                    {
-                        writer.Write(succinctNode.Char);
-                    }
+                    writer.Write(tree.LetterData.Bytes);
                 }
                 //new Program().Run();
             }

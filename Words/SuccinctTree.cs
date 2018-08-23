@@ -2,25 +2,32 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
 
     public class SuccinctTree
     {
-        private readonly SuccinctNode[] nodes;
         private readonly RankDirectory directory;
         private readonly Language language;
 
-        public SuccinctTree(string encoding, SuccinctNode[] nodes, Language language)
+        public SuccinctTree(
+            (string data, int totalBits) encoding,
+            (string data, int totalBits) letters,
+            Language language)
         {
-            Encoding = new BitString(encoding);
-            directory = RankDirectory.Create(encoding, 2 * nodes.Length + 1, 32 * 32, 32);
-            this.nodes = nodes;
+            Encoding = new BitString(encoding.data);
+            LetterData = new BitString(letters.data);
+            directory = RankDirectory.Create(
+                encoding.data,
+                encoding.totalBits,
+                32 * 32,
+                32);
             this.language = language;
         }
 
         public BitString Encoding { get; }
 
-        public ReadOnlyCollection<SuccinctNode> Nodes => new ReadOnlyCollection<SuccinctNode>(nodes);
+        public BitString LetterData { get; }
+
+        public Action<string> Log { get; set; } = s => { };
 
         public List<string> Matches(string s, int limit = 100)
         {
@@ -30,7 +37,7 @@
             var matches = new List<string>();
 
             const int pos = 0;
-            var node = nodes[0];
+            var node = LetterData.GetNode(0);
             Matches(s, string.Empty, pos, node, matches, limit);
 
             return matches;
@@ -44,7 +51,7 @@
             var matches = new List<string>();
 
             const int pos = 0;
-            var node = nodes[0];
+            var node = LetterData.GetNode(0);
             NearSearch(s, string.Empty, pos, node, matches, limit, d);
 
             return matches;
@@ -61,7 +68,7 @@
             if (node == null || matches.Count >= limit)
                 return;
             (var center, var left, var right) = LoadChildren(node.NodeIndex);
-            Console.WriteLine($"Visiting {node}, Left = {left?.Char}, Center = {center?.Char}, Right = {right?.Char}");
+            Log($"Visiting {node}, Left = {left?.Char}, Center = {center?.Char}, Right = {right?.Char}");
 
             char c = pos == s.Length ? default(char) : s[pos];
             if (WildcardMatchLeft(c, node.Char) || c < node.Char)
@@ -155,16 +162,16 @@
             {
                 case 3:
                 {
-                    var center = nodes[firstChild];
-                    var left = nodes[firstChild + 1];
-                    var right = nodes[firstChild + 2];
+                    var center = LetterData.GetNode(firstChild);
+                    var left = LetterData.GetNode(firstChild + 1);
+                    var right = LetterData.GetNode(firstChild + 2);
                     return (center, left, right);
                 }
 
                 case 2:
                 {
-                    var center = nodes[firstChild];
-                    var leftOrRight = nodes[firstChild + 1];
+                    var center = LetterData.GetNode(firstChild);
+                    var leftOrRight = LetterData.GetNode(firstChild + 1);
                     if (leftOrRight.Char < center.Char)
                     {
                         var left = leftOrRight;
@@ -177,7 +184,7 @@
 
                 case 1:
                 {
-                    var center = nodes[firstChild];
+                    var center = LetterData.GetNode(firstChild);
                     return (center, null, null);
                 }
 

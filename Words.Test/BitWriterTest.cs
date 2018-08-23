@@ -1,7 +1,7 @@
 ﻿namespace Words.Test
 {
-    using System.Collections.Generic;
     using NUnit.Framework;
+    using System.Collections.Generic;
 
     [TestFixture]
     public class BitWriterTest
@@ -21,6 +21,24 @@
             // Assert
             var actual = bitWriter.GetData();
             Assert.That(actual, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void GetNode()
+        {
+            // Arrange
+            var bitWriter = new BitWriter();
+            bitWriter.Write(new Node { Char = 'A', WordEnd = true });
+            //bitWriter.Write(1, 1);
+            var str = bitWriter.GetData().data;
+            var bitString = new BitString(str);
+
+            // Act
+            var c = bitString.GetNode(0);
+
+            // Assert
+            Assert.That(c.Char, Is.EqualTo('A'));
+            Assert.That(c.WordEnd, Is.True);
         }
 
         private static IEnumerable<TestCaseData> TestDataSource

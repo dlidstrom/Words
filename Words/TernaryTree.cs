@@ -62,6 +62,8 @@
 
         public int Nodes { get; private set; }
 
+        public Action<string> Log { get; set; } = s => { };
+
         /// <summary>
         /// Add word to tree.
         /// </summary>
@@ -250,7 +252,7 @@
         {
             if (node == null || matches.Count >= limit)
                 return;
-            Console.WriteLine($"Visiting {node}");
+            Log($"Visiting {node}");
             Nodes++;
 
             char c = pos == s.Length ? default(char) : s[pos];
@@ -381,12 +383,11 @@
 
         public SuccinctTree EncodeSuccinct()
         {
-            var writer = new BitWriter();
-            writer.Write(0x02, 2);
-            var succinctNodes = new List<SuccinctNode>();
+            var encodingWriter = new BitWriter();
+            var letterWriter = new BitWriter();
+            encodingWriter.Write(0x02, 2);
             var queue = new Queue<Node>();
             queue.Enqueue(root);
-            var nodeIndex = 0;
             while (queue.Count > 0)
             {
                 var children = 0;
@@ -412,14 +413,14 @@
 
                 for (var i = 0; i < children; i++)
                 {
-                    writer.Write(1, 1);
+                    encodingWriter.Write(1, 1);
                 }
 
-                writer.Write(0, 1);
-                succinctNodes.Add(new SuccinctNode(node, children, nodeIndex++));
+                encodingWriter.Write(0, 1);
+                letterWriter.Write(node);
             }
 
-            var encoding = writer.GetData();
+            var encoding = encodingWriter.GetData();
             var expectedBits = 2 * nodes.Count + 1;
             if (encoding.totalBits != expectedBits)
             {
@@ -430,7 +431,12 @@
                 throw new ApplicationException(message);
             }
 
-            return new SuccinctTree(encoding.data, succinctNodes.ToArray(), language);
+            var letterData = letterWriter.GetData();
+            var tree = new SuccinctTree(
+                encoding,
+                letterData,
+                language);
+            return tree;
         }
     }
 }
