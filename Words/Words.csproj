@@ -50,6 +50,7 @@
     <Compile Include="RankDirectory.cs" />
     <Compile Include="SuccinctNode.cs" />
     <Compile Include="SuccinctTree.cs" />
+    <Compile Include="SuccinctTreeData.cs" />
     <Compile Include="TernaryTree.cs" />
     <Compile Include="WordFinder.cs" />
   </ItemGroup>

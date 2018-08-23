@@ -14,6 +14,7 @@
             Language language)
         {
             Encoding = new BitString(encoding.data);
+            EncodingBits = encoding.totalBits;
             LetterData = new BitString(letters.data);
             directory = RankDirectory.Create(
                 encoding.data,
@@ -23,11 +24,31 @@
             this.language = language;
         }
 
+        public SuccinctTree(SuccinctTreeData data, Language language)
+        {
+            Encoding = new BitString(data.EncodingBytes);
+            EncodingBits = data.EncodingBits;
+            LetterData = new BitString(data.LetterBytes);
+            directory = RankDirectory.Create(
+                data.EncodingBytes,
+                0,
+                32 * 32,
+                32);
+            this.language = language;
+        }
+
         public BitString Encoding { get; }
+
+        public int EncodingBits { get; }
 
         public BitString LetterData { get; }
 
         public Action<string> Log { get; set; } = s => { };
+
+        public SuccinctTreeData GetData()
+        {
+            return new SuccinctTreeData(Encoding.Bytes, EncodingBits, LetterData.Bytes);
+        }
 
         public List<string> Matches(string s, int limit = 100)
         {

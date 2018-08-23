@@ -5,6 +5,7 @@
     using System.IO;
     using System.Text;
     using Mono.Terminal;
+    using Newtonsoft.Json;
 
     public static class Program
     {
@@ -12,14 +13,19 @@
         {
             try
             {
-                var wordFinder = new WordFinder(@"C:\Programming\Words\Words.Web\App_Data\words.txt", Encoding.UTF8, Language.Swedish);
-                var tree = wordFinder.Tree.EncodeSuccinct();
-                File.WriteAllText(@"C:\Programming\words.bin", tree.Encoding.Bytes);
-                using (var writer = new StreamWriter(@"C:\Programming\text.bin"))
+                if (args.Length > 0 && args[0] == "encode")
                 {
-                    writer.Write(tree.LetterData.Bytes);
+                    var wordFinder = new WordFinder(@"C:\Programming\Words\Words.Web\App_Data\words.txt", Encoding.UTF8, Language.Swedish);
+                    var tree = wordFinder.Tree.EncodeSuccinct();
+                    var json = JsonConvert.SerializeObject(tree.GetData(), Formatting.Indented);
+                    File.WriteAllText(
+                        @"C:\Programming\words.json",
+                        json);
                 }
-                //new Program().Run();
+                else
+                {
+                    Run();
+                }
             }
             catch (Exception ex)
             {
@@ -27,7 +33,7 @@
             }
         }
 
-        private void Run()
+        private static void Run()
         {
             Stopwatch stopwatch = new Stopwatch();
             Console.Write("Constructing search tree...");
