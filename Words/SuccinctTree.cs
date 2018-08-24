@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public class SuccinctTree
+    public class SuccinctTree : ITree
     {
         private readonly RankDirectory directory;
         private readonly Language language;
@@ -17,8 +17,7 @@
             EncodingBits = encoding.totalBits;
             LetterData = new BitString(letters.data);
             directory = RankDirectory.Create(
-                encoding.data,
-                encoding.totalBits,
+                encoding,
                 32 * 32,
                 32);
             this.language = language;
@@ -30,8 +29,7 @@
             EncodingBits = data.EncodingBits;
             LetterData = new BitString(data.LetterBytes);
             directory = RankDirectory.Create(
-                data.EncodingBytes,
-                0,
+                (data.EncodingBytes, data.EncodingBits),
                 32 * 32,
                 32);
             this.language = language;
@@ -50,7 +48,7 @@
             return new SuccinctTreeData(Encoding.Bytes, EncodingBits, LetterData.Bytes);
         }
 
-        public List<string> Matches(string s, int limit = 100)
+        public List<string> Matches(string s, int limit)
         {
             if (string.IsNullOrWhiteSpace(s))
                 throw new ArgumentException();
@@ -64,7 +62,7 @@
             return matches;
         }
 
-        public List<string> NearSearch(string s, int d = 1, int limit = 100)
+        public List<string> NearSearch(string s, int d, int limit)
         {
             if (string.IsNullOrWhiteSpace(s))
                 throw new ArgumentException();

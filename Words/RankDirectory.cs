@@ -13,17 +13,17 @@
         private readonly int l2Bits;
         private readonly int sectionBits;
 
-        private RankDirectory(string directoryData,
-            string bitData,
-            int numBits,
+        private RankDirectory(
+            string directoryData,
+            (string bitData, int numBits) encoding,
             int l1Size,
             int l2Size,
             int l1Bits,
             int l2Bits)
         {
             directory = new BitString(directoryData);
-            data = new BitString(bitData);
-            this.numBits = numBits;
+            data = new BitString(encoding.bitData);
+            numBits = encoding.numBits;
             this.l1Size = l1Size;
             this.l2Size = l2Size;
             this.l1Bits = l1Bits;
@@ -32,19 +32,19 @@
         }
 
         public static RankDirectory Create(
-            string data, int numBits, int l1Size, int l2Size)
+            (string data, int numBits) encoding, int l1Size, int l2Size)
         {
-            var bits = new BitString(data);
+            var bits = new BitString(encoding.data);
             var p = 0;
             var i = 0;
             var count1 = 0;
             var count2 = 0;
-            var l1Bits = (int)Math.Ceiling(Math.Log(numBits) / Math.Log(2));
+            var l1Bits = (int)Math.Ceiling(Math.Log(encoding.numBits) / Math.Log(2));
             var l2Bits = (int)Math.Ceiling(Math.Log(l1Size) / Math.Log(2));
 
             var directory = new BitWriter();
 
-            while (p + l2Size <= numBits)
+            while (p + l2Size <= encoding.numBits)
             {
                 count2 += bits.Count(p, l2Size);
                 i += l2Size;
@@ -64,8 +64,7 @@
 
             return new RankDirectory(
                 directory.GetData().data,
-                data,
-                numBits,
+                encoding,
                 l1Size,
                 l2Size,
                 l1Bits,

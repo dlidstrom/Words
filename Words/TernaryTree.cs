@@ -45,7 +45,7 @@
     ///     return 0;
     /// }
     /// </code>
-    public class TernaryTree
+    public class TernaryTree : ITree
     {
         private readonly Language language;
         private readonly List<Node> nodes = new List<Node>();
@@ -133,7 +133,7 @@
             return false;
         }
 
-        public List<string> Matches(string s, int limit = 100)
+        public List<string> Matches(string s, int limit)
         {
             if (string.IsNullOrWhiteSpace(s))
                 throw new ArgumentException();
@@ -184,7 +184,7 @@
             Traverse(node.Right, action, s);
         }
 
-        public List<string> NearSearch(string s, int d = 1, int limit = 100)
+        public List<string> NearSearch(string s, int d, int limit)
         {
             if (string.IsNullOrWhiteSpace(s))
                 throw new ArgumentException();

@@ -12,10 +12,10 @@
             // Arrange
             var ternaryTree = new TernaryTree(Language.Swedish);
             ternaryTree.Add(s);
-            var tree = ternaryTree.EncodeSuccinct();
+            ITree tree = ternaryTree.EncodeSuccinct();
 
             // Act
-            var ternaryTreeMatches = ternaryTree.Matches(m);
+            var ternaryTreeMatches = ((ITree)ternaryTree).Matches(m);
             var treeMatches = tree.Matches(m);
 
             // Assert
@@ -28,10 +28,10 @@
             // Arrange
             var ternaryTree = new TernaryTree(Language.Swedish);
             ternaryTree.Add("abeg", "abhg", "abfg", "abug", "abtg");
-            var tree = ternaryTree.EncodeSuccinct();
+            ITree tree = ternaryTree.EncodeSuccinct();
 
             // Act
-            var ternaryTreeMatches = ternaryTree.Matches("ab#g");
+            var ternaryTreeMatches = ((ITree)ternaryTree).Matches("ab#g");
             var matches = tree.Matches("ab#g");
 
             // Assert
@@ -44,10 +44,10 @@
             // Arrange
             var ternaryTree = new TernaryTree(Language.Swedish);
             ternaryTree.Add("abcd", "aecd");
-            var tree = ternaryTree.EncodeSuccinct();
+            ITree tree = ternaryTree.EncodeSuccinct();
 
             // Act
-            var ternaryTreeMatches = ternaryTree.Matches("a?cd");
+            var ternaryTreeMatches = ((ITree)ternaryTree).Matches("a?cd");
             var matches = tree.Matches("a?cd");
 
             // Assert
@@ -60,10 +60,10 @@
             // Arrange
             var ternaryTree = new TernaryTree(Language.Swedish);
             ternaryTree.Add("abcd", "ebcd", "tbcd", "ubcd");
-            var tree = ternaryTree.EncodeSuccinct();
+            ITree tree = ternaryTree.EncodeSuccinct();
 
             // Act
-            var ternaryTreeMatches = ternaryTree.Matches("@bcd");
+            var ternaryTreeMatches = ((ITree)ternaryTree).Matches("@bcd");
             var matches = tree.Matches("@bcd");
 
             // Assert
@@ -76,10 +76,10 @@
             // Arrange
             var ternaryTree = new TernaryTree(Language.Swedish);
             ternaryTree.Add("abcde", "abce", "abcf");
-            var tree = ternaryTree.EncodeSuccinct();
+            ITree tree = ternaryTree.EncodeSuccinct();
 
             // Act
-            var ternaryTreeMatches = ternaryTree.NearSearch("abc");
+            var ternaryTreeMatches = ((ITree)ternaryTree).NearSearch("abc");
             var matches = tree.NearSearch("abc");
 
             // Assert

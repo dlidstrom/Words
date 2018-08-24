@@ -14,7 +14,7 @@
             tree.Add("a", "b", "c");
 
             // Act
-            var matches = tree.Matches("b");
+            var matches = ((ITree)tree).Matches("b");
 
             // Assert
             Assert.AreEqual(1, matches.Count);
@@ -28,7 +28,7 @@
             tree.Add("abcd", "aecd");
 
             // Act
-            var matches = tree.Matches("a?cd");
+            var matches = ((ITree)tree).Matches("a?cd");
 
             // Assert
             Assert.AreEqual(2, matches.Count);
@@ -42,7 +42,7 @@
             tree.Add("abcd", "ebcd", "tbcd", "ubcd");
 
             // Act
-            var matches = tree.Matches("@bcd");
+            var matches = ((ITree)tree).Matches("@bcd");
 
             // Assert
             Assert.AreEqual(3, matches.Count);
@@ -56,7 +56,7 @@
             tree.Add("abeg", "abhg", "abfg", "abug", "abtg");
 
             // Act
-            var matches = tree.Matches("ab#g");
+            var matches = ((ITree)tree).Matches("ab#g");
 
             // Assert
             Assert.AreEqual(3, matches.Count);
@@ -70,7 +70,7 @@
             tree.Add("abcde", "abce", "abcf");
 
             // Act
-            var matches = tree.NearSearch("abc");
+            var matches = ((ITree)tree).NearSearch("abc");
 
             // Assert
             Assert.AreEqual(2, matches.Count);

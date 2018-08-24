@@ -35,9 +35,8 @@
             var matches = MvcApplication.NianFinder.Nine(q.Text);
             sw.Stop();
             double millis = 1000.0 * sw.ElapsedTicks / Stopwatch.Frequency;
-            int nodes = MvcApplication.WordFinder.Nodes;
-            var results = new ResultsViewModel(q.Text, matches, millis, nodes);
-            Log.Info(CultureInfo.InvariantCulture, "Nian query '{0}',{1},{2:F2}", q.Text, nodes, millis);
+            var results = new ResultsViewModel(q.Text, matches, millis);
+            Log.Info(CultureInfo.InvariantCulture, "Nian query '{0}',{1:F2}", q.Text, millis);
 
             // save query
             using (var session = MvcApplication.DocumentStore.OpenSession())
@@ -46,7 +45,6 @@
                 {
                     Type = QueryType.Nian,
                     Text = q.Text,
-                    Nodes = nodes,
                     ElapsedMilliseconds = millis
                 });
 

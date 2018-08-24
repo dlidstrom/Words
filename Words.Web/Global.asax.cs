@@ -98,7 +98,8 @@
             var dir = AppDomain.CurrentDomain.GetData("DataDirectory");
             var filename = Path.Combine(dir.ToString(), "words.txt");
             var language = Path.Combine(dir.ToString(), "nian.txt");
-            wordFinder = new WordFinder(filename, Encoding.UTF8, Language.Swedish);
+            var lines = File.ReadAllLines(filename, Encoding.UTF8);
+            wordFinder = WordFinder.CreateTernary(lines, Language.Swedish);
             nianFinder = new NianFinder(language, Encoding.UTF8, new CultureInfo("sv-SE"));
             Log.Info("Dictionary loaded");
         }
