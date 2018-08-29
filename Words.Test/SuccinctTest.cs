@@ -96,7 +96,7 @@
         }
 
         [TestCaseSource(nameof(VerifySource))]
-        public void Verify(int wordsToAdd, int i, string addedWords)
+        public void VerifyMatches(int wordsToAdd, int i, string addedWords)
         {
             var ternary = new TernaryTree(Language.Swedish);
             foreach (var addedWord in addedWords.Split(','))
@@ -117,6 +117,31 @@
                     succinctMatches,
                     Is.EqualTo(ternaryMatches),
                     $"Failed to find equal matches for {addedWord}. Added words: {string.Join(", ", addedWords)}.");
+            }
+        }
+
+        [TestCaseSource(nameof(VerifySource))]
+        public void VerifyNear(int wordsToAdd, int i, string addedWords)
+        {
+            var ternary = new TernaryTree(Language.Swedish);
+            foreach (var addedWord in addedWords.Split(','))
+            {
+                ternary.Add(addedWord);
+            }
+
+            var succinct = ternary.EncodeSuccinct();
+
+            // Act
+            foreach (var addedWord in addedWords.Split(','))
+            {
+                var ternaryMatches = ((ITree)ternary).NearSearch(addedWord);
+                var succinctMatches = ((ITree)succinct).NearSearch(addedWord);
+
+                // Assert
+                Assert.That(
+                    succinctMatches,
+                    Is.EqualTo(ternaryMatches),
+                    $"Failed to find near matches for {addedWord}. Added words: {string.Join(", ", addedWords)}.");
             }
         }
 
