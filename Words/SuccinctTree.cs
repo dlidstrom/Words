@@ -204,21 +204,19 @@
                 case 1:
                 {
                     var child = LetterData.GetNode(firstChild);
-                    if (child.WordEnd)
+                    if (node.WordEnd)
                     {
-                        return (child, null, null);
-                    }
+                        if (child.Char < node.Char)
+                        {
+                            var left = child;
+                            return (null, left, null);
+                        }
 
-                    if (child.Char < node.Char)
-                    {
-                        var left = child;
-                        return (null, left, null);
-                    }
-
-                    if (child.Char > node.Char)
-                    {
-                        var right = child;
-                        return (null, null, right);
+                        if (child.Char > node.Char)
+                        {
+                            var right = child;
+                            return (null, null, right);
+                        }
                     }
 
                     var center = child;
