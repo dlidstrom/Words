@@ -1,7 +1,10 @@
 ﻿namespace Words.Test
 {
-    using System.Collections.Generic;
     using NUnit.Framework;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Text;
 
     [TestFixture]
     public class SuccinctTest
@@ -10,13 +13,19 @@
         public void RegularSearch(string[] s, string m)
         {
             // Arrange
-            var ternaryTree = new TernaryTree(Language.Swedish);
+            var ternaryTree = new TernaryTree(Language.Swedish)
+            {
+                Log = Console.WriteLine
+            };
             ternaryTree.Add(s);
-            ITree tree = ternaryTree.EncodeSuccinct();
+            var tree = ternaryTree.EncodeSuccinct();
+            tree.Log = Console.WriteLine;
 
             // Act
+            Console.WriteLine("Ternary:");
             var ternaryTreeMatches = ((ITree)ternaryTree).Matches(m);
-            var treeMatches = tree.Matches(m);
+            Console.WriteLine("Succinct:");
+            var treeMatches = ((ITree)tree).Matches(m);
 
             // Assert
             Assert.That(treeMatches, Is.EqualTo(ternaryTreeMatches));
@@ -86,6 +95,59 @@
             Assert.That(matches, Is.EqualTo(ternaryTreeMatches));
         }
 
+        [TestCaseSource(nameof(VerifySource))]
+        public void Verify(int wordsToAdd, int i, string addedWords)
+        {
+            var ternary = new TernaryTree(Language.Swedish);
+            foreach (var addedWord in addedWords.Split(','))
+            {
+                ternary.Add(addedWord);
+            }
+
+            var succinct = ternary.EncodeSuccinct();
+
+            // Act
+            foreach (var addedWord in addedWords.Split(','))
+            {
+                var ternaryMatches = ternary.Matches(addedWord, 100);
+                var succinctMatches = succinct.Matches(addedWord, 100);
+
+                // Assert
+                Assert.That(
+                    succinctMatches,
+                    Is.EqualTo(ternaryMatches),
+                    $"Failed to find equal matches for {addedWord}. Added words: {string.Join(", ", addedWords)}.");
+            }
+        }
+
+        private static IEnumerable<TestCaseData> VerifySource
+        {
+            get
+            {
+                const string filename = @"C:\Programming\Words\Words.Web\App_Data\words.txt";
+                var lines = File.ReadAllLines(filename, Encoding.UTF8);
+                var random = new Random();
+
+                // try adding more and more words
+                for (var wordsToAdd = 2; wordsToAdd < 5; wordsToAdd++)
+                {
+                    // try a few random selections
+                    for (var i = 0; i < 30; i++)
+                    {
+                        var addedWords = new List<string>();
+                        for (var j = 0; j < wordsToAdd; j++)
+                        {
+                            var wordIndex = random.Next(lines.Length);
+                            var word = lines[wordIndex];
+                            addedWords.Add(word);
+                        }
+
+                        yield return new TestCaseData(wordsToAdd, i, string.Join(",", addedWords));
+                    }
+                }
+            }
+        }
+
         private static IEnumerable<TestCaseData> RegularSearchSource
         {
             get
@@ -99,6 +161,12 @@
                 yield return new TestCaseData(new[] { "abc", "acb", "adc" }, "acb");
                 yield return new TestCaseData(new[] { "abc", "acb", "adc" }, "adc");
                 yield return new TestCaseData(new[] { "abc", "acb" }, "acb");
+                yield return new TestCaseData(new[] { "nedkämpades", "edisongängors" }, "edisongängors");
+                var words = new[] { "di", "likströmsgeneratorerna", "indrivbar", "innergängsfräsning", "sprutmålning", "klassexemplar", "illfundighet", "helikopterräddning", "småspiken", "dingdång", "obeprövad" };
+                foreach (var word in words)
+                {
+                    yield return new TestCaseData(words, word);
+                }
             }
         }
     }

@@ -86,7 +86,7 @@
         {
             if (node == null || matches.Count >= limit)
                 return;
-            (var center, var left, var right) = LoadChildren(node.NodeIndex);
+            (var center, var left, var right) = LoadChildren(node);
             Log($"Visiting {node}, Left = {left?.Char}, Center = {center?.Char}, Right = {right?.Char}");
 
             char c = pos == s.Length ? default(char) : s[pos];
@@ -141,7 +141,7 @@
             if (node == null || matches.Count >= limit || depth < 0)
                 return;
 
-            (var center, var left, var right) = LoadChildren(node.NodeIndex);
+            (var center, var left, var right) = LoadChildren(node);
             char c = default(char);
             if (pos < s.Length)
                 c = s[pos];
@@ -168,14 +168,14 @@
         }
 
         private (SuccinctNode center, SuccinctNode left, SuccinctNode right) LoadChildren(
-            int nodeIndex)
+            SuccinctNode node)
         {
             // figure out which is which
             // center is always first child
             // left is < center
             // right is > center
-            var firstChild = directory.Select(0, nodeIndex + 1) - nodeIndex;
-            var childOfNextNode = directory.Select(0, nodeIndex + 2) - nodeIndex - 1;
+            var firstChild = directory.Select(0, node.NodeIndex + 1) - node.NodeIndex;
+            var childOfNextNode = directory.Select(0, node.NodeIndex + 2) - node.NodeIndex - 1;
             var numberOfChildren = childOfNextNode - firstChild;
             switch (numberOfChildren)
             {
@@ -191,7 +191,7 @@
                 {
                     var center = LetterData.GetNode(firstChild);
                     var leftOrRight = LetterData.GetNode(firstChild + 1);
-                    if (leftOrRight.Char < center.Char)
+                    if (leftOrRight.Char < node.Char)
                     {
                         var left = leftOrRight;
                         return (center, left, null);
@@ -203,7 +203,25 @@
 
                 case 1:
                 {
-                    var center = LetterData.GetNode(firstChild);
+                    var child = LetterData.GetNode(firstChild);
+                    if (child.WordEnd)
+                    {
+                        return (child, null, null);
+                    }
+
+                    if (child.Char < node.Char)
+                    {
+                        var left = child;
+                        return (null, left, null);
+                    }
+
+                    if (child.Char > node.Char)
+                    {
+                        var right = child;
+                        return (null, null, right);
+                    }
+
+                    var center = child;
                     return (center, null, null);
                 }
 
