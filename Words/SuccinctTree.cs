@@ -7,15 +7,18 @@
     {
         private readonly RankDirectory directory;
         private readonly Language language;
+        private readonly BitString encoding;
+        private readonly int encodingBits;
+        private readonly BitString letterData;
 
         public SuccinctTree(
             (string data, int totalBits) encoding,
             (string data, int totalBits) letters,
             Language language)
         {
-            Encoding = new BitString(encoding.data);
-            EncodingBits = encoding.totalBits;
-            LetterData = new BitString(letters.data);
+            this.encoding = new BitString(encoding.data);
+            encodingBits = encoding.totalBits;
+            letterData = new BitString(letters.data);
             directory = RankDirectory.Create(
                 encoding,
                 32 * 32,
@@ -25,9 +28,9 @@
 
         public SuccinctTree(SuccinctTreeData data, Language language)
         {
-            Encoding = new BitString(data.EncodingBytes);
-            EncodingBits = data.EncodingBits;
-            LetterData = new BitString(data.LetterBytes);
+            encoding = new BitString(data.EncodingBytes);
+            encodingBits = data.EncodingBits;
+            letterData = new BitString(data.LetterBytes);
             directory = RankDirectory.Create(
                 (data.EncodingBytes, data.EncodingBits),
                 32 * 32,
@@ -35,17 +38,11 @@
             this.language = language;
         }
 
-        public BitString Encoding { get; }
-
-        public int EncodingBits { get; }
-
-        public BitString LetterData { get; }
-
-        public Action<string> Log { get; set; } = s => { };
+        public Action<string> Log { get; set; }
 
         public SuccinctTreeData GetData()
         {
-            return new SuccinctTreeData(Encoding.Bytes, EncodingBits, LetterData.Bytes);
+            return new SuccinctTreeData(encoding.Bytes, encodingBits, letterData.Bytes);
         }
 
         public List<string> Matches(string s, int limit)
@@ -56,7 +53,7 @@
             var matches = new List<string>();
 
             const int pos = 0;
-            var node = LetterData.GetNode(0);
+            var node = letterData.GetNode(0);
             Matches(s, string.Empty, pos, node, matches, limit);
 
             return matches;
@@ -70,7 +67,7 @@
             var matches = new List<string>();
 
             const int pos = 0;
-            var node = LetterData.GetNode(0);
+            var node = letterData.GetNode(0);
             NearSearch(s, string.Empty, pos, node, matches, limit, d);
 
             return matches;
@@ -87,7 +84,7 @@
             if (node == null || matches.Count >= limit)
                 return;
             (var center, var left, var right) = LoadChildren(node);
-            Log($"Visiting {node}, Left = {left?.Char}, Center = {center?.Char}, Right = {right?.Char}");
+            LogImpl(() => $"Visiting {node}, Left = {left?.Char}, Center = {center?.Char}, Right = {right?.Char}");
 
             char c = pos == s.Length ? default(char) : s[pos];
             if (WildcardMatchLeft(c, node.Char) || c < node.Char)
@@ -181,16 +178,16 @@
             {
                 case 3:
                 {
-                    var center = LetterData.GetNode(firstChild);
-                    var left = LetterData.GetNode(firstChild + 1);
-                    var right = LetterData.GetNode(firstChild + 2);
+                    var center = letterData.GetNode(firstChild);
+                    var left = letterData.GetNode(firstChild + 1);
+                    var right = letterData.GetNode(firstChild + 2);
                     return (center, left, right);
                 }
 
                 case 2:
                 {
-                    var center = LetterData.GetNode(firstChild);
-                    var leftOrRight = LetterData.GetNode(firstChild + 1);
+                    var center = letterData.GetNode(firstChild);
+                    var leftOrRight = letterData.GetNode(firstChild + 1);
                     if (leftOrRight.Char < node.Char)
                     {
                         var left = leftOrRight;
@@ -203,7 +200,7 @@
 
                 case 1:
                 {
-                    var child = LetterData.GetNode(firstChild);
+                    var child = letterData.GetNode(firstChild);
                     if (node.WordEnd)
                     {
                         if (child.Char < node.Char)
@@ -228,6 +225,11 @@
                     return (null, null, null);
                 }
             }
+        }
+
+        private void LogImpl(Func<string> func)
+        {
+            Log?.Invoke(func.Invoke());
         }
     }
 }

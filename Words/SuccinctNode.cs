@@ -5,16 +5,15 @@
     [DebuggerDisplay("Char = {Char} WordEnd = {WordEnd} NodeIndex = {NodeIndex}")]
     public class SuccinctNode
     {
-        public SuccinctNode(char c, bool wordEnd, int nodeIndex)
+        public SuccinctNode(char c, int nodeIndex)
         {
             Char = c;
-            WordEnd = wordEnd;
             NodeIndex = nodeIndex;
         }
 
         public char Char { get; }
 
-        public bool WordEnd { get; }
+        public bool WordEnd => Char == 0;
 
         public int NodeIndex { get; }
 

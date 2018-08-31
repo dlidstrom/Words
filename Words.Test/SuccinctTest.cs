@@ -154,7 +154,7 @@
                 var random = new Random();
 
                 // try adding more and more words
-                for (var wordsToAdd = 2; wordsToAdd < 50; wordsToAdd++)
+                for (var wordsToAdd = 2; wordsToAdd < 25; wordsToAdd++)
                 {
                     // try a few random selections
                     for (var i = 0; i < 30; i++)

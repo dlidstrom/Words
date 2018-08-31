@@ -28,8 +28,7 @@
         {
             // Arrange
             var bitWriter = new BitWriter();
-            bitWriter.Write(new Node { Char = 'A', WordEnd = true });
-            //bitWriter.Write(1, 1);
+            bitWriter.Write(new Node { Char = (char)0, WordEnd = true });
             var str = bitWriter.GetData().data;
             var bitString = new BitString(str);
 
@@ -37,7 +36,7 @@
             var c = bitString.GetNode(0);
 
             // Assert
-            Assert.That(c.Char, Is.EqualTo('A'));
+            Assert.That(c.Char, Is.EqualTo('\u0000'));
             Assert.That(c.WordEnd, Is.True);
         }
 
