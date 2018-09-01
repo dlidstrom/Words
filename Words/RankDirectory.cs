@@ -6,7 +6,6 @@
     {
         private readonly BitString directory;
         private readonly BitString data;
-        private readonly int numBits;
         private readonly int l1Size;
         private readonly int l2Size;
         private readonly int l1Bits;
@@ -23,13 +22,15 @@
         {
             directory = new BitString(directoryData);
             data = new BitString(encoding.bitData);
-            numBits = encoding.numBits;
+            NumBits = encoding.numBits;
             this.l1Size = l1Size;
             this.l2Size = l2Size;
             this.l1Bits = l1Bits;
             this.l2Bits = l2Bits;
             sectionBits = (l1Size / l2Size - 1) * l2Bits + l1Bits;
         }
+
+        public int NumBits { get; }
 
         public static RankDirectory Create(
             (string data, int numBits) encoding, int l1Size, int l2Size)
@@ -102,8 +103,11 @@
 
         public int Select(int which, int y)
         {
-            var high = numBits;
-            var low = -1;
+            return Select(which, y, -1, NumBits);
+        }
+
+        public int Select(int which, int y, int low, int high)
+        {
             var val = -1;
 
             while (high - low > 1)

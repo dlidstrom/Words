@@ -167,12 +167,9 @@
         private (SuccinctNode center, SuccinctNode left, SuccinctNode right) LoadChildren(
             SuccinctNode node)
         {
-            // figure out which is which
-            // center is always first child
-            // left is < center
-            // right is > center
-            var firstChild = directory.Select(0, node.NodeIndex + 1) - node.NodeIndex;
-            var childOfNextNode = directory.Select(0, node.NodeIndex + 2) - node.NodeIndex - 1;
+            var sel = directory.Select(node.NodeIndex + 1);
+            var firstChild = sel - node.NodeIndex;
+            var childOfNextNode = directory.Select(node.NodeIndex + 2, sel, sel + 8) - node.NodeIndex - 1;
             var numberOfChildren = childOfNextNode - firstChild;
             switch (numberOfChildren)
             {
