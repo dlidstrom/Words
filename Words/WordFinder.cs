@@ -7,24 +7,27 @@
     public class WordFinder
     {
         private readonly ITree tree;
-        private readonly Dictionary<string, SortedSet<string>> permutations;
-        private readonly Dictionary<string, string> normalizedToOriginal;
         private readonly Language language;
 
-        private WordFinder(ITree tree,
+        private WordFinder(
+            ITree tree,
             Dictionary<string, SortedSet<string>> permutations,
             Dictionary<string, string> normalizedToOriginal,
             Language language,
             string treeType)
         {
             this.tree = tree;
-            this.permutations = permutations;
-            this.normalizedToOriginal = normalizedToOriginal;
             this.language = language;
+            Permutations = permutations;
+            NormalizedToOriginal = normalizedToOriginal;
             TreeType = treeType;
         }
 
         public string TreeType { get; }
+
+        public Dictionary<string, SortedSet<string>> Permutations { get; }
+
+        public Dictionary<string, string> NormalizedToOriginal { get; }
 
         public static WordFinder CreateTernary(string[] lines, Language language)
         {
@@ -119,7 +122,7 @@
         private void Matches(string input, Action<Match> action, int d, int limit = 100)
         {
             var normalized = language.ToLower(input);
-            foreach (var s in tree.Matches(normalized, limit).Select(m => new Match { Value = normalizedToOriginal[m], Type = MatchType.Word }))
+            foreach (var s in tree.Matches(normalized, limit).Select(m => new Match { Value = NormalizedToOriginal[m], Type = MatchType.Word }))
                 action.Invoke(s);
             foreach (var s in Anagram(input))
                 action.Invoke(s);
@@ -139,7 +142,7 @@
                 var chars = normalized.ToCharArray();
                 Array.Sort(chars);
                 var key = new string(chars);
-                if (permutations.TryGetValue(key, out var list))
+                if (Permutations.TryGetValue(key, out var list))
                 {
                     matches.AddRange(
                         list.Where(m => language.ToLower(m) != normalized)
@@ -161,7 +164,7 @@
                 .Where(m => m != normalized)
                 .Select(m => new Match
                 {
-                    Value = normalizedToOriginal[m],
+                    Value = NormalizedToOriginal[m],
                     Type = MatchType.Near
                 }).ToList();
             return matches;

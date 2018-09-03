@@ -5,7 +5,9 @@
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Text;
+    using LiteDB;
 
     public static class Program
     {
@@ -23,6 +25,36 @@
                     File.WriteAllText(
                         @"C:\Programming\words.json",
                         json);
+                    var mapper = BsonMapper.Global;
+                    mapper.Entity<NormalizedToOriginal>()
+                        .Id(x => x.Normalized);
+                    mapper.Entity<WordPermutations>()
+                        .Id(x => x.NormalizedSorted);
+                    const string dbFilename = @"C:\Programming\words.db";
+                    if (File.Exists(dbFilename))
+                    {
+                        File.Delete(dbFilename);
+                    }
+
+                    using (var db = new LiteDatabase(dbFilename))
+                    {
+                        var normalizedCollection = db.GetCollection<NormalizedToOriginal>("normalized");
+                        var orderedKeys = wordFinder.NormalizedToOriginal
+                            .Where(x => x.Key != x.Value)
+                            .Select(x => x.Key)
+                            .OrderBy(x => x)
+                            .ToArray();
+                        normalizedCollection.InsertBulk(orderedKeys
+                            .Select(x => new NormalizedToOriginal(x, wordFinder.NormalizedToOriginal[x])));
+
+                        var permutationsCollection = db.GetCollection<WordPermutations>("permutations");
+                        var permutations = wordFinder.Permutations
+                            .Where(x => x.Value.Count > 1)
+                            .ToArray();
+                        permutationsCollection.InsertBulk(
+                            permutations
+                                .Select(x => new WordPermutations(x.Key, x.Value.ToArray())));
+                    }
                 }
                 else
                 {
