@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     public class SuccinctTree : ITree
     {
@@ -28,11 +29,12 @@
 
         public SuccinctTree(SuccinctTreeData data, Language language)
         {
-            encoding = new BitString(data.EncodingBytes);
+            var encodingJoined = string.Join(string.Empty, data.EncodingBytes);
+            encoding = new BitString(encodingJoined);
             encodingBits = data.EncodingBits;
-            letterData = new BitString(data.LetterBytes);
+            letterData = new BitString(string.Join(string.Empty, data.LetterBytes));
             directory = RankDirectory.Create(
-                (data.EncodingBytes, data.EncodingBits),
+                (encodingJoined, data.EncodingBits),
                 32 * 32,
                 32);
             this.language = language;
@@ -42,7 +44,11 @@
 
         public SuccinctTreeData GetData()
         {
-            return new SuccinctTreeData(encoding.Bytes, encodingBits, letterData.Bytes);
+            var data = new SuccinctTreeData(
+                encoding.Bytes.ChunkSplit(80).ToArray(),
+                encodingBits,
+                letterData.Bytes.ChunkSplit(80).ToArray());
+            return data;
         }
 
         public List<string> Matches(string s, int limit)

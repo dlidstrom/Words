@@ -1,6 +1,7 @@
 ﻿namespace Words
 {
     using System;
+    using System.Collections.Generic;
 
     public static class Extensions
     {
@@ -24,6 +25,12 @@
         public static int Select(this RankDirectory directory, int y, int low, int high)
         {
             return directory.Select(0, y, low, Math.Min(directory.NumBits, high));
+        }
+
+        public static IEnumerable<string> ChunkSplit(this string str, int chunkSize)
+        {
+            for (var i = 0; i < str.Length; i += chunkSize)
+                yield return str.Substring(i, Math.Min(chunkSize, str.Length - i));
         }
     }
 }

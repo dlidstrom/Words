@@ -11,7 +11,9 @@
 
     public static class Program
     {
-        const string DbFilename = @"C:\Programming\words.db";
+        private const string EncodingFilename = @"C:\Programming\words.json";
+        private const string DbFilename = @"C:\Programming\words.db";
+        private const string WordsFilename = @"C:\Programming\Words\Words.Web\App_Data\words.txt";
 
         public static void Main(string[] args)
         {
@@ -19,40 +21,31 @@
             {
                 if (args.Length > 0 && args[0] == "encode")
                 {
-                    const string filename = @"C:\Programming\Words\Words.Web\App_Data\words.txt";
-                    var lines = File.ReadAllLines(filename, Encoding.UTF8);
+                    var lines = File.ReadAllLines(WordsFilename, Encoding.UTF8);
                     var wordFinder = WordFinder.CreateTernary(lines, Language.Swedish);
                     var tree = wordFinder.EncodeSuccinct();
                     var json = JsonConvert.SerializeObject(tree.GetData(), Formatting.Indented);
-                    File.WriteAllText(
-                        @"C:\Programming\words.json",
-                        json);
-                    var mapper = BsonMapper.Global;
-                    mapper.Entity<NormalizedToOriginal>()
-                        .Id(x => x.Normalized);
-                    mapper.Entity<WordPermutations>()
-                        .Id(x => x.NormalizedSorted);
+                    File.WriteAllText(EncodingFilename, json);
                     if (File.Exists(DbFilename))
                     {
                         File.Delete(DbFilename);
                     }
 
-                    using (var db = new LiteDatabase(DbFilename))
+                    using (var db = new DatabaseWrapper(DbFilename))
                     {
-                        var normalizedCollection = db.GetCollection<NormalizedToOriginal>("normalized");
                         var orderedKeys = wordFinder.NormalizedToOriginal
                             .Where(x => x.Key != x.Value)
                             .Select(x => x.Key)
                             .OrderBy(x => x)
                             .ToArray();
-                        normalizedCollection.InsertBulk(orderedKeys
+                        db.NormalizedToOriginals.InsertBulk(
+                            orderedKeys
                             .Select(x => new NormalizedToOriginal(x, wordFinder.NormalizedToOriginal[x])));
 
-                        var permutationsCollection = db.GetCollection<WordPermutations>("permutations");
                         var permutations = wordFinder.Permutations
                             .Where(x => x.Value.Count > 1)
                             .ToArray();
-                        permutationsCollection.InsertBulk(
+                        db.WordPermutations.InsertBulk(
                             permutations
                                 .Select(x => new WordPermutations(x.Key, x.Value.ToArray())));
                     }
@@ -70,16 +63,14 @@
 
         private static void Run()
         {
-            var stopwatch = new Stopwatch();
             Console.Write("Constructing search trees...");
-            stopwatch.Start();
-            using (var db = new LiteDatabase(DbFilename))
+            var stopwatch = Stopwatch.StartNew();
+            using (var db = new DatabaseWrapper(DbFilename))
             {
-                var normalizedCollection = db.GetCollection<NormalizedToOriginal>("normalized");
-                var permutationsCollection = db.GetCollection<WordPermutations>("permutations");
+                var wrapper = db;
                 var (ternary, succinct) = CreateWordFinders(
-                    x => permutationsCollection.FindById(new BsonValue(x))?.Words ?? new string[0],
-                    x => normalizedCollection.FindById(new BsonValue(x))?.Original);
+                    x => wrapper.WordPermutations.FindById(new BsonValue(x))?.Words ?? new string[0],
+                    x => wrapper.NormalizedToOriginals.FindById(new BsonValue(x))?.Original);
 
                 stopwatch.Stop();
                 Console.WriteLine("{0} ms", stopwatch.ElapsedMilliseconds);
@@ -94,7 +85,7 @@
                         if (string.IsNullOrWhiteSpace(input))
                             break;
 
-                        foreach (var wordFinder in new[] { ternary, succinct })
+                        foreach (var wordFinder in new[] { ternary, succinct }.Where(x => x != null))
                         {
                             stopwatch.Restart();
                             var matches = wordFinder.Matches(input, 2);
@@ -130,14 +121,12 @@
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\english-word-list.txt", Encoding.UTF8, Language.English);
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\swedish-english.txt", Encoding.UTF8, Language.Swedish);
 
-            const string filename = @"C:\Programming\Words\Words.Web\App_Data\words.txt";
-            var lines = File.ReadAllLines(filename, Encoding.UTF8);
+            var lines = File.ReadAllLines(WordsFilename, Encoding.UTF8);
             var wordFinderTernary = WordFinder.CreateTernary(lines, Language.Swedish);
 
-            var succinctTreeDataJson = File.ReadAllText(@"C:\Programming\words.json");
+            var succinctTreeDataJson = File.ReadAllText(EncodingFilename);
             var succinctTreeData = JsonConvert.DeserializeObject<SuccinctTreeData>(succinctTreeDataJson);
             var wordFinderSuccinct = WordFinder.CreateSuccinct(
-                lines,
                 succinctTreeData,
                 Language.Swedish,
                 getPermutations,

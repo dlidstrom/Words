@@ -92,44 +92,12 @@
         }
 
         public static WordFinder CreateSuccinct(
-            string[] lines,
             SuccinctTreeData succinctTreeData,
             Language language,
             Func<string, string[]> getPermutations,
             Func<string, string> getOriginal)
         {
             var tree = new SuccinctTree(succinctTreeData, language);
-            var permutations = new Dictionary<string, SortedSet<string>>();
-            var normalizedToOriginal = new Dictionary<string, string>();
-            foreach (var word in lines)
-            {
-                var normalized = language.ToLower(word);
-
-                // keep original
-                if (normalizedToOriginal.TryGetValue(normalized, out var added) && added != word)
-                {
-                    throw new Exception($"Two words normalize to the same value: {word} and {added} -> {normalized}");
-                }
-
-                try
-                {
-                    normalizedToOriginal.Add(normalized, word);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Duplicate word found: {word}", ex);
-                }
-
-                // sort characters and use that as key
-                var chars = normalized.ToCharArray();
-                Array.Sort(chars);
-                var key = new string(chars);
-                if (permutations.TryGetValue(key, out var list))
-                    list.Add(word);
-                else
-                    permutations.Add(key, new SortedSet<string> { word });
-            }
-
             var wordFinder = new WordFinder(
                 tree,
                 null,
