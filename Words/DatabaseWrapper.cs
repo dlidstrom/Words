@@ -1,4 +1,4 @@
-﻿namespace Words.Console
+﻿namespace Words
 {
     using System;
     using LiteDB;

@@ -1,31 +1,29 @@
 ﻿namespace Words.Web
 {
     using System;
-    using System.Globalization;
     using System.IO;
     using System.Text;
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
     using Infrastructure;
+    using LiteDB;
+    using Newtonsoft.Json;
     using NLog;
     using Raven.Client;
     using Raven.Client.Document;
+    using Logger = NLog.Logger;
 
     // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
     // visit http://go.microsoft.com/?LinkId=9394801
     public class MvcApplication : HttpApplication
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        private static WordFinder wordFinder;
-        private static NianFinder nianFinder;
-        private static IDocumentStore documentStore;
+        private DatabaseWrapper databaseWrapper;
 
-        public static WordFinder WordFinder => wordFinder;
+        public static WordFinder WordFinder { get; private set; }
 
-        public static NianFinder NianFinder => nianFinder;
-
-        public static IDocumentStore DocumentStore => documentStore;
+        public static IDocumentStore DocumentStore { get; private set; }
 
         private static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
@@ -46,25 +44,37 @@
         protected void Application_Start()
         {
             Log.Info("Application starting");
-            AreaRegistration.RegisterAllAreas();
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
-            LoadDictionary();
+
+            var appDataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
+            databaseWrapper = new DatabaseWrapper(Path.Combine(appDataDirectory, "words.db"));
+            var filename = Path.Combine(appDataDirectory, "words.json");
+            var succinctTreeDataJson = File.ReadAllText(filename, Encoding.UTF8);
+            var succinctTreeData = JsonConvert.DeserializeObject<SuccinctTreeData>(succinctTreeDataJson);
+            WordFinder = WordFinder.CreateSuccinct(
+                succinctTreeData,
+                Language.Swedish,
+                x => databaseWrapper.WordPermutations.FindById(new BsonValue(x))?.Words ?? new string[0],
+                x => databaseWrapper.NormalizedToOriginals.FindById(new BsonValue(x))?.Original);
+            Log.Info("Dictionary loaded");
             Log.Info("Initializing document store");
-            documentStore = new DocumentStore
+            DocumentStore = new DocumentStore
             {
                 ConnectionStringName = "RavenDB"
             };
 
-            documentStore.Initialize();
+            DocumentStore.Initialize();
             Log.Info("Document store initialized");
+            Log.Info("Application initialized");
         }
 
         protected void Application_End()
         {
             Log.Info("Application ending");
-            documentStore.Dispose();
+            DocumentStore?.Dispose();
+            databaseWrapper?.Dispose();
         }
 
         protected void Application_BeginRequest()
@@ -90,18 +100,6 @@
                 Response.AddHeader("Location", "https://krysshjälpen.se");
                 Response.End();
             }
-        }
-
-        private static void LoadDictionary()
-        {
-            Log.Info("Loading dictionary");
-            var dir = AppDomain.CurrentDomain.GetData("DataDirectory");
-            var filename = Path.Combine(dir.ToString(), "words.txt");
-            var language = Path.Combine(dir.ToString(), "nian.txt");
-            var lines = File.ReadAllLines(filename, Encoding.UTF8);
-            wordFinder = WordFinder.CreateTernary(lines, Language.Swedish);
-            nianFinder = new NianFinder(language, Encoding.UTF8, new CultureInfo("sv-SE"));
-            Log.Info("Dictionary loaded");
         }
     }
 }
