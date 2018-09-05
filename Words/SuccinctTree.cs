@@ -34,7 +34,7 @@
             encodingBits = data.EncodingBits;
             letterData = new BitString(string.Join(string.Empty, data.LetterBytes));
             directory = RankDirectory.Create(
-                (encodingJoined, data.EncodingBits),
+                (encodingJoined, encodingBits),
                 32 * 32,
                 32);
             this.language = language;

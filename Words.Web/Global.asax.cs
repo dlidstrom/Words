@@ -49,17 +49,12 @@
             RegisterRoutes(RouteTable.Routes);
 
             var appDataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
-            databaseWrapper = new DatabaseWrapper(Path.Combine(appDataDirectory, "words.db"));
+            databaseWrapper = new DatabaseWrapper(
+                Path.Combine(appDataDirectory, "words.db"),
+                null);
             var filename = Path.Combine(appDataDirectory, "words.json");
-            var succinctTreeDataJson = File.ReadAllText(filename, Encoding.UTF8);
-            var succinctTreeData = JsonConvert.DeserializeObject<SuccinctTreeData>(succinctTreeDataJson);
-            WordFinder = WordFinder.CreateSuccinct(
-                succinctTreeData,
-                Language.Swedish,
-                x => databaseWrapper.WordPermutations.FindById(new BsonValue(x))?.Words ?? new string[0],
-                x => databaseWrapper.NormalizedToOriginals.FindById(new BsonValue(x))?.Original);
+            WordFinder = LoadWordFinder(filename);
             Log.Info("Dictionary loaded");
-            Log.Info("Initializing document store");
             DocumentStore = new DocumentStore
             {
                 ConnectionStringName = "RavenDB"
@@ -67,7 +62,7 @@
 
             DocumentStore.Initialize();
             Log.Info("Document store initialized");
-            Log.Info("Application initialized");
+            GC.Collect();
         }
 
         protected void Application_End()
@@ -100,6 +95,18 @@
                 Response.AddHeader("Location", "https://krysshjälpen.se");
                 Response.End();
             }
+        }
+
+        private WordFinder LoadWordFinder(string filename)
+        {
+            var succinctTreeDataJson = File.ReadAllText(filename, Encoding.UTF8);
+            var succinctTreeData = JsonConvert.DeserializeObject<SuccinctTreeData>(succinctTreeDataJson);
+            var wordFinder = WordFinder.CreateSuccinct(
+                succinctTreeData,
+                Language.Swedish,
+                x => databaseWrapper.WordPermutations.FindById(new BsonValue(x))?.Words ?? new string[0],
+                x => databaseWrapper.NormalizedToOriginals.FindById(new BsonValue(x))?.Original);
+            return wordFinder;
         }
     }
 }

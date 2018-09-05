@@ -31,7 +31,7 @@
                         File.Delete(DbFilename);
                     }
 
-                    using (var db = new DatabaseWrapper(DbFilename))
+                    using (var db = new DatabaseWrapper(DbFilename, null))
                     {
                         var orderedKeys = wordFinder.NormalizedToOriginal
                             .Where(x => x.Key != x.Value)
@@ -65,7 +65,7 @@
         {
             Console.Write("Constructing search trees...");
             var stopwatch = Stopwatch.StartNew();
-            using (var db = new DatabaseWrapper(DbFilename))
+            using (var db = new DatabaseWrapper(DbFilename, null))
             {
                 var wrapper = db;
                 var (ternary, succinct) = CreateWordFinders(
