@@ -5,34 +5,31 @@
 
     public class Language
     {
-        public SortedSet<char> Vowels { get; private set; }
-        public SortedSet<char> Consonants { get; private set; }
-        public CultureInfo CultureInfo { get; private set; }
+        private readonly CultureInfo cultureInfo;
 
-        public static Language Swedish
+        private Language(CultureInfo cultureInfo)
         {
-            get
-            {
-                return new Language
-                    {
-                        Vowels = new SortedSet<char> { 'a', 'o', 'u', 'å', 'e', 'i', 'y', 'ä', 'ö' },
-                        Consonants = new SortedSet<char> { 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z' },
-                        CultureInfo = new CultureInfo("sv-SE")
-                    };
-            }
+            this.cultureInfo = cultureInfo;
         }
 
-        public static Language English
+        public SortedSet<char> Vowels { get; private set; }
+        public SortedSet<char> Consonants { get; private set; }
+
+        public static Language Swedish => new Language(new CultureInfo("sv-SE"))
         {
-            get
-            {
-                return new Language
-                    {
-                        Vowels = new SortedSet<char> { 'a', 'o', 'u', 'e', 'i', 'y' },
-                        Consonants = new SortedSet<char> { 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z' },
-                        CultureInfo = new CultureInfo("en")
-                    };
-            }
+            Vowels = new SortedSet<char> { 'a', 'o', 'u', 'å', 'e', 'i', 'y', 'ä', 'ö' },
+            Consonants = new SortedSet<char> { 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z' }
+        };
+
+        public static Language English => new Language(new CultureInfo("en"))
+        {
+            Vowels = new SortedSet<char> { 'a', 'o', 'u', 'e', 'i', 'y' },
+            Consonants = new SortedSet<char> { 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z' }
+        };
+
+        public string ToLower(string word)
+        {
+            return word.ToLower(cultureInfo);
         }
     }
 }

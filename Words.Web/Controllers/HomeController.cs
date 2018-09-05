@@ -38,9 +38,8 @@
             var matches = MvcApplication.WordFinder.Matches(q.Text, 2);
             sw.Stop();
             double millis = 1000.0 * sw.ElapsedTicks / Stopwatch.Frequency;
-            int nodes = MvcApplication.WordFinder.Nodes;
-            var results = new ResultsViewModel(q.Text, matches, millis, nodes);
-            Log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1},{2:F2}", q.Text, nodes, millis);
+            var results = new ResultsViewModel(q.Text, matches, millis);
+            Log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1:F2}", q.Text, millis);
 
             // save query
             using (var session = MvcApplication.DocumentStore.OpenSession())
@@ -49,7 +48,6 @@
                 {
                     Type = QueryType.Word,
                     Text = q.Text,
-                    Nodes = nodes,
                     ElapsedMilliseconds = millis
                 });
 

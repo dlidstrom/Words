@@ -13,7 +13,7 @@
 
         public override string ToString()
         {
-            return $"Char = {Char}, WordEnd = {WordEnd}, Left = {Left.Char}, Center = {Center.Char}, Right = {Right.Char}";
+            return $"Char = {Char}, WordEnd = {WordEnd}, Left = {Left?.Char}, Center = {Center?.Char}, Right = {Right?.Char}";
         }
     }
 }

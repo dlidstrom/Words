@@ -45,9 +45,10 @@
     ///     return 0;
     /// }
     /// </code>
-    public class TernaryTree
+    public class TernaryTree : ITree
     {
         private readonly Language language;
+        private readonly List<Node> nodes = new List<Node>();
         private Node root;
 
         /// <summary>
@@ -60,6 +61,8 @@
         }
 
         public int Nodes { get; private set; }
+
+        public Action<string> Log { get; set; } = s => { };
 
         /// <summary>
         /// Add word to tree.
@@ -130,7 +133,7 @@
             return false;
         }
 
-        public List<string> Matches(string s, int limit = 100)
+        public List<string> Matches(string s, int limit)
         {
             if (string.IsNullOrWhiteSpace(s))
                 throw new ArgumentException();
@@ -181,7 +184,7 @@
             Traverse(node.Right, action, s);
         }
 
-        public List<string> NearSearch(string s, int d = 1, int limit = 100)
+        public List<string> NearSearch(string s, int d, int limit)
         {
             if (string.IsNullOrWhiteSpace(s))
                 throw new ArgumentException();
@@ -196,11 +199,14 @@
             return matches;
         }
 
-        private static Node Add(string s, int pos, ref Node node)
+        private Node Add(string s, int pos, ref Node node)
         {
             char c = pos == s.Length ? default(char) : s[pos];
             if (node == null)
+            {
                 node = new Node { Char = c, WordEnd = false };
+                nodes.Add(node);
+            }
 
             if (c < node.Char)
                 node.Left = Add(s, pos, ref node.Left);
@@ -246,6 +252,7 @@
         {
             if (node == null || matches.Count >= limit)
                 return;
+            Log($"Visiting {node}");
             Nodes++;
 
             char c = pos == s.Length ? default(char) : s[pos];
@@ -372,6 +379,64 @@
 
             if (depth > 0 || c > node.Char)
                 NearSearch(s, substr, pos, node.Right, matches, limit, depth);
+        }
+
+        public SuccinctTree EncodeSuccinct()
+        {
+            var encodingWriter = new BitWriter();
+            var letterWriter = new BitWriter();
+            encodingWriter.Write(0x02, 2);
+            var queue = new Queue<Node>();
+            queue.Enqueue(root);
+            while (queue.Count > 0)
+            {
+                var children = 0;
+                var node = queue.Dequeue();
+
+                if (node.Center != null)
+                {
+                    queue.Enqueue(node.Center);
+                    children++;
+                }
+
+                if (node.Left != null)
+                {
+                    queue.Enqueue(node.Left);
+                    children++;
+                }
+
+                if (node.Right != null)
+                {
+                    queue.Enqueue(node.Right);
+                    children++;
+                }
+
+                for (var i = 0; i < children; i++)
+                {
+                    encodingWriter.Write(1, 1);
+                }
+
+                encodingWriter.Write(0, 1);
+                letterWriter.Write(node);
+            }
+
+            var encoding = encodingWriter.GetData();
+            var expectedBits = 2 * nodes.Count + 1;
+            if (encoding.totalBits != expectedBits)
+            {
+                var message = string.Format(
+                    "Unexpected number of bits. Expected 2 * nodes.Count + 1 = {0} but got {1}.",
+                    expectedBits,
+                    encoding.totalBits);
+                throw new ApplicationException(message);
+            }
+
+            var letterData = letterWriter.GetData();
+            var tree = new SuccinctTree(
+                encoding,
+                letterData,
+                language);
+            return tree;
         }
     }
 }
