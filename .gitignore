@@ -42,3 +42,4 @@ Build/_build
 _install
 Words.Web/App_Data/words.db
 Words.Web/App_Data/words.json
+Words.Core/.ionide
