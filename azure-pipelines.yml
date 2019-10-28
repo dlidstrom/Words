@@ -14,5 +14,5 @@ variables:
 
 steps:
 - script: dotnet build --configuration $(buildConfiguration)
-  workingDirectory: Words/Words.Core
+  workingDirectory: Words.Core
   displayName: 'dotnet build $(buildConfiguration)'
