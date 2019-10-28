@@ -16,8 +16,8 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build $(buildConfiguration)'
-  workingDirectory: Words.Core
   inputs:
+    workingDirectory: Words.Core
     command: publish
     publishWebProjects: true
     zipAfterPublish: true
