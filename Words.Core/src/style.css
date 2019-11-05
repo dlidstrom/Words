@@ -1,0 +1,12 @@
+@font-face {
+    font-family: 'HK Grotesk Regular';
+    font-style: normal;
+    font-weight: normal;
+    src: local('HK Grotesk Regular'), url('HKGrotesk-Regular.otf') format('woff');
+}
+
+.hello {
+    color: red;
+    font-family: 'HK Grotesk Regular';
+    background: url('./icon.png') no-repeat;
+}

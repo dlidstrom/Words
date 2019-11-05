@@ -43,4 +43,6 @@ _install
 Words.Web/App_Data/words.db
 Words.Web/App_Data/words.json
 Words.Core/.ionide
+Words.Core/node_modules
+Words.Core/dist
 /.ionide
