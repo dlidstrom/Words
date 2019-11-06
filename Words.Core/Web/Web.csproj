@@ -11,4 +11,8 @@
     <!-- <Watch Include="**\*.cshtml" /> -->
   </ItemGroup>
 
+  <Target Name="MyPrecompileTarget" BeforeTargets="Build">
+    <Exec Command="npm run build" /> <!-- or xxx.cmd might be better -->
+  </Target>
+
 </Project>

@@ -11,4 +11,8 @@ body {
     transition: all .5s;
     user-select: none;
     background: linear-gradient(to bottom, white, black);
+
+    .nested {
+        background: linear-gradient(to top, blue, red);
+    }
 }

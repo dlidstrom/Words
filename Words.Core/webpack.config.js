@@ -1,32 +1,37 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     mode: 'development',
     entry: {
         app: './src/index.js',
-        print: './src/print.js',
-        another: './src/another-module.js'
+        print: './src/print.js'
+        , style: './src/style.scss'
     },
     module: {
         rules: [
             {
-                test: /\.css$/,
+                test: /\.(sa|sc|c)ss$/,
                 exclude: /node_modules/,
                 use: [
                     {
-                        loader: 'style-loader'
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            hmr: process.env.NODE_ENV === 'development'
+                        }
                     },
+                    //'file-loader',
+                    //'extract-loader',
                     {
                         loader: 'css-loader',
                         options: {
-                            importLoaders: 1
+                            importLoaders: 2 // => postcss-loader, sass-loader
                         }
                     },
-                    {
-                        loader: 'postcss-loader'
-                    }
+                    'postcss-loader',
+                    'sass-loader'
                 ]
             }
         ]
@@ -39,10 +44,14 @@ module.exports = {
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
             title: 'Caching'
+        }),
+        new MiniCssExtractPlugin({
+            filename: '[name].css',
+            chunkFilename: '[id].css'
         })
     ],
     output: {
-       filename: '[name].[contenthash].js',
+       filename: '[name].js',
        path: path.resolve(__dirname, 'dist'),
        publicPath: '/'
     },
