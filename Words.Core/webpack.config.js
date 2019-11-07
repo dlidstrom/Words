@@ -5,7 +5,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimzeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = {
-    mode: 'development',
+    mode: 'production',
     entry: {
         app: './src/index.js',
         print: './src/print.js'
@@ -34,7 +34,7 @@ module.exports = {
             }
         ]
     },
-    devtool: 'inline-source-map',
+    //devtool: 'inline-source-map',
     devServer: {
         contentBase: './dist'
     },
@@ -44,7 +44,7 @@ module.exports = {
             title: 'Caching'
         }),
         new MiniCssExtractPlugin({
-            filename: '[name].css'
+            filename: '[name].[hash].min.css'
         })
     ],
     output: {
