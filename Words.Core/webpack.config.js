@@ -2,6 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimzeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = {
     mode: 'development',
@@ -17,10 +18,7 @@ module.exports = {
                 exclude: /node_modules/,
                 use: [
                     {
-                        loader: MiniCssExtractPlugin.loader,
-                        options: {
-                            hmr: process.env.NODE_ENV === 'development'
-                        }
+                        loader: MiniCssExtractPlugin.loader
                     },
                     //'file-loader',
                     //'extract-loader',
@@ -46,8 +44,7 @@ module.exports = {
             title: 'Caching'
         }),
         new MiniCssExtractPlugin({
-            filename: '[name].css',
-            chunkFilename: '[id].css'
+            filename: '[name].css'
         })
     ],
     output: {
@@ -56,10 +53,17 @@ module.exports = {
        publicPath: '/'
     },
     optimization: {
+        minimizer: [new OptimzeCSSAssetsPlugin({})],
         moduleIds: 'hashed',
         runtimeChunk: 'single',
         splitChunks: {
             cacheGroups: {
+                styles: {
+                    name: 'styles',
+                    test: /\.css$/,
+                    chunks: 'all',
+                    enforce: true
+                },
                 vendor: {
                     test: /[\\/]node_modules[\\/]/,
                     name: 'vendors',
