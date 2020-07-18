@@ -35,7 +35,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "tailwindcss": "^1.1.3"
   }
 }
