@@ -10,8 +10,7 @@
     using LiteDB;
     using Newtonsoft.Json;
     using NLog;
-    using Raven.Client;
-    using Raven.Client.Document;
+    using Raven.Client.Documents;
     using Logger = NLog.Logger;
 
     // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
@@ -57,7 +56,8 @@
             Log.Info("Dictionary loaded");
             DocumentStore = new DocumentStore
             {
-                ConnectionStringName = "RavenDB"
+                Urls = new[] { "localhost:8080" },
+                Database = "Krysshjalpen"
             };
 
             DocumentStore.Initialize();
