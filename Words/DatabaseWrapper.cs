@@ -7,14 +7,9 @@
     {
         private readonly LiteDatabase database;
 
-        public DatabaseWrapper(string filename, Action<string> loggerAction)
+        public DatabaseWrapper(string filename)
         {
-            var logger = new Logger(
-                Logger.FULL ^ Logger.DISK ^ Logger.LOCK ^ Logger.CACHE,
-                loggerAction);
-            database = new LiteDatabase(
-                $"Filename={filename};Cache Size=0",
-                log: logger);
+            database = new LiteDatabase($"Filename={filename};Cache Size=0");
         }
 
         static DatabaseWrapper()
@@ -26,9 +21,9 @@
                 .Id(x => x.NormalizedSorted);
         }
 
-        public LiteCollection<NormalizedToOriginal> NormalizedToOriginals => database.GetCollection<NormalizedToOriginal>("normalized");
+        public ILiteCollection<NormalizedToOriginal> NormalizedToOriginals => database.GetCollection<NormalizedToOriginal>("normalized");
 
-        public LiteCollection<WordPermutations> WordPermutations => database.GetCollection<WordPermutations>("permutations");
+        public ILiteCollection<WordPermutations> WordPermutations => database.GetCollection<WordPermutations>("permutations");
 
         public AdvancedWrapper Advanced => new AdvancedWrapper(database);
 

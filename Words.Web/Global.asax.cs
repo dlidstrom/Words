@@ -48,9 +48,7 @@
             RegisterRoutes(RouteTable.Routes);
 
             var appDataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
-            databaseWrapper = new DatabaseWrapper(
-                Path.Combine(appDataDirectory, "words.db"),
-                null);
+            databaseWrapper = new DatabaseWrapper(Path.Combine(appDataDirectory, "words.db"));
             var filename = Path.Combine(appDataDirectory, "words.json");
             WordFinder = LoadWordFinder(filename);
             Log.Info("Dictionary loaded");
