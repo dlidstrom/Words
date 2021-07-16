@@ -55,20 +55,6 @@ $settings = @{
     ADMINISTRATOR_PASSWORD = $administratorPassword
 }
 
-$settingsFormatted = ($settings.Keys | % { "$_=$($settings[$_])" }) -join "`n"
-"Settings:`n$settingsFormatted"
-
-$yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Continue with installation."
-$no = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Aborts the script."
-$options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
-$result = $host.ui.PromptForChoice("Verify environment variables.", "Are the variables correct?", $options, 1)
-
-switch ($result)
-    {
-        0 {"You selected Yes."}
-        1 { return }
-    }
-
 "Installing new version..."
 $settingsJoined = ($settings.Keys | % { "$_=""$($settings[$_])""" }) -join " "
 
