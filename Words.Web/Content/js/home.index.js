@@ -40,4 +40,4 @@
             $("#home-results-near").empty();
         }
     };
-} (window.w = window.w || {}, jQuery));
+} (window.w = window.w || {}, cash));

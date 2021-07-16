@@ -14,4 +14,4 @@
     w.searchFailure = function (data) {
         $("#content").html("<span class='label label-important'>Ange 9 tecken!</span>");
     };
-} (window.w = window.w || {}, jQuery));
+} (window.w = window.w || {}, cash));
