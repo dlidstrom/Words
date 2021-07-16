@@ -54,7 +54,7 @@
             Log.Info("Dictionary loaded");
             DocumentStore = new DocumentStore
             {
-                Urls = new[] { "localhost:8080" },
+                Urls = new[] { "http://localhost:8080" },
                 Database = "Krysshjalpen"
             };
 

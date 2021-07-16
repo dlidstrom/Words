@@ -3,7 +3,10 @@
 @{
     ViewBag.Title = "Krysshjälpen";
     ViewBag.HomeTabClass = "active";
-    Bundles.Reference("Content/js/home.index.js");
+}
+
+@section scripts {
+    <script src="@Url.ContentCacheBreak("/Content/js/home.index.js")"></script>
 }
 
 @* header, items *@
@@ -91,7 +94,7 @@
                 <i class="icon-search icon-white"></i>
                 Sök
             </button>
-            <span id="progress"><img src="@Url.Content("~/Content/images/spinner.gif")" alt="Spinner" /></span>
+            <span id="progress"><img src="@Url.ContentCacheBreak("/Content/images/spinner.gif")" alt="Spinner" /></span>
         }
     </div>
 </div>

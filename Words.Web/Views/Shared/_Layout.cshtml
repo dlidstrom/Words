@@ -1,7 +1,4 @@
-﻿@{
-    Bundles.Reference("Content/css/words.css");
-    Bundles.Reference("Content/css/add2home.css");
-}<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -17,8 +14,8 @@
             padding-top: 40px;
         }
     </style>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
-    @Bundles.RenderStylesheets()
+    <link href="@Url.ContentCacheBreak("/Content/bootstrap/css/bootstrap.min.css")" rel="stylesheet">
+    <link href="@Url.ContentCacheBreak("/Content/css/words.css")" rel="stylesheet">
     <script type="text/javascript">
 
         var _gaq = _gaq || [];
@@ -84,14 +81,8 @@
         </div>
         @RenderBody()
     </div>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-1.8.3.min.js"></script>
-    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
-    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/mvc/3.0/jquery.validate.unobtrusive.min.js"></script>
-    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/mvc/3.0/jquery.unobtrusive-ajax.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
-    <script type="text/javascript" src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
-    <!--[if lt IE 9]><script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-    @Bundles.RenderScripts()
+    <script src="@Url.ContentCacheBreak("/Content/js/cash.min.js")"></script>
+    <script src="@Url.ContentCacheBreak("/Content/js/lodash.min.js")"></script>
     @RenderSection("scripts", false)
     @if (IsSectionDefined("Init"))
     {

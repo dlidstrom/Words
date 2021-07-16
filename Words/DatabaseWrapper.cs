@@ -9,7 +9,7 @@
 
         public DatabaseWrapper(string filename)
         {
-            database = new LiteDatabase($"Filename={filename};Cache Size=0");
+            database = new LiteDatabase($"filename={filename};upgrade=true");
         }
 
         static DatabaseWrapper()

@@ -55,6 +55,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Infrastructure\Extensions.cs" />
     <Compile Include="Infrastructure\UserTrackerLogAttribute.cs" />
     <Compile Include="Models\Query.cs" />
     <Content Include=".well-known\acme-challenge\Web.Config">
@@ -82,9 +83,10 @@
     <Content Include="Content\images\spinner.gif" />
     <Content Include="Content\images\w.png" />
     <Content Include="Content\images\wikipedia-icon.png" />
-    <Content Include="Content\js\add2home.js" />
+    <Content Include="Content\js\cash.min.js" />
     <Content Include="Content\js\home.index.js" />
     <Content Include="cassette-cache\**\*.*" />
+    <Content Include="Content\js\lodash.min.js" />
     <Content Include="googlec8ec88eb3409129c.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
