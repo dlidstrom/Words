@@ -68,7 +68,7 @@ switch ($result)
     }
 
 # build
-& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe" build.msbuild /target:All /property:Version=$currentTag
+& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\MSBuild.exe" build.msbuild /target:All /property:Version=$currentTag
 
 # reset changed files
 $filesToReset = Get-ChildItem -Recurse -Filter AssemblyInfo.cs
