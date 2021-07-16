@@ -63,9 +63,8 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Data\Database\raven-data.ico" />
-    <Content Include="App_Data\saol.txt" />
-    <Content Include="App_Data\words.txt" />
+    <None Include="App_Data\words.db" />
+    <None Include="App_Data\words.json" />
     <Content Include="Content\bootstrap\css\bootstrap-responsive.css" />
     <Content Include="Content\bootstrap\css\bootstrap-responsive.min.css" />
     <Content Include="Content\bootstrap\css\bootstrap.css" />
@@ -112,13 +111,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".well-known\acme-challenge\Web.Config" />
-    <Content Include="App_Data\Database\Data" />
-    <Content Include="App_Data\Database\logs\RVN.log" />
-    <Content Include="App_Data\Database\logs\RVNres00001.jrs" />
-    <Content Include="App_Data\Database\logs\RVNres00002.jrs" />
-    <Content Include="App_Data\Database\system\RVN.chk" />
-    <Content Include="App_Data\words.db" />
-    <Content Include="App_Data\words.json" />
     <Content Include="Content\images\images.zip" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
@@ -154,11 +146,6 @@
     <PackageReference Include="ravendb.client">
       <Version>5.2.1</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\Database\IndexDefinitions\" />
-    <Folder Include="App_Data\Database\Indexes\" />
-    <Folder Include="App_Data\Database\temp\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Words\Words.csproj">
