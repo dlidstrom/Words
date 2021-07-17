@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href='@Url.Content("words2x.png")' />
     <meta property="fb:admins" content="599746088" />
     <meta name="msvalidate.01" content="2E150FE6FB6C648F5A4506F5E49CFF3A" />
-    <title>@ViewBag.Title</title>
+    <title>Krysshjälpen</title>
     <style type="text/css">
         body {
             padding-top: 40px;
@@ -22,7 +22,7 @@
         _gaq.push(['_setAccount', 'UA-29724397-1']);
         _gaq.push(['_trackPageview']);
 
-        (function() {
+        (function () {
             var ga = document.createElement('script');
             ga.type = 'text/javascript';
             ga.async = true;
@@ -36,7 +36,7 @@
 <body>
     <div id="fb-root"></div>
     <script type="text/javascript">
-        (function(d, s, id) {
+        (function (d, s, id) {
             var js, fjs = d.getElementsByTagName(s)[0];
             if (d.getElementById(id)) return;
             js = d.createElement(s);
@@ -82,15 +82,17 @@
         @RenderBody()
     </div>
     <script src="@Url.ContentCacheBreak("/Content/js/cash.min.js")"></script>
-    <script src="@Url.ContentCacheBreak("/Content/js/lodash.min.js")"></script>
-    @RenderSection("scripts", false)
-    @if (IsSectionDefined("Init"))
-    {
-        <script type="text/javascript">
-            $(function() {
-                @(RenderSection("Init", false))
+    <script type="text/javascript">
+        $(() => {
+            // prevent double submit
+            // https://stackoverflow.com/a/46296752/286406
+            $('form').submit(function () {
+                $(this).submit(function () {
+                    return false;
+                });
+                return true;
             });
-        </script>
-    }
+        });
+    </script>
 </body>
 </html>

@@ -2,7 +2,6 @@
 {
     using System.Diagnostics;
     using System.Globalization;
-    using System.Net;
     using System.Web.Mvc;
     using Models;
     using NLog;
@@ -12,34 +11,25 @@
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        /// <summary>
-        /// See http://forums.asp.net/t/1671805.aspx/1.
-        /// </summary>
-        /// <returns></returns>
         public ActionResult Index()
         {
             return View(new QueryViewModel());
         }
 
-        /// <summary>
-        /// Perform a query.
-        /// </summary>
-        /// <param name="q"></param>
-        /// <returns></returns>
+        [HttpPost]
+        [ActionName("Index")]
         public ActionResult Search(QueryViewModel q)
         {
-            if (q == null || !ModelState.IsValid || string.IsNullOrWhiteSpace(q.Text))
+            if (ModelState.IsValid == false)
             {
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json("Invalid request", JsonRequestBehavior.AllowGet);
+                return View(q);
             }
 
             var sw = Stopwatch.StartNew();
             var matches = MvcApplication.WordFinder.Matches(q.Text, 2);
             sw.Stop();
-            double millis = 1000.0 * sw.ElapsedTicks / Stopwatch.Frequency;
-            var results = new ResultsViewModel(q.Text, matches, millis);
-            Log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1:F2}", q.Text, millis);
+            var results = new ResultsViewModel(q.Text, matches, sw.Elapsed.TotalMilliseconds);
+            Log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1:F2}", q.Text, sw.Elapsed.TotalMilliseconds);
 
             // save query
             using (var session = MvcApplication.DocumentStore.OpenSession())
@@ -48,13 +38,13 @@
                 {
                     Type = QueryType.Word,
                     Text = q.Text,
-                    ElapsedMilliseconds = millis
+                    ElapsedMilliseconds = sw.Elapsed.TotalMilliseconds
                 });
 
                 session.SaveChanges();
             }
 
-            return Json(results, JsonRequestBehavior.AllowGet);
+            return View(new QueryViewModel { Results = results });
         }
     }
 }

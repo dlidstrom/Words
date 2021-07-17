@@ -1,83 +1,54 @@
 ﻿@model QueryViewModel
 
-@{
-    ViewBag.Title = "Krysshjälpen";
-    ViewBag.HomeTabClass = "active";
-}
-
-@section scripts {
-    <script src="@Url.ContentCacheBreak("/Content/js/home.index.js")"></script>
-}
-
-@* header, items *@
-<script type="text/html" id="home-results-table">
+@helper Table(string header, List<string> results)
+{
     <div class="row">
-        <div class="span4"><h3><%= header %></h3></div>
+        <div class="span4"><h3>@header</h3></div>
     </div>
-    <% _.each(items, function(item) { %>
-    <div class="row">
-        <div class="span6">
-            <table class="table table-bordered table-striped table-condensed">
-                <tr>
-                    <td><%=item%></td>
-                </tr>
-                <tr>
-                    <td>
-                        <a href='https://www.google.se/search?query=<%=item%>' target="_blank">
-                            <img src='Content/images/g.png' alt="Google" />
-                        </a>
-                    </td>
-                    <td>
-                        <a href='https://sv.wikipedia.org/wiki/<%=item%>' target="_blank">
-                            <img src='Content/images/w.png' alt="Wikipedia" />
-                        </a>
-                    </td>
-                    <td>
-                        <a href='https://www.ne.se/sok?q=<%=item%>' target="_blank">
-                            <img src='Content/images/ne.png' alt="NE" />
-                        </a>
-                    </td>
-                    <td>
-                        <a href='https://www.synonymer.se/sv-syn/<%=escape(item)%>' target="_blank">
-                            <img src='Content/images/s.png' alt="Synonymer" />
-                        </a>
-                    </td>
-                </tr>
-            </table>
+    foreach (string item in results)
+    {
+        <div class="row">
+            <div class="span6">
+                <table class="table table-bordered table-striped table-condensed">
+                    <tr>
+                        <td>@item</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href='https://www.google.se/search?query=@item' target="_blank">
+                                <img src='Content/images/g.png' alt="Google" />
+                            </a>
+                        </td>
+                        <td>
+                            <a href='https://sv.wikipedia.org/wiki/@item' target="_blank">
+                                <img src='Content/images/w.png' alt="Wikipedia" />
+                            </a>
+                        </td>
+                        <td>
+                            <a href='https://www.ne.se/sok?q=@item' target="_blank">
+                                <img src='Content/images/ne.png' alt="NE" />
+                            </a>
+                        </td>
+                        <td>
+                            <a href='https://www.synonymer.se/sv-syn/@item' target="_blank">
+                                <img src='Content/images/s.png' alt="Synonymer" />
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
-    </div>
-    <% }); %>
-</script>
-
-@* elapsedMilliseconds, count *@
-<script type="text/html" id="home-results-header">
-    <div class="row">
-        <div class="span4">
-            <p>Sökningen tog <%=elapsedMilliseconds.toFixed(2)%> ms.
-                <% if (count==0) { %>
-                Hittade 0 resultat.
-                <% } else { %>
-                Hittade <%=count%> resultat:
-                <% } %>
-            </p>
-        </div>
-    </div>
-</script>
+    }
+}
 
 <div class="row">
     <div class="span8">
-        @using (Ajax.BeginForm(
-            "Search",
+        @using (Html.BeginForm(
+            "Index",
+            "Home",
             null,
-            new AjaxOptions
-            {
-                HttpMethod = "GET",
-                InsertionMode = System.Web.Mvc.Ajax.InsertionMode.Replace,
-                UpdateTargetId = "content",
-                LoadingElementId = "progress",
-                OnSuccess = "w.searchSuccess",
-                OnFailure = "w.searchFailure"
-            }, new { @class = "well form-search" }))
+            FormMethod.Post,
+            new { @class = "well form-search" }))
         {
             @Html.TextBoxFor(
                 m => m.Text,
@@ -94,7 +65,6 @@
                 <i class="icon-search icon-white"></i>
                 Sök
             </button>
-            <span id="progress"><img src="@Url.ContentCacheBreak("/Content/images/spinner.gif")" alt="Spinner" /></span>
         }
     </div>
 </div>
@@ -102,6 +72,43 @@
 <div id="content">
     @Html.Partial("_Help")
 </div>
-<div id="home-results-words"></div>
-<div id="home-results-anagrams"></div>
-<div id="home-results-near"></div>
+
+@if (Model.Results != null)
+{
+    <div class="row">
+        <div class="span4">
+            <p>
+                Sökningen tog @Model.Results.ElapsedMilliseconds.ToString("N2") ms.
+                @if (Model.Results.Count == 0)
+                {
+                    @:Hittade 0 resultat.
+                }
+                else
+                {
+                    @:Hittade @Model.Results.Count resultat:
+                }
+            </p>
+        </div>
+    </div>
+
+    if (Model.Results.Words.Any())
+    {
+        <div id="home-results-words">
+            @Table("Ord", Model.Results.Words)
+        </div>
+    }
+
+    if (Model.Results.Anagrams.Any())
+    {
+        <div id="home-results-anagrams">
+            @Table("Anagram", Model.Results.Anagrams)
+        </div>
+    }
+
+    if (Model.Results.Near.Any())
+    {
+        <div id="home-results-near">
+            @Table("Nära", Model.Results.Near)
+        </div>
+    }
+}
