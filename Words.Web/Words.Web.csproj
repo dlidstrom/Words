@@ -87,9 +87,6 @@
     <Content Include="Content\images\w.png" />
     <Content Include="Content\images\wikipedia-icon.png" />
     <Content Include="Content\js\cash.min.js" />
-    <Content Include="Content\js\home.index.js" />
-    <Content Include="Content\js\lodash.min.js" />
-    <Content Include="Content\js\nian.index.js" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="googlec8ec88eb3409129c.html" />
