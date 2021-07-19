@@ -136,9 +136,6 @@
     <PackageReference Include="Npgsql">
       <Version>5.0.7</Version>
     </PackageReference>
-    <PackageReference Include="ravendb.client">
-      <Version>5.2.1</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Words\Words.csproj">

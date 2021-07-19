@@ -13,7 +13,6 @@
     using Newtonsoft.Json;
     using NLog;
     using Npgsql;
-    using Raven.Client.Documents;
     using Logger = NLog.Logger;
 
     public class MvcApplication : HttpApplication
@@ -22,8 +21,6 @@
         private DatabaseWrapper databaseWrapper;
 
         public static WordFinder WordFinder { get; private set; }
-
-        public static IDocumentStore DocumentStore { get; private set; }
 
         public static void Transact(Action<IDbConnection, IDbTransaction> action)
         {
@@ -65,21 +62,11 @@
             string filename = Path.Combine(appDataDirectory, "words.json");
             WordFinder = LoadWordFinder(filename);
             Log.Info("Dictionary loaded");
-            DocumentStore = new DocumentStore
-            {
-                Urls = new[] { "http://localhost:8080" },
-                Database = "Krysshjalpen"
-            };
-
-            _ = DocumentStore.Initialize();
-            Log.Info("Document store initialized");
-            GC.Collect();
         }
 
         protected void Application_End()
         {
             Log.Info("Application ending");
-            DocumentStore?.Dispose();
             databaseWrapper?.Dispose();
         }
 

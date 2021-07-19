@@ -8,7 +8,6 @@
     using Dapper;
     using Models;
     using NLog;
-    using Raven.Client.Documents.Session;
     using ViewModels;
 
     public class HomeController : Controller
@@ -43,24 +42,13 @@
                     values (@type, @text, @elapsedmilliseconds, @createddate)",
                     new
                     {
-                        Type = QueryType.Word,
+                        Type = QueryType.Word.ToString(),
                         q.Text,
                         ElapsedMilliseconds = (int)Math.Round(sw.Elapsed.TotalMilliseconds),
                         CreatedDate = DateTime.UtcNow
                     },
                     tran);
             });
-            using (IDocumentSession session = MvcApplication.DocumentStore.OpenSession())
-            {
-                session.Store(new Query
-                {
-                    Type = QueryType.Word,
-                    Text = q.Text,
-                    ElapsedMilliseconds = sw.Elapsed.TotalMilliseconds
-                });
-
-                session.SaveChanges();
-            }
 
             return View(new QueryViewModel { Results = results });
         }
