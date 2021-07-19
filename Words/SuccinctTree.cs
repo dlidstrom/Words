@@ -29,7 +29,7 @@
 
         public SuccinctTree(SuccinctTreeData data, Language language)
         {
-            var encodingJoined = string.Join(string.Empty, data.EncodingBytes);
+            string encodingJoined = string.Join(string.Empty, data.EncodingBytes);
             encoding = new BitString(encodingJoined);
             encodingBits = data.EncodingBits;
             letterData = new BitString(string.Join(string.Empty, data.LetterBytes));
@@ -44,7 +44,7 @@
 
         public SuccinctTreeData GetData()
         {
-            var data = new SuccinctTreeData(
+            SuccinctTreeData data = new SuccinctTreeData(
                 encoding.Bytes.ChunkSplit(80).ToArray(),
                 encodingBits,
                 letterData.Bytes.ChunkSplit(80).ToArray());
@@ -56,10 +56,10 @@
             if (string.IsNullOrWhiteSpace(s))
                 throw new ArgumentException();
 
-            var matches = new List<string>();
+            List<string> matches = new List<string>();
 
             const int pos = 0;
-            var node = letterData.GetNode(0);
+            SuccinctNode node = letterData.GetNode(0);
             Matches(s, string.Empty, pos, node, matches, limit);
 
             return matches;
@@ -70,10 +70,10 @@
             if (string.IsNullOrWhiteSpace(s))
                 throw new ArgumentException();
 
-            var matches = new List<string>();
+            List<string> matches = new List<string>();
 
             const int pos = 0;
-            var node = letterData.GetNode(0);
+            SuccinctNode node = letterData.GetNode(0);
             NearSearch(s, string.Empty, pos, node, matches, limit, d);
 
             return matches;
@@ -89,7 +89,7 @@
         {
             if (node == null || matches.Count >= limit)
                 return;
-            (var center, var left, var right) = LoadChildren(node);
+            (SuccinctNode center, SuccinctNode left, SuccinctNode right) = LoadChildren(node);
             LogImpl(() => $"Visiting {node}, Left = {left?.Char}, Center = {center?.Char}, Right = {right?.Char}");
 
             char c = pos == s.Length ? default(char) : s[pos];
@@ -144,7 +144,7 @@
             if (node == null || matches.Count >= limit || depth < 0)
                 return;
 
-            (var center, var left, var right) = LoadChildren(node);
+            (SuccinctNode center, SuccinctNode left, SuccinctNode right) = LoadChildren(node);
             char c = default(char);
             if (pos < s.Length)
                 c = s[pos];
@@ -173,53 +173,53 @@
         private (SuccinctNode center, SuccinctNode left, SuccinctNode right) LoadChildren(
             SuccinctNode node)
         {
-            var sel = directory.Select(node.NodeIndex + 1);
-            var firstChild = sel - node.NodeIndex;
-            var childOfNextNode = directory.Select(node.NodeIndex + 2, sel, sel + 8) - node.NodeIndex - 1;
-            var numberOfChildren = childOfNextNode - firstChild;
+            int sel = directory.Select(node.NodeIndex + 1);
+            int firstChild = sel - node.NodeIndex;
+            int childOfNextNode = directory.Select(node.NodeIndex + 2, sel, sel + 8) - node.NodeIndex - 1;
+            int numberOfChildren = childOfNextNode - firstChild;
             switch (numberOfChildren)
             {
                 case 3:
                 {
-                    var center = letterData.GetNode(firstChild);
-                    var left = letterData.GetNode(firstChild + 1);
-                    var right = letterData.GetNode(firstChild + 2);
+                        SuccinctNode center = letterData.GetNode(firstChild);
+                        SuccinctNode left = letterData.GetNode(firstChild + 1);
+                        SuccinctNode right = letterData.GetNode(firstChild + 2);
                     return (center, left, right);
                 }
 
                 case 2:
                 {
-                    var center = letterData.GetNode(firstChild);
-                    var leftOrRight = letterData.GetNode(firstChild + 1);
+                        SuccinctNode center = letterData.GetNode(firstChild);
+                        SuccinctNode leftOrRight = letterData.GetNode(firstChild + 1);
                     if (leftOrRight.Char < node.Char)
                     {
-                        var left = leftOrRight;
+                            SuccinctNode left = leftOrRight;
                         return (center, left, null);
                     }
 
-                    var right = leftOrRight;
+                        SuccinctNode right = leftOrRight;
                     return (center, null, right);
                 }
 
                 case 1:
                 {
-                    var child = letterData.GetNode(firstChild);
+                        SuccinctNode child = letterData.GetNode(firstChild);
                     if (node.WordEnd)
                     {
                         if (child.Char < node.Char)
                         {
-                            var left = child;
+                                SuccinctNode left = child;
                             return (null, left, null);
                         }
 
                         if (child.Char > node.Char)
                         {
-                            var right = child;
+                                SuccinctNode right = child;
                             return (null, null, right);
                         }
                     }
 
-                    var center = child;
+                        SuccinctNode center = child;
                     return (center, null, null);
                 }
 

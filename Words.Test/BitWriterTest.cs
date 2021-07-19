@@ -10,16 +10,16 @@
         public void VerifyData(int[] bits, (string data, int totalBits) expected)
         {
             // Arrange
-            var bitWriter = new BitWriter();
+            BitWriter bitWriter = new BitWriter();
 
             // Act
-            foreach (var bit in bits)
+            foreach (int bit in bits)
             {
                 bitWriter.Write(bit, 1);
             }
 
             // Assert
-            var actual = bitWriter.GetData();
+            (string data, int totalBits) actual = bitWriter.GetData();
             Assert.That(actual, Is.EqualTo(expected));
         }
 
@@ -27,13 +27,13 @@
         public void GetNode()
         {
             // Arrange
-            var bitWriter = new BitWriter();
+            BitWriter bitWriter = new BitWriter();
             bitWriter.Write(new Node { Char = (char)0, WordEnd = true });
-            var str = bitWriter.GetData().data;
-            var bitString = new BitString(str);
+            string str = bitWriter.GetData().data;
+            BitString bitString = new BitString(str);
 
             // Act
-            var c = bitString.GetNode(0);
+            SuccinctNode c = bitString.GetNode(0);
 
             // Assert
             Assert.That(c.Char, Is.EqualTo('\u0000'));

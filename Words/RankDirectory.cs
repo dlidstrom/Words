@@ -35,15 +35,15 @@
         public static RankDirectory Create(
             (string data, int numBits) encoding, int l1Size, int l2Size)
         {
-            var bits = new BitString(encoding.data);
-            var p = 0;
-            var i = 0;
-            var count1 = 0;
-            var count2 = 0;
-            var l1Bits = (int)Math.Ceiling(Math.Log(encoding.numBits) / Math.Log(2));
-            var l2Bits = (int)Math.Ceiling(Math.Log(l1Size) / Math.Log(2));
+            BitString bits = new BitString(encoding.data);
+            int p = 0;
+            int i = 0;
+            int count1 = 0;
+            int count2 = 0;
+            int l1Bits = (int)Math.Ceiling(Math.Log(encoding.numBits) / Math.Log(2));
+            int l2Bits = (int)Math.Ceiling(Math.Log(l1Size) / Math.Log(2));
 
-            var directory = new BitWriter();
+            BitWriter directory = new BitWriter();
 
             while (p + l2Size <= encoding.numBits)
             {
@@ -79,9 +79,9 @@
                 return x - Rank(1, x) + 1;
             }
 
-            var rank = 0;
-            var o = x;
-            var sectionPos = 0;
+            int rank = 0;
+            int o = x;
+            int sectionPos = 0;
 
             if (o >= l1Size)
             {
@@ -108,12 +108,12 @@
 
         public int Select(int which, int y, int low, int high)
         {
-            var val = -1;
+            int val = -1;
 
             while (high - low > 1)
             {
-                var probe = (high + low) / 2;
-                var r = Rank(which, probe);
+                int probe = (high + low) / 2;
+                int r = Rank(which, probe);
 
                 if (r == y)
                 {

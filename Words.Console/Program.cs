@@ -25,31 +25,31 @@
             {
                 if (args.Length > 0 && args[0] == "encode")
                 {
-                    var lines = File.ReadAllLines(WordsFilename, Encoding.UTF8);
-                    var wordFinder = WordFinder.CreateTernary(lines, Language.Swedish);
-                    var tree = wordFinder.EncodeSuccinct();
-                    var json = JsonConvert.SerializeObject(tree.GetData(), Formatting.Indented);
+                    string[] lines = File.ReadAllLines(WordsFilename, Encoding.UTF8);
+                    WordFinder wordFinder = WordFinder.CreateTernary(lines, Language.Swedish);
+                    SuccinctTree tree = wordFinder.EncodeSuccinct();
+                    string json = JsonConvert.SerializeObject(tree.GetData(), Formatting.Indented);
                     File.WriteAllText(EncodingFilename, json);
                     if (File.Exists(DbFilename))
                     {
                         File.Delete(DbFilename);
                     }
 
-                    using (var db = new DatabaseWrapper(DbFilename))
+                    using (DatabaseWrapper db = new DatabaseWrapper(DbFilename))
                     {
-                        var orderedKeys = wordFinder.NormalizedToOriginal
+                        string[] orderedKeys = wordFinder.NormalizedToOriginal
                             .Where(x => x.Key != x.Value)
                             .Select(x => x.Key)
                             .OrderBy(x => x)
                             .ToArray();
-                        db.NormalizedToOriginals.InsertBulk(
+                        _ = db.NormalizedToOriginals.InsertBulk(
                             orderedKeys
                             .Select(x => new NormalizedToOriginal(x, wordFinder.NormalizedToOriginal[x])));
 
-                        var permutations = wordFinder.Permutations
+                        System.Collections.Generic.KeyValuePair<string, System.Collections.Generic.SortedSet<string>>[] permutations = wordFinder.Permutations
                             .Where(x => x.Value.Count > 1)
                             .ToArray();
-                        db.WordPermutations.InsertBulk(
+                        _ = db.WordPermutations.InsertBulk(
                             permutations
                                 .Select(x => new WordPermutations(x.Key, x.Value.ToArray())));
                     }
@@ -76,14 +76,18 @@
                                 Query[] queries = session.Advanced.LoadStartingWith<Query>(
                                     "queries/",
                                     start: start);
-                                if (queries.Length == 0) break;
-                                foreach (var query in queries)
+                                if (queries.Length == 0)
+                                {
+                                    break;
+                                }
+
+                                foreach (Query query in queries)
                                 {
                                     IMetadataDictionary metadata = session.Advanced.GetMetadataFor(query);
 
                                     string id = session.Advanced.GetDocumentId(query);
                                     if (int.TryParse(
-                                        id.Replace("queries/", string.Empty),
+                                        id.Replace("queries/", string.Empty).Replace("-A", string.Empty),
                                         out int ravendbId) == false)
                                     {
                                         throw new Exception($"Failed to parse {id}");
@@ -98,7 +102,7 @@
                                         RavenDbId = ravendbId
                                     };
                                     Console.WriteLine(values);
-                                    connection.Execute(
+                                    _ = connection.Execute(
                                         @"insert into query(type, text, elapsed_milliseconds, ravendb_id, created_date)
                                           values (@type, @text, @elapsedmilliseconds, @ravendbid, @createddate)
                                           on conflict(ravendb_id) do nothing",
@@ -129,11 +133,11 @@
         private static void Run()
         {
             Console.Write("Constructing search trees...");
-            var stopwatch = Stopwatch.StartNew();
-            using (var db = new DatabaseWrapper(DbFilename))
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            using (DatabaseWrapper db = new DatabaseWrapper(DbFilename))
             {
-                var wrapper = db;
-                var (ternary, succinct) = CreateWordFinders(
+                DatabaseWrapper wrapper = db;
+                (WordFinder ternary, WordFinder succinct) = CreateWordFinders(
                     x => wrapper.WordPermutations.FindById(new BsonValue(x))?.Words ?? new string[0],
                     x => wrapper.NormalizedToOriginals.FindById(new BsonValue(x))?.Original);
 
@@ -141,19 +145,21 @@
                 Console.WriteLine("{0} ms", stopwatch.ElapsedMilliseconds);
 
                 Console.WriteLine("Enter word to search for. A single 'q' exits.");
-                var lineEditor = new LineEditor("input");
+                LineEditor lineEditor = new LineEditor("input");
                 string input = lineEditor.Edit(": ", string.Empty);
                 while (input != "q")
                 {
                     do
                     {
                         if (string.IsNullOrWhiteSpace(input))
+                        {
                             break;
+                        }
 
-                        foreach (var wordFinder in new[] { ternary, succinct }.Where(x => x != null))
+                        foreach (WordFinder wordFinder in new[] { ternary, succinct }.Where(x => x != null))
                         {
                             stopwatch.Restart();
-                            var matches = wordFinder.Matches(input, 2);
+                            System.Collections.Generic.List<Match> matches = wordFinder.Matches(input, 2);
                             stopwatch.Stop();
                             if (matches.Count > 0)
                             {
@@ -186,12 +192,12 @@
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\english-word-list.txt", Encoding.UTF8, Language.English);
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\swedish-english.txt", Encoding.UTF8, Language.Swedish);
 
-            var lines = File.ReadAllLines(WordsFilename, Encoding.UTF8);
-            var wordFinderTernary = WordFinder.CreateTernary(lines, Language.Swedish);
+            string[] lines = File.ReadAllLines(WordsFilename, Encoding.UTF8);
+            WordFinder wordFinderTernary = WordFinder.CreateTernary(lines, Language.Swedish);
 
-            var succinctTreeDataJson = File.ReadAllText(EncodingFilename);
-            var succinctTreeData = JsonConvert.DeserializeObject<SuccinctTreeData>(succinctTreeDataJson);
-            var wordFinderSuccinct = WordFinder.CreateSuccinct(
+            string succinctTreeDataJson = File.ReadAllText(EncodingFilename);
+            SuccinctTreeData succinctTreeData = JsonConvert.DeserializeObject<SuccinctTreeData>(succinctTreeDataJson);
+            WordFinder wordFinderSuccinct = WordFinder.CreateSuccinct(
                 succinctTreeData,
                 Language.Swedish,
                 getPermutations,

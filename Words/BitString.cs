@@ -105,16 +105,16 @@
             // case 1: bits lie within the given byte
             if (p % W + n <= W)
             {
-                var u = (Base64Cache[Bytes[p / W]] & MaskTop[p % W]) >>
+                int u = (Base64Cache[Bytes[p / W]] & MaskTop[p % W]) >>
                         (W - p % W - n);
                 return u;
             }
 
             // case 2: bits lie incompletely in the given byte
-            var result = Base64Cache[Bytes[p / W]] &
+            int result = Base64Cache[Bytes[p / W]] &
                          MaskTop[p % W];
 
-            var l = W - p % W;
+            int l = W - p % W;
             p += l;
             n -= l;
 
@@ -136,7 +136,7 @@
 
         public int Count(int p, int n)
         {
-            var count = 0;
+            int count = 0;
             while (n >= 8)
             {
                 count += BitsInByte[Get(p, 8)];

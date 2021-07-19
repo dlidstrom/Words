@@ -7,8 +7,8 @@
     {
         public static SuccinctNode GetNode(this BitString bitString, int nodeIndex)
         {
-            var data = bitString.Get(nodeIndex * 16, 16);
-            var c = (char)data;
+            int data = bitString.Get(nodeIndex * 16, 16);
+            char c = (char)data;
             return new SuccinctNode(c, nodeIndex);
         }
 
@@ -29,7 +29,7 @@
 
         public static IEnumerable<string> ChunkSplit(this string str, int chunkSize)
         {
-            for (var i = 0; i < str.Length; i += chunkSize)
+            for (int i = 0; i < str.Length; i += chunkSize)
                 yield return str.Substring(i, Math.Min(chunkSize, str.Length - i));
         }
     }

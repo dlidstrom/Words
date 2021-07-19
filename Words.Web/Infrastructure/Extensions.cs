@@ -18,10 +18,10 @@ namespace Words.Web.Infrastructure
             if (path != null)
             {
                 byte[] bytes = File.ReadAllBytes(path);
-                using (var md5 = MD5.Create())
+                using (MD5 md5 = MD5.Create())
                 {
                     byte[] hash = md5.ComputeHash(bytes);
-                    var hashBuilder = new StringBuilder();
+                    StringBuilder hashBuilder = new StringBuilder();
                     foreach (byte b in hash)
                     {
                         hashBuilder.Append($"{b:x2}");

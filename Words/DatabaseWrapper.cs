@@ -14,7 +14,7 @@
 
         static DatabaseWrapper()
         {
-            var mapper = BsonMapper.Global;
+            BsonMapper mapper = BsonMapper.Global;
             mapper.Entity<NormalizedToOriginal>()
                 .Id(x => x.Normalized);
             mapper.Entity<WordPermutations>()

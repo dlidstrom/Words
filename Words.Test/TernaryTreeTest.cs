@@ -10,11 +10,11 @@
         public void RegularSearch()
         {
             // Arrange
-            var tree = new TernaryTree(Language.Swedish);
+            TernaryTree tree = new TernaryTree(Language.Swedish);
             tree.Add("a", "b", "c");
 
             // Act
-            var matches = ((ITree)tree).Matches("b");
+            List<string> matches = ((ITree)tree).Matches("b");
 
             // Assert
             Assert.AreEqual(1, matches.Count);
@@ -24,11 +24,11 @@
         public void WildCardSearch()
         {
             // Arrange
-            var tree = new TernaryTree(Language.Swedish);
+            TernaryTree tree = new TernaryTree(Language.Swedish);
             tree.Add("abcd", "aecd");
 
             // Act
-            var matches = ((ITree)tree).Matches("a?cd");
+            List<string> matches = ((ITree)tree).Matches("a?cd");
 
             // Assert
             Assert.AreEqual(2, matches.Count);
@@ -38,11 +38,11 @@
         public void VowelsSearch()
         {
             // Arrange
-            var tree = new TernaryTree(Language.Swedish);
+            TernaryTree tree = new TernaryTree(Language.Swedish);
             tree.Add("abcd", "ebcd", "tbcd", "ubcd");
 
             // Act
-            var matches = ((ITree)tree).Matches("@bcd");
+            List<string> matches = ((ITree)tree).Matches("@bcd");
 
             // Assert
             Assert.AreEqual(3, matches.Count);
@@ -52,11 +52,11 @@
         public void ConsonantsSearch()
         {
             // Arrange
-            var tree = new TernaryTree(Language.Swedish);
+            TernaryTree tree = new TernaryTree(Language.Swedish);
             tree.Add("abeg", "abhg", "abfg", "abug", "abtg");
 
             // Act
-            var matches = ((ITree)tree).Matches("ab#g");
+            List<string> matches = ((ITree)tree).Matches("ab#g");
 
             // Assert
             Assert.AreEqual(3, matches.Count);
@@ -66,11 +66,11 @@
         public void NearSearch()
         {
             // Arrange
-            var tree = new TernaryTree(Language.Swedish);
+            TernaryTree tree = new TernaryTree(Language.Swedish);
             tree.Add("abcde", "abce", "abcf");
 
             // Act
-            var matches = ((ITree)tree).NearSearch("abc");
+            List<string> matches = ((ITree)tree).NearSearch("abc");
 
             // Assert
             Assert.AreEqual(2, matches.Count);
@@ -80,15 +80,15 @@
         public void Traverse()
         {
             // Arrange
-            var tree = new TernaryTree(Language.Swedish);
+            TernaryTree tree = new TernaryTree(Language.Swedish);
             tree.Add("abe", "abc", "abd");
-            var visited = new List<string>();
+            List<string> visited = new List<string>();
 
             // Act
             tree.Traverse(visited.Add);
 
             // Assert
-            var expected = new List<string> { "abc", "abd", "abe" };
+            List<string> expected = new List<string> { "abc", "abd", "abe" };
             Assert.AreEqual(expected.Count, visited.Count);
             Assert.AreEqual(expected[0], visited[0]);
             Assert.AreEqual(expected[1], visited[1]);

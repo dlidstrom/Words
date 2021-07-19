@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Words.Web", "Words.Web\Words.Web.csproj", "{37A39E33-A81F-421D-A2B3-85E4D9EA283A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Words.Web", "Words.Web\Words.Web.csproj", "{F4572599-CD14-4C4A-9335-5F73190E88D2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Words", "Words\Words.csproj", "{4A632808-53E5-404A-BA3B-335918984902}"
 EndProject
@@ -11,16 +11,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Words.Test", "Words.Test\Wo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Words.Console", "Words.Console\Words.Console.csproj", "{989FC4AD-CCC9-4DE7-9940-A6BACE88F0D3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F823EEBB-5375-40A3-9349-1281B3CFF864}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{37A39E33-A81F-421D-A2B3-85E4D9EA283A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{37A39E33-A81F-421D-A2B3-85E4D9EA283A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{37A39E33-A81F-421D-A2B3-85E4D9EA283A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{37A39E33-A81F-421D-A2B3-85E4D9EA283A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4572599-CD14-4C4A-9335-5F73190E88D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4572599-CD14-4C4A-9335-5F73190E88D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4572599-CD14-4C4A-9335-5F73190E88D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4572599-CD14-4C4A-9335-5F73190E88D2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4A632808-53E5-404A-BA3B-335918984902}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4A632808-53E5-404A-BA3B-335918984902}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A632808-53E5-404A-BA3B-335918984902}.Release|Any CPU.ActiveCfg = Release|Any CPU

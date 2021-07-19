@@ -15,14 +15,14 @@ namespace Words
         public NianFinder(string nianWordFile, Encoding encoding, CultureInfo cultureInfo)
         {
             this.cultureInfo = cultureInfo;
-            var lines = File.ReadAllLines(nianWordFile, encoding);
-            foreach (var word in lines)
+            string[] lines = File.ReadAllLines(nianWordFile, encoding);
+            foreach (string word in lines)
             {
                 // sort characters and use that as key
-                var chars = word.ToCharArray();
+                char[] chars = word.ToCharArray();
                 Array.Sort(chars);
-                var key = new string(chars);
-                if (permutations.TryGetValue(key, out var list))
+                string key = new string(chars);
+                if (permutations.TryGetValue(key, out SortedSet<string> list))
                     list.Add(word);
                 else
                     permutations.Add(key, new SortedSet<string> { word });
@@ -44,12 +44,12 @@ namespace Words
                 combinations.UnionWith(Combinations(input));
             }
 
-            var matches = new List<Match>();
-            foreach (var combination in combinations)
+            List<Match> matches = new List<Match>();
+            foreach (string combination in combinations)
             {
-                if (permutations.TryGetValue(combination, out var list))
+                if (permutations.TryGetValue(combination, out SortedSet<string> list))
                 {
-                    var anagrams = list.Select(m => new Match { Value = m, Type = MatchType.Anagram });
+                    IEnumerable<Match> anagrams = list.Select(m => new Match { Value = m, Type = MatchType.Anagram });
                     matches.AddRange(anagrams);
                 }
             }
@@ -60,7 +60,7 @@ namespace Words
 
         private static SortedSet<string> Combinations(string arr)
         {
-            var result = new SortedSet<string>();
+            SortedSet<string> result = new SortedSet<string>();
             char middle = arr[4];
             arr = arr.Substring(0, 4) + arr.Substring(5, 4);
             for (int i = 0; i < arr.Length; i++)
@@ -75,7 +75,7 @@ namespace Words
         {
             if (sub.Length >= 4)
             {
-                var chars = sub.ToCharArray();
+                char[] chars = sub.ToCharArray();
                 Array.Sort(chars);
                 result.Add(new string(chars));
             }

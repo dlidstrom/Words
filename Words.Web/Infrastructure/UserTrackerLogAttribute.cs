@@ -14,7 +14,7 @@
 
         public override void OnActionExecuted(ActionExecutedContext filterContext)
         {
-            var actionDescriptor = filterContext.ActionDescriptor;
+            ActionDescriptor actionDescriptor = filterContext.ActionDescriptor;
             string controllerName = actionDescriptor.ControllerDescriptor.ControllerName;
             string actionName = actionDescriptor.ActionName;
             string userName = filterContext.HttpContext.User.Identity.Name;
@@ -23,7 +23,7 @@
             if (filterContext.RouteData.Values["q"] != null)
                 query = filterContext.RouteData.Values["q"].ToString();
 
-            var message = new StringBuilder();
+            StringBuilder message = new StringBuilder();
             message.AppendFormat("UserName={0}|", userName);
             message.AppendFormat("RemoteIp={0}|", GetIp(filterContext.HttpContext.Request));
             message.AppendFormat("Controller={0}|", controllerName);
@@ -60,7 +60,7 @@
             }
 
             // trickery needed because TryParse throws ArgumentNullException
-            var result = IPAddress.None;
+            IPAddress result = IPAddress.None;
             if (remoteAddress != null)
                 IPAddress.TryParse(remoteAddress, out result);
 

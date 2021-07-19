@@ -105,7 +105,7 @@
             if (s == null)
                 throw new ArgumentNullException(nameof(s));
 
-            foreach (var item in s)
+            foreach (string item in s)
                 Add(item);
         }
 
@@ -138,7 +138,7 @@
             if (string.IsNullOrWhiteSpace(s))
                 throw new ArgumentException();
 
-            var matches = new List<string>();
+            List<string> matches = new List<string>();
 
             const int pos = 0;
             Node node = root;
@@ -189,7 +189,7 @@
             if (string.IsNullOrWhiteSpace(s))
                 throw new ArgumentException();
 
-            var matches = new List<string>();
+            List<string> matches = new List<string>();
 
             const int pos = 0;
             Node node = root;
@@ -383,15 +383,15 @@
 
         public SuccinctTree EncodeSuccinct()
         {
-            var encodingWriter = new BitWriter();
-            var letterWriter = new BitWriter();
+            BitWriter encodingWriter = new BitWriter();
+            BitWriter letterWriter = new BitWriter();
             encodingWriter.Write(0x02, 2);
-            var queue = new Queue<Node>();
+            Queue<Node> queue = new Queue<Node>();
             queue.Enqueue(root);
             while (queue.Count > 0)
             {
-                var children = 0;
-                var node = queue.Dequeue();
+                int children = 0;
+                Node node = queue.Dequeue();
 
                 if (node.Center != null)
                 {
@@ -411,7 +411,7 @@
                     children++;
                 }
 
-                for (var i = 0; i < children; i++)
+                for (int i = 0; i < children; i++)
                 {
                     encodingWriter.Write(1, 1);
                 }
@@ -420,19 +420,19 @@
                 letterWriter.Write(node);
             }
 
-            var encoding = encodingWriter.GetData();
-            var expectedBits = 2 * nodes.Count + 1;
+            (string data, int totalBits) encoding = encodingWriter.GetData();
+            int expectedBits = 2 * nodes.Count + 1;
             if (encoding.totalBits != expectedBits)
             {
-                var message = string.Format(
+                string message = string.Format(
                     "Unexpected number of bits. Expected 2 * nodes.Count + 1 = {0} but got {1}.",
                     expectedBits,
                     encoding.totalBits);
                 throw new ApplicationException(message);
             }
 
-            var letterData = letterWriter.GetData();
-            var tree = new SuccinctTree(
+            (string data, int totalBits) letterData = letterWriter.GetData();
+            SuccinctTree tree = new SuccinctTree(
                 encoding,
                 letterData,
                 language);
