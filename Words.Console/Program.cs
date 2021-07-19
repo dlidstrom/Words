@@ -8,6 +8,10 @@
     using System.Linq;
     using System.Text;
     using LiteDB;
+    using Raven.Client.Documents;
+    using Raven.Client.Documents.Session;
+    using System.Data;
+    using Dapper;
 
     public static class Program
     {
@@ -50,14 +54,75 @@
                                 .Select(x => new WordPermutations(x.Key, x.Value.ToArray())));
                     }
                 }
-                else
+                else if (args.Length > 1 && args[0] == "migrate")
+                {
+                    // move all words into postgres
+                    string password = args[1];
+                    using (IDocumentStore documentStore = new DocumentStore
+                    {
+                        Urls = new[] { "http://localhost:8080" },
+                        Database = "Krysshjalpen"
+                    }.Initialize())
+                    {
+                        int start = 0;
+                        while (true)
+                        {
+                            using (IDocumentSession session = documentStore.OpenSession())
+                            using (IDbConnection connection = new Npgsql.NpgsqlConnection($"Host=localhost;Database=words;Username=prisma;Password={password};Include Error Detail=true"))
+                            {
+                                connection.Open();
+                                IDbTransaction tran = connection.BeginTransaction();
+
+                                Query[] queries = session.Advanced.LoadStartingWith<Query>(
+                                    "queries/",
+                                    start: start);
+                                if (queries.Length == 0) break;
+                                foreach (var query in queries)
+                                {
+                                    IMetadataDictionary metadata = session.Advanced.GetMetadataFor(query);
+
+                                    string id = session.Advanced.GetDocumentId(query);
+                                    if (int.TryParse(
+                                        id.Replace("queries/", string.Empty),
+                                        out int ravendbId) == false)
+                                    {
+                                        throw new Exception($"Failed to parse {id}");
+                                    }
+
+                                    var values = new
+                                    {
+                                        Type = query.Type ?? string.Empty,
+                                        Text = query.Text.Substring(0, Math.Min(255, query.Text.Length)),
+                                        ElapsedMilliseconds = (int)Math.Round(query.ElapsedMilliseconds),
+                                        CreatedDate = session.Advanced.GetLastModifiedFor(query),
+                                        RavenDbId = ravendbId
+                                    };
+                                    Console.WriteLine(values);
+                                    connection.Execute(
+                                        @"insert into query(type, text, elapsed_milliseconds, ravendb_id, created_date)
+                                          values (@type, @text, @elapsedmilliseconds, @ravendbid, @createddate)
+                                          on conflict(ravendb_id) do nothing",
+                                        values);
+                                }
+
+                                tran.Commit();
+                                start += queries.Length;
+                            }
+                        }
+                    }
+                }
+                else if (args.Length > 1 && args[0] == "test-run")
                 {
                     Run();
+                }
+                else
+                {
+                    Console.WriteLine("Usage: encode|migrate|test-run");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(AsyncFriendlyStackTrace.ExceptionExtensions.ToAsyncString(ex));
             }
         }
 
