@@ -16,22 +16,22 @@
                     <tr>
                         <td>
                             <a href='https://www.google.se/search?query=@item' target="_blank">
-                                <img src='Content/images/g.png' alt="Google" />
+                                <img src='@Url.ContentCacheBreak("/Content/images/g.png")' alt="Google" />
                             </a>
                         </td>
                         <td>
                             <a href='https://sv.wikipedia.org/wiki/@item' target="_blank">
-                                <img src='Content/images/w.png' alt="Wikipedia" />
+                                <img src='@Url.ContentCacheBreak("/Content/images/w.png")' alt="Wikipedia" />
                             </a>
                         </td>
                         <td>
                             <a href='https://www.ne.se/sok?q=@item' target="_blank">
-                                <img src='Content/images/ne.png' alt="NE" />
+                                <img src='@Url.ContentCacheBreak("/Content/images/ne.png")' alt="NE" />
                             </a>
                         </td>
                         <td>
                             <a href='https://www.synonymer.se/sv-syn/@item' target="_blank">
-                                <img src='Content/images/s.png' alt="Synonymer" />
+                                <img src='@Url.ContentCacheBreak("/Content/images/s.png")' alt="Synonymer" />
                             </a>
                         </td>
                     </tr>
@@ -44,7 +44,7 @@
 <div class="row">
     <div class="span8">
         @using (Html.BeginForm(
-            "Index",
+            "Search",
             "Home",
             null,
             FormMethod.Post,
@@ -72,6 +72,25 @@
 <div id="content">
     @Html.Partial("_Help")
 </div>
+
+@if (Model.Recent.Any())
+{
+    <div class="row">
+        <div class="span4"><h4>Nyligen gjorda sökningar:</h4></div>
+    </div>
+    <div class="row">
+        <div class="span6">
+            <table class="table table-bordered table-striped table-condensed">
+                @foreach (RecentQuery item in Model.Recent)
+                {
+                    <tr>
+                        <td>@Html.ActionLink(item.Text, "Index", new { id = item.QueryId })</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+}
 
 @if (Model.Results != null)
 {

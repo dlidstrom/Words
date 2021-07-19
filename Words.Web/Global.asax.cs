@@ -22,16 +22,26 @@
 
         public static WordFinder WordFinder { get; private set; }
 
-        public static void Transact(Action<IDbConnection, IDbTransaction> action)
+        public static TResult Transact<TResult>(Func<IDbConnection, IDbTransaction, TResult> func)
         {
             ConnectionStringSettings connectionString = ConfigurationManager.ConnectionStrings["Words"];
             using (IDbConnection connection = new NpgsqlConnection(connectionString.ConnectionString))
             {
                 connection.Open();
                 IDbTransaction tran = connection.BeginTransaction();
-                action.Invoke(connection, tran);
+                TResult result = func.Invoke(connection, tran);
                 tran.Commit();
+                return result;
             }
+        }
+
+        public static void Transact(Action<IDbConnection, IDbTransaction> action)
+        {
+            _ = Transact((conn, tran) =>
+            {
+                action.Invoke(conn, tran);
+                return false;
+            });
         }
 
         private static void RegisterGlobalFilters(GlobalFilterCollection filters)

@@ -91,6 +91,7 @@
     <Compile Include="Infrastructure\Extensions.cs" />
     <Compile Include="Infrastructure\UserTrackerLogAttribute.cs" />
     <Compile Include="Models\Query.cs" />
+    <Compile Include="ViewModels\RecentQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\NianQueryViewModel.cs" />
     <Compile Include="ViewModels\QueryViewModel.cs" />
