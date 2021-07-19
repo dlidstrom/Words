@@ -40,7 +40,7 @@
             {
                 int rows = connection.Execute(@"
                     insert into query(type, text, elapsed_milliseconds, created_date)
-                    values (@type, @text, @elapsedmilliseconds, @createddate",
+                    values (@type, @text, @elapsedmilliseconds, @createddate)",
                     new
                     {
                         Type = QueryType.Word,
