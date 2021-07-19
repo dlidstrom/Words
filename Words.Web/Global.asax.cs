@@ -1,6 +1,8 @@
 ﻿namespace Words.Web
 {
     using System;
+    using System.Configuration;
+    using System.Data;
     using System.IO;
     using System.Text;
     using System.Web;
@@ -10,11 +12,10 @@
     using LiteDB;
     using Newtonsoft.Json;
     using NLog;
+    using Npgsql;
     using Raven.Client.Documents;
     using Logger = NLog.Logger;
 
-    // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
-    // visit http://go.microsoft.com/?LinkId=9394801
     public class MvcApplication : HttpApplication
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
@@ -23,6 +24,18 @@
         public static WordFinder WordFinder { get; private set; }
 
         public static IDocumentStore DocumentStore { get; private set; }
+
+        public static void Transact(Action<IDbConnection, IDbTransaction> action)
+        {
+            ConnectionStringSettings connectionString = ConfigurationManager.ConnectionStrings["Words"];
+            using (IDbConnection connection = new NpgsqlConnection(connectionString.ConnectionString))
+            {
+                connection.Open();
+                IDbTransaction tran = connection.BeginTransaction();
+                action.Invoke(connection, tran);
+                tran.Commit();
+            }
+        }
 
         private static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
@@ -34,7 +47,7 @@
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-            routes.MapRoute(
+            _ = routes.MapRoute(
                 "Default",
                 "{controller}/{action}/{id}",
                 new { controller = "Home", action = "Index", id = UrlParameter.Optional });
@@ -47,9 +60,9 @@
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
 
-            var appDataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
+            string appDataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
             databaseWrapper = new DatabaseWrapper(Path.Combine(appDataDirectory, "words.db"));
-            var filename = Path.Combine(appDataDirectory, "words.json");
+            string filename = Path.Combine(appDataDirectory, "words.json");
             WordFinder = LoadWordFinder(filename);
             Log.Info("Dictionary loaded");
             DocumentStore = new DocumentStore
@@ -58,7 +71,7 @@
                 Database = "Krysshjalpen"
             };
 
-            DocumentStore.Initialize();
+            _ = DocumentStore.Initialize();
             Log.Info("Document store initialized");
             GC.Collect();
         }
@@ -97,9 +110,9 @@
 
         private WordFinder LoadWordFinder(string filename)
         {
-            var succinctTreeDataJson = File.ReadAllText(filename, Encoding.UTF8);
-            var succinctTreeData = JsonConvert.DeserializeObject<SuccinctTreeData>(succinctTreeDataJson);
-            var wordFinder = WordFinder.CreateSuccinct(
+            string succinctTreeDataJson = File.ReadAllText(filename, Encoding.UTF8);
+            SuccinctTreeData succinctTreeData = JsonConvert.DeserializeObject<SuccinctTreeData>(succinctTreeDataJson);
+            WordFinder wordFinder = WordFinder.CreateSuccinct(
                 succinctTreeData,
                 Language.Swedish,
                 x => databaseWrapper.WordPermutations.FindById(new BsonValue(x))?.Words ?? new string[0],
