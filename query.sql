@@ -8,3 +8,8 @@ CREATE TABLE "public"."query" (
 );
 ALTER TABLE "public"."query" ALTER COLUMN ravendb_id NULL;
 CREATE INDEX query_created_date_idx ON query (created_date);
+
+ALTER TABLE "public"."query" ADD COLUMN user_agent VARCHAR(255);
+ALTER TABLE "public"."query" ADD COLUMN user_host_address VARCHAR(255);
+ALTER TABLE "public"."query" ADD COLUMN browser_screen_pixels_height INT;
+ALTER TABLE "public"."query" ADD COLUMN browser_screen_pixels_width INT;
