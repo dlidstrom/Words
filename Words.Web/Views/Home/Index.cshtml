@@ -11,7 +11,7 @@
             <div class="span6">
                 <table class="table table-bordered table-striped table-condensed">
                     <tr>
-                        <td>@item</td>
+                        <td colspan="4">@item</td>
                     </tr>
                     <tr>
                         <td>
@@ -48,7 +48,7 @@
             "Home",
             null,
             FormMethod.Post,
-            new { @class = "well form-search" }))
+            new { @class = "well form-search input-append" }))
         {
             @Html.TextBoxFor(
                 m => m.Text,
@@ -72,25 +72,6 @@
 <div id="content">
     @Html.Partial("_Help")
 </div>
-
-@if (Model.Recent.Any())
-{
-    <div class="row">
-        <div class="span4"><h4>Nyligen gjorda sökningar:</h4></div>
-    </div>
-    <div class="row">
-        <div class="span6">
-            <table class="table table-bordered table-striped table-condensed">
-                @foreach (RecentQuery item in Model.Recent)
-                {
-                    <tr>
-                        <td>@Html.ActionLink(item.Text, "Index", new { id = item.QueryId })</td>
-                    </tr>
-                }
-            </table>
-        </div>
-    </div>
-}
 
 @if (Model.Results != null)
 {
@@ -130,4 +111,23 @@
             @Table("Nära", Model.Results.Near)
         </div>
     }
+}
+
+@if (Model.Recent.Any())
+{
+    <div class="row">
+        <div class="span4"><h4>Nyligen gjorda sökningar:</h4></div>
+    </div>
+    <div class="row">
+        <div class="span6">
+            <table class="table table-bordered table-striped table-condensed">
+                @foreach (RecentQuery item in Model.Recent)
+                {
+                    <tr>
+                        <td>@Html.ActionLink(item.Text, "Index", new { id = item.QueryId })</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
 }
