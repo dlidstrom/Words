@@ -6,7 +6,6 @@
     <meta name="keywords" content="kryss,korsord,word,feud,ord,hjälp" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <link rel="apple-touch-icon" href='@Url.Content("words2x.png")' />
-    <meta property="fb:admins" content="599746088" />
     <meta name="msvalidate.01" content="2E150FE6FB6C648F5A4506F5E49CFF3A" />
     <title>Krysshjälpen</title>
     <style type="text/css">
@@ -17,35 +16,8 @@
     <link href="@Url.ContentCacheBreak("/Content/bootstrap/css/bootstrap.min.css")" rel="stylesheet">
     <link href="@Url.ContentCacheBreak("/Content/bootstrap/css/bootstrap-responsive.min.css")" rel="stylesheet">
     <link href="@Url.ContentCacheBreak("/Content/css/words.css")" rel="stylesheet">
-    <script type="text/javascript">
-
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-29724397-1']);
-        _gaq.push(['_trackPageview']);
-
-        (function () {
-            var ga = document.createElement('script');
-            ga.type = 'text/javascript';
-            ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(ga, s);
-        })();
-
-    </script>
 </head>
 <body>
-    <div id="fb-root"></div>
-    <script type="text/javascript">
-        (function (d, s, id) {
-            var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) return;
-            js = d.createElement(s);
-            js.id = id;
-            js.src = "//connect.facebook.net/sv_SE/all.js#xfbml=1";
-            fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
-    </script>
     <div class="container">
         <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar-inner">
@@ -82,7 +54,8 @@
         </div>
         @RenderBody()
     </div>
-    <script src="@Url.ContentCacheBreak("/Content/js/cash.min.js")"></script>
+    <script src="@Url.ContentCacheBreak("/Content/js/jquery-3.6.0.slim.min.js")"></script>
+    <script src="@Url.ContentCacheBreak("/Content/bootstrap/js/bootstrap.js")"></script>
     <script type="text/javascript">
         $(() => {
             // prevent double submit

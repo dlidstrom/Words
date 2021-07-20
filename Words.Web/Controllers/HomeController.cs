@@ -78,15 +78,19 @@
             int queryId = MvcApplication.Transact((connection, tran) =>
             {
                 int id = connection.QuerySingle<int>(@"
-                    insert into query(type, text, elapsed_milliseconds, created_date)
-                    values (@type, @text, @elapsedmilliseconds, @createddate)
+                    insert into query(type, text, elapsed_milliseconds, created_date, user_agent, user_host_address, browser_screen_pixels_height, browser_screen_pixels_width)
+                    values (@type, @text, @elapsedmilliseconds, @createddate, @useragent, @userhostaddress, @browserscreenpixelsheight, @browserscreenpixelswidth)
                     returning query_id",
                     new
                     {
                         Type = QueryType.Word.ToString(),
                         q.Text,
                         ElapsedMilliseconds = (int)Math.Round(sw.Elapsed.TotalMilliseconds),
-                        CreatedDate = DateTime.UtcNow
+                        CreatedDate = DateTime.UtcNow,
+                        Request.UserAgent,
+                        Request.UserHostAddress,
+                        BrowserScreenPixelsHeight = Request.Browser.ScreenPixelsHeight,
+                        BrowserScreenPixelsWidth = Request.Browser.ScreenPixelsWidth
                     },
                     tran);
                 return id;
