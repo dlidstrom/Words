@@ -5,12 +5,14 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Text;
     using System.Web.Caching;
     using System.Web.Mvc;
     using Dapper;
     using Models;
     using NLog;
     using ViewModels;
+    using Words.Web.Infrastructure;
 
     public class HomeController : Controller
     {
@@ -68,6 +70,11 @@
                 return View(q);
             }
 
+            if (HttpContext.Cache.Get($"query-{Encoding.UTF8.GetBytes(q.Text).ComputeHash()}") is QueryId cachedQueryId)
+            {
+                return RedirectToAction(nameof(Index), new { id = cachedQueryId.Id });
+            }
+
             Stopwatch sw = Stopwatch.StartNew();
             List<Match> matches = MvcApplication.WordFinder.Matches(q.Text, 2);
             sw.Stop();
@@ -105,6 +112,15 @@
                 CacheItemPriority.Normal,
                 OnCacheItemRemoved);
 
+            _ = HttpContext.Cache.Add(
+                $"query-{Encoding.UTF8.GetBytes(q.Text).ComputeHash()}",
+                new QueryId { Id = queryId },
+                null,
+                Cache.NoAbsoluteExpiration,
+                TimeSpan.FromDays(1),
+                CacheItemPriority.Normal,
+                OnCacheItemRemoved);
+
             return RedirectToAction(nameof(Index), new { id = queryId });
         }
 
@@ -124,7 +140,14 @@
 
         private void OnCacheItemRemoved(string key, object value, CacheItemRemovedReason reason)
         {
-            Log.Info("Cache item {key} removed due to {reason}", key, reason);
+            Log.Info("Cache item {key} removed due to {reason}: {@value}", key, reason, value);
+        }
+
+        private class QueryId
+        {
+            public int Id { get; set; }
+
+            public string Text { get; set; }
         }
     }
 }
