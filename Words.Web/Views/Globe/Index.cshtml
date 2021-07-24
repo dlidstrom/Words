@@ -1,0 +1,135 @@
+﻿@{
+    Layout = null;
+}
+<!doctype html>
+<head>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+
+    <script src="//unpkg.com/d3"></script>
+    <script src="//unpkg.com/three"></script>
+    <script src="//unpkg.com/globe.gl"></script>
+    <script>
+        window.data = '@ViewBag.data';
+    </script>
+</head>
+
+<body>
+    <h1>Visitors</h1>
+    <div id="globeViz"></div>
+
+    <script>
+        Pearl();
+
+        function Pearl() {
+            const weightColor = d3.scaleSequentialSqrt(d3.interpolateYlOrRd)
+                .domain([0, 100]);
+            const date = new Date();
+            const timeZoneOffset = date.getTimezoneOffset() || 0;
+            const timeZoneMaxOffset = 60 * 12;
+            const rotationOffset_lng = -180 * (timeZoneOffset / timeZoneMaxOffset);
+            const world = Globe()
+                // .height(800)
+                // .width(800)
+                .globeImageUrl('/Content/images/earth-blue-marble.jpg')
+                .bumpImageUrl('/Content/images/earth-topology.png')
+                .backgroundImageUrl('/Content/images/night-sky.png')
+                .pointOfView({ lat: 40, lng: rotationOffset_lng, altitude: 1.4 }, 2000)
+                .showAtmosphere(true)
+                .hexBinResolution(3)
+                .hexBinMerge(true)
+                .hexBinPointWeight('pop')
+                .hexTopColor(d => weightColor(d.sumWeight))
+                .hexSideColor(d => weightColor(d.sumWeight))
+                .hexAltitude(d => d.sumWeight * 3e-3)
+                .enablePointerInteraction(false)
+                (document.getElementById('globeViz'));
+            world.controls().autoRotate = true;
+            world.controls().autoRotateSpeed = 0.03;
+
+            // custom globe material
+            const globeMaterial = world.globeMaterial();
+            globeMaterial.bumpScale = 50;
+            new THREE.TextureLoader().load('/Content/images/earth-water.png', texture => {
+                globeMaterial.specularMap = texture;
+                globeMaterial.specular = new THREE.Color('grey');
+                globeMaterial.shininess = 15;
+            });
+
+            let binPoints = d3.csvParse(window.data, ({ lat, lng, pop }) => ({ lat: +lat, lng: +lng, pop: +pop }))
+            world.hexBinPointsData(binPoints);
+        }
+
+        function HexCountries(countries) {
+            const date = new Date();
+            const timeZoneOffset = date.getTimezoneOffset() || 0;
+            const timeZoneMaxOffset = 60 * 12;
+            const rotationOffset_lng = -180 * (timeZoneOffset / timeZoneMaxOffset);
+            const world = Globe({ rendererConfig: { antialias: true } })
+                // .globeImageUrl('earth-dark.jpg')
+                .hexPolygonsData(countries.features)
+                // .bumpImageUrl('earth-topology.png')
+                .hexPolygonResolution(3)
+                .hexPolygonMargin(0.85)
+                .hexPolygonColor(() => '97cffd')
+                .hexBinPointWeight('pop')
+                // .hexPolygonLabel(({ properties: d }) => 'hej ' + JSON.stringify(d))
+                // .hexAltitude(d => d.sumWeight / 10)
+                .pointOfView({ lat: 30, lng: rotationOffset_lng, altitude: 1.5 }, 2000)
+                // .hexBinMerge(true)
+                .showAtmosphere(true)
+                //.enablePointerInteraction(false)
+                (document.getElementById('globeViz'));
+            console.log('first fetch', world.pointOfView());
+            world.controls().autoRotate = true;
+            world.controls().autoRotateSpeed = 0.03;
+            fetch('sportbowling.csv').then(res => res.text())
+                .then(csv => d3.csvParse(csv, ({ lat, lng, pop }) => ({ lat: +lat, lng: +lng, pop: +pop })))
+                .then(data => world.hexBinPointsData(data));
+        }
+            // if (false)
+                // fetch('../datasets/ne_110m_admin_0_countries.geojson')
+                    // .then(res => res.json())
+                    // .then(Countries);
+            // function Countries(countries) {
+                // const weightColor = d3.scaleSequentialSqrt(d3.interpolateYlOrRd)
+                    // .domain([0, 1000]);
+                // const world = Globe()
+                    // .globeImageUrl('earth-dark.jpg')
+                    // .hexPolygonsData(countries.features)
+                    // .hexPolygonResolution(3)
+                    // .hexPolygonMargin(0.3)
+                    // .hexPolygonColor(() => `#${Math.round(Math.random() * Math.pow(2, 24)).toString(16).padStart(6, '0')}`)
+                    // .hexPolygonLabel(({ properties: d }) => `
+                    // <b>${d.ADMIN} (${d.ISO_A2})</b> <br />
+                    // Population: <i>${d.POP_EST}</i>
+                    // `)
+                    // (document.getElementById('globeViz'))
+                // const world = Globe()
+                // (document.getElementById('globeViz'))
+                // .globeImageUrl('earth-night.jpg')
+                // .bumpImageUrl('earth-topology.png')
+                // //.backgroundImageUrl('night-sky.png')
+                // .showAtmosphere(true)
+                // .hexBinPointWeight('pop')
+                // .hexAltitude(d => d.sumWeight / 4)
+                // .hexBinResolution(4)
+                // .hexPolygonData(countries.features)
+                // .hexTopColor(d => weightColor(d.sumWeight))
+                // .hexSideColor(d => weightColor(d.sumWeight))
+                // .hexBinMerge(true)
+                // .enablePointerInteraction(false); // performance improvement
+
+                // fetch('sportbowling.csv').then(res => res.text())
+                //     .then(csv => d3.csvParse(csv, ({ lat, lng, pop }) => ({ lat: +lat, lng: +lng, pop: +pop })))
+                //     .then(data => world.hexBinPointsData(data));
+
+                // Add auto-rotation
+                // world.controls().autoRotate = true;
+                // world.controls().autoRotateSpeed = 0.2;
+            //}
+    </script>
+</body>

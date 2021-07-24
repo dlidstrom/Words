@@ -65,12 +65,16 @@
     <Content Include="Content\bootstrap\js\bootstrap.js" />
     <Content Include="Content\bootstrap\js\bootstrap.min.js" />
     <Content Include="Content\css\words.css" />
+    <Content Include="Content\images\earth-blue-marble.jpg" />
+    <Content Include="Content\images\earth-topology.png" />
+    <Content Include="Content\images\earth-water.png" />
     <Content Include="Content\images\facebook-icon.png" />
     <Content Include="Content\images\g.png" />
     <Content Include="Content\images\google-icon.png" />
     <Content Include="Content\images\grid-18px-masked.png" />
     <Content Include="Content\images\ne-icon.gif" />
     <Content Include="Content\images\ne.png" />
+    <Content Include="Content\images\night-sky.png" />
     <Content Include="Content\images\s.ico" />
     <Content Include="Content\images\s.png" />
     <Content Include="Content\images\spinner.gif" />
@@ -85,6 +89,7 @@
     <Content Include="words2x.png" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\GlobeController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -109,6 +114,7 @@
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="NLog.config" />
+    <Content Include="Views\Globe\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
