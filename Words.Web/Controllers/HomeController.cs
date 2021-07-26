@@ -86,7 +86,7 @@
             {
                 int id = connection.QuerySingle<int>(@"
                     insert into query(type, text, elapsed_milliseconds, created_date, user_agent, user_host_address, browser_screen_pixels_height, browser_screen_pixels_width)
-                    values (@type, @text, @elapsedmilliseconds, @createddate, @useragent, @userhostaddress, @browserscreenpixelsheight, @browserscreenpixelswidth)
+                    values (@type, @text, @elapsedmilliseconds, @createddate, @useragent, @userhostaddress::cidr, @browserscreenpixelsheight, @browserscreenpixelswidth)
                     returning query_id",
                     new
                     {
