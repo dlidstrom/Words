@@ -10,9 +10,9 @@
         }
     </style>
 
-    <script src="//unpkg.com/d3"></script>
-    <script src="//unpkg.com/three"></script>
-    <script src="//unpkg.com/globe.gl"></script>
+    <script src="@Url.ContentCacheBreak("/Content/js/d3.min.js")"></script>
+    <script src="@Url.ContentCacheBreak("/Content/js/three.js")"></script>
+    <script src="@Url.ContentCacheBreak("/Content/js/globe.gl.min.js")"></script>
     <script>
         window.Data = '@ViewBag.data';
         window.GlobeImage = '@Model.GlobeImage';
