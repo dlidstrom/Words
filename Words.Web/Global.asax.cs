@@ -25,14 +25,12 @@
         public static TResult Transact<TResult>(Func<IDbConnection, IDbTransaction, TResult> func)
         {
             ConnectionStringSettings connectionString = ConfigurationManager.ConnectionStrings["Words"];
-            using (IDbConnection connection = new NpgsqlConnection(connectionString.ConnectionString))
-            {
-                connection.Open();
-                IDbTransaction tran = connection.BeginTransaction();
-                TResult result = func.Invoke(connection, tran);
-                tran.Commit();
-                return result;
-            }
+            using IDbConnection connection = new NpgsqlConnection(connectionString.ConnectionString);
+            connection.Open();
+            IDbTransaction tran = connection.BeginTransaction();
+            TResult result = func.Invoke(connection, tran);
+            tran.Commit();
+            return result;
         }
 
         public static void Transact(Action<IDbConnection, IDbTransaction> action)
@@ -53,6 +51,8 @@
         private static void RegisterRoutes(RouteCollection routes)
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
+            routes.MapMvcAttributeRoutes();
 
             _ = routes.MapRoute(
                 "Default",

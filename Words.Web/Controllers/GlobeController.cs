@@ -13,7 +13,40 @@
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
+        [Route("globe1")]
         public ActionResult Index()
+        {
+            ViewModel model = new()
+            {
+                GlobeImage = "earth-blue-marble.jpg",
+                BumpImage = "earth-topology.png"
+            };
+            return ViewGlobe(model);
+        }
+
+        [Route("globe2")]
+        public ActionResult Globe2()
+        {
+            ViewModel model = new()
+            {
+                GlobeImage = "4_no_ice_clouds_mts_16k.jpg",
+                BumpImage = "elev_bump_16k.jpg"
+            };
+            return ViewGlobe(model);
+        }
+
+        [Route("globe3")]
+        public ActionResult Globe3()
+        {
+            ViewModel model = new()
+            {
+                GlobeImage = "4_no_ice_clouds_mts_8k.jpg",
+                BumpImage = "elev_bump_16k.jpg"
+            };
+            return ViewGlobe(model);
+        }
+
+        private ActionResult ViewGlobe(ViewModel model)
         {
             List<string> locations = new() { "lat,lng,pop" };
             if (HttpContext.Cache.Get("globe-data") is Location[] cachedData)
@@ -36,7 +69,7 @@
             }
 
             ViewBag.data = string.Join("\\n", locations);
-            return View();
+            return View("Index", model);
         }
 
         private void OnCacheItemRemoved(string key, object value, CacheItemRemovedReason reason)
@@ -49,6 +82,13 @@
             public double Latitude { get; set; }
 
             public double Longitude { get; set; }
+        }
+
+        public class ViewModel
+        {
+            public string GlobeImage { get; set; }
+
+            public string BumpImage { get; set; }
         }
     }
 }
