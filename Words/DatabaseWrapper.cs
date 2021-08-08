@@ -9,15 +9,15 @@
 
         public DatabaseWrapper(string filename)
         {
-            database = new LiteDatabase($"filename={filename};upgrade=true");
+            database = new LiteDatabase($"filename={filename}");
         }
 
         static DatabaseWrapper()
         {
             BsonMapper mapper = BsonMapper.Global;
-            mapper.Entity<NormalizedToOriginal>()
+            _ = mapper.Entity<NormalizedToOriginal>()
                 .Id(x => x.Normalized);
-            mapper.Entity<WordPermutations>()
+            _ = mapper.Entity<WordPermutations>()
                 .Id(x => x.NormalizedSorted);
         }
 
@@ -25,7 +25,7 @@
 
         public ILiteCollection<WordPermutations> WordPermutations => database.GetCollection<WordPermutations>("permutations");
 
-        public AdvancedWrapper Advanced => new AdvancedWrapper(database);
+        public AdvancedWrapper Advanced => new(database);
 
         public void Dispose()
         {

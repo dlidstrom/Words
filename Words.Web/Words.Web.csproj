@@ -84,7 +84,10 @@
     <Content Include="Content\images\sprite.png" />
     <Content Include="Content\images\w.png" />
     <Content Include="Content\images\wikipedia-icon.png" />
+    <Content Include="Content\js\d3.min.js" />
+    <Content Include="Content\js\globe.gl.min.js" />
     <Content Include="Content\js\jquery-3.6.0.slim.min.js" />
+    <Content Include="Content\js\three.js" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="googlec8ec88eb3409129c.html" />
