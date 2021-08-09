@@ -6,7 +6,7 @@
     public class BitWriter
     {
         private const int W = 6;
-        private readonly List<byte> bits = new List<byte>();
+        private readonly List<byte> bits = new();
         private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
         public void Write(int data, int numBits)
@@ -26,7 +26,7 @@
 
         public (string data, int totalBits) GetData()
         {
-            StringBuilder chars = new StringBuilder();
+            StringBuilder chars = new();
             int b = 0;
             int i = 0;
 

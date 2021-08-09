@@ -8,7 +8,6 @@
     using System.Linq;
     using System.Text;
     using Dapper;
-    using LiteDB;
     using Mono.Terminal;
     using Newtonsoft.Json;
     using Npgsql;
@@ -147,13 +146,13 @@
             return query.ToArray();
         }
 
-        private static string GetOriginal(IDbConnection connection, string normalized)
+        private static string[] GetOriginal(IDbConnection connection, string[] normalized)
         {
-            string query =
-                connection.QuerySingleOrDefault<string>(
-                    "select original from normalized where normalized = @normalized",
+            IEnumerable<string> query =
+                connection.Query<string>(
+                    "select original from normalized where normalized in(@normalized)",
                     new { normalized });
-            return query;
+            return query.ToArray();
         }
 
         private static void Run(string connectionString)
@@ -213,7 +212,7 @@
 
         private static (WordFinder ternary, WordFinder succinct) CreateWordFinders(
             Func<string, string[]> getPermutations,
-            Func<string, string> getOriginal)
+            Func<string[], string[]> getOriginal)
         {
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\english-word-list.txt", Encoding.UTF8, Language.English);
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\swedish-english.txt", Encoding.UTF8, Language.Swedish);

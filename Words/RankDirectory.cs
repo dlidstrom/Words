@@ -35,7 +35,7 @@
         public static RankDirectory Create(
             (string data, int numBits) encoding, int l1Size, int l2Size)
         {
-            BitString bits = new BitString(encoding.data);
+            BitString bits = new(encoding.data);
             int p = 0;
             int i = 0;
             int count1 = 0;
@@ -43,7 +43,7 @@
             int l1Bits = (int)Math.Ceiling(Math.Log(encoding.numBits) / Math.Log(2));
             int l2Bits = (int)Math.Ceiling(Math.Log(l1Size) / Math.Log(2));
 
-            BitWriter directory = new BitWriter();
+            BitWriter directory = new();
 
             while (p + l2Size <= encoding.numBits)
             {

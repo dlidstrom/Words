@@ -96,7 +96,7 @@ namespace Words.Test
             Assert.That(matches, Is.EqualTo(ternaryTreeMatches));
         }
 
-        [TestCaseSource(nameof(VerifySource))]
+        [TestCaseSource(nameof(VerifyMatchSource))]
         public void VerifyMatches(int wordsToAdd, int i, string addedWords)
         {
             TernaryTree ternary = new(Language.Swedish);
@@ -123,7 +123,7 @@ namespace Words.Test
             }
         }
 
-        [TestCaseSource(nameof(VerifySource))]
+        [TestCaseSource(nameof(VerifyNearSource))]
         public void VerifyNear(int wordsToAdd, int i, string addedWords)
         {
             TernaryTree ternary = new(Language.Swedish);
@@ -150,32 +150,33 @@ namespace Words.Test
             }
         }
 
-        private static IEnumerable<TestCaseData> VerifySource
+        private static IEnumerable<TestCaseData> VerifyMatchSource => VerifySource("match");
+
+        private static IEnumerable<TestCaseData> VerifyNearSource => VerifySource("near");
+
+        private static IEnumerable<TestCaseData> VerifySource(string prefix)
         {
-            get
+            const string filename = @"C:\Programming\words.txt";
+            string[] lines = File.ReadAllLines(filename, Encoding.UTF8);
+            Random random = new();
+
+            // try adding more and more words
+            for (int wordsToAdd = 2; wordsToAdd < 25; wordsToAdd++)
             {
-                const string filename = @"C:\Programming\words.txt";
-                string[] lines = File.ReadAllLines(filename, Encoding.UTF8);
-                Random random = new();
-
-                // try adding more and more words
-                for (int wordsToAdd = 2; wordsToAdd < 3; wordsToAdd++)
+                // try a few random selections
+                for (int i = 0; i < 30; i++)
                 {
-                    // try a few random selections
-                    for (int i = 0; i < 1; i++)
+                    List<string> randomWords = new();
+                    for (int j = 0; j < wordsToAdd; j++)
                     {
-                        List<string> randomWords = new();
-                        for (int j = 0; j < wordsToAdd; j++)
-                        {
-                            int wordIndex = random.Next(lines.Length);
-                            string word = lines[wordIndex];
-                            randomWords.Add(word);
-                        }
-
-                        string addedWords = string.Join(",", randomWords);
-                        TestCaseData testCaseData = new(wordsToAdd, i, addedWords);
-                        yield return testCaseData;
+                        int wordIndex = random.Next(lines.Length);
+                        string word = lines[wordIndex];
+                        randomWords.Add(word);
                     }
+
+                    string addedWords = string.Join(",", randomWords);
+                    TestCaseData testCaseData = new(wordsToAdd, i, addedWords);
+                    yield return testCaseData.SetName($"{prefix} {wordsToAdd} {i}");
                 }
             }
         }

@@ -10,7 +10,7 @@
         public void RegularSearch()
         {
             // Arrange
-            TernaryTree tree = new TernaryTree(Language.Swedish);
+            TernaryTree tree = new(Language.Swedish);
             tree.Add("a", "b", "c");
 
             // Act
@@ -24,7 +24,7 @@
         public void WildCardSearch()
         {
             // Arrange
-            TernaryTree tree = new TernaryTree(Language.Swedish);
+            TernaryTree tree = new(Language.Swedish);
             tree.Add("abcd", "aecd");
 
             // Act
@@ -38,7 +38,7 @@
         public void VowelsSearch()
         {
             // Arrange
-            TernaryTree tree = new TernaryTree(Language.Swedish);
+            TernaryTree tree = new(Language.Swedish);
             tree.Add("abcd", "ebcd", "tbcd", "ubcd");
 
             // Act
@@ -52,7 +52,7 @@
         public void ConsonantsSearch()
         {
             // Arrange
-            TernaryTree tree = new TernaryTree(Language.Swedish);
+            TernaryTree tree = new(Language.Swedish);
             tree.Add("abeg", "abhg", "abfg", "abug", "abtg");
 
             // Act
@@ -66,7 +66,7 @@
         public void NearSearch()
         {
             // Arrange
-            TernaryTree tree = new TernaryTree(Language.Swedish);
+            TernaryTree tree = new(Language.Swedish);
             tree.Add("abcde", "abce", "abcf");
 
             // Act
@@ -80,15 +80,15 @@
         public void Traverse()
         {
             // Arrange
-            TernaryTree tree = new TernaryTree(Language.Swedish);
+            TernaryTree tree = new(Language.Swedish);
             tree.Add("abe", "abc", "abd");
-            List<string> visited = new List<string>();
+            List<string> visited = new();
 
             // Act
             tree.Traverse(visited.Add);
 
             // Assert
-            List<string> expected = new List<string> { "abc", "abd", "abe" };
+            List<string> expected = new() { "abc", "abd", "abe" };
             Assert.AreEqual(expected.Count, visited.Count);
             Assert.AreEqual(expected[0], visited[0]);
             Assert.AreEqual(expected[1], visited[1]);

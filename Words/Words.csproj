@@ -46,7 +46,6 @@
   <ItemGroup>
     <Compile Include="BitString.cs" />
     <Compile Include="BitWriter.cs" />
-    <Compile Include="DatabaseWrapper.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ITree.cs" />
     <Compile Include="Language.cs" />
@@ -63,11 +62,6 @@
     <Compile Include="TernaryTree.cs" />
     <Compile Include="WordFinder.cs" />
     <Compile Include="WordPermutations.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="LiteDB">
-      <Version>5.0.10</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig">

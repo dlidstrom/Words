@@ -10,7 +10,7 @@
         public void VerifyData(int[] bits, (string data, int totalBits) expected)
         {
             // Arrange
-            BitWriter bitWriter = new BitWriter();
+            BitWriter bitWriter = new();
 
             // Act
             foreach (int bit in bits)
@@ -27,10 +27,10 @@
         public void GetNode()
         {
             // Arrange
-            BitWriter bitWriter = new BitWriter();
+            BitWriter bitWriter = new();
             bitWriter.Write(new Node { Char = (char)0, WordEnd = true });
             string str = bitWriter.GetData().data;
-            BitString bitString = new BitString(str);
+            BitString bitString = new(str);
 
             // Act
             SuccinctNode c = bitString.GetNode(0);

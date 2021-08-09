@@ -23,7 +23,7 @@
             if (filterContext.RouteData.Values["q"] != null)
                 query = filterContext.RouteData.Values["q"].ToString();
 
-            StringBuilder message = new StringBuilder();
+            StringBuilder message = new();
             message.AppendFormat("UserName={0}|", userName);
             message.AppendFormat("RemoteIp={0}|", GetIp(filterContext.HttpContext.Request));
             message.AppendFormat("Controller={0}|", controllerName);

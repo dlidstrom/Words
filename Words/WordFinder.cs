@@ -8,7 +8,7 @@
     {
         private readonly ITree tree;
         private readonly Func<string, string[]> getPermutations;
-        private readonly Func<string, string> getOriginal;
+        private readonly Func<string[], string[]> getOriginal;
         private readonly Language language;
 
         private WordFinder(
@@ -16,7 +16,7 @@
             Dictionary<string, SortedSet<string>> permutations,
             Func<string, string[]> getPermutations,
             Dictionary<string, string> normalizedToOriginal,
-            Func<string, string> getOriginal,
+            Func<string[], string[]> getOriginal,
             Language language,
             string treeType)
         {
@@ -87,7 +87,7 @@
                         : (new string[0]);
                 },
                 normalizedToOriginal,
-                s => normalizedToOriginal[s],
+                s => s.Select(x => normalizedToOriginal[x]).ToArray(),
                 language,
                 "TERN");
             return wordFinder;
@@ -97,7 +97,7 @@
             SuccinctTreeData succinctTreeData,
             Language language,
             Func<string, string[]> getPermutations,
-            Func<string, string> getOriginal)
+            Func<string[], string[]> getOriginal)
         {
             SuccinctTree tree = new(succinctTreeData, language);
             WordFinder wordFinder = new(
@@ -126,13 +126,12 @@
         private void Matches(string input, Action<Match> action, int d, int limit = 100)
         {
             string normalized = language.ToLower(input);
-            Match[] originalMatches = tree.Matches(normalized, limit)
+            Match[] originalMatches = getOriginal.Invoke(tree.Matches(normalized, limit).ToArray())
                 .Select(m =>
                 {
-                    string original = getOriginal.Invoke(m) ?? m;
                     Match match = new()
                     {
-                        Value = original,
+                        Value = m,
                         Type = MatchType.Word
                     };
                     return match;
@@ -156,11 +155,6 @@
 
         private List<Match> Anagram(string input)
         {
-            if (input == null)
-            {
-                throw new ArgumentNullException(nameof(input));
-            }
-
             string normalized = language.ToLower(input);
             List<Match> matches = new();
             if (input.IndexOfAny(new[] { '?', '@', '#', '*' }) < 0)
@@ -185,14 +179,13 @@
         private Match[] Near(string input, int d)
         {
             string normalized = language.ToLower(input);
-            Match[] matches = tree.NearSearch(normalized, d)
-                .Where(m => m != normalized)
+            string[] hits = tree.NearSearch(normalized, d).Where(m => m != normalized).ToArray();
+            Match[] matches = getOriginal.Invoke(hits)
                 .Select(m =>
                 {
-                    string original = getOriginal.Invoke(m) ?? m;
                     Match match = new()
                     {
-                        Value = original,
+                        Value = m,
                         Type = MatchType.Near
                     };
                     return match;

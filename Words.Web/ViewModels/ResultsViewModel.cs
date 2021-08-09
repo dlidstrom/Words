@@ -8,7 +8,10 @@
     {
         public ResultsViewModel(string query, IList<Match> matches, double elapsedMilliseconds)
         {
-            if (matches == null) throw new ArgumentNullException(nameof(matches));
+            if (matches == null)
+            {
+                throw new ArgumentNullException(nameof(matches));
+            }
 
             Query = query;
             Words = matches.Where(m => m.Type == MatchType.Word).Select(m => m.Value).ToList();
