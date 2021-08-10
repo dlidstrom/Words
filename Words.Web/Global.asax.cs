@@ -116,13 +116,13 @@
                 x => GetOriginal(connectionString, x));
             return wordFinder;
 
-            static string[] GetOriginal(string connectionString, IEnumerable<string> normalized)
+            static string[] GetOriginal(string connectionString, string[] normalized)
             {
                 using IDbConnection connection = new NpgsqlConnection(connectionString);
                 connection.Open();
                 IEnumerable<string> query =
                     connection.Query<string>(
-                        "select original from normalized where normalized in(@normalized)",
+                        "select original from normalized where normalized = any(@normalized)",
                         new { normalized });
                 return query.ToArray();
             }
