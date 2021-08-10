@@ -48,9 +48,6 @@
                     Source="$(var.Words_App)\Web.config" />
             </Component>
             <Directory Id="WordsWeb_AppData" Name="App_Data">
-              <Component Id="words_db" Guid="*" Win64="yes">
-                <File KeyPath="yes" Source="Words.Web\App_Data\words.db" />
-              </Component>
               <Component Id="words_json" Guid="*" Win64="yes">
                 <File KeyPath="yes" Source="Words.Web\App_Data\words.json" />
               </Component>
@@ -114,7 +111,6 @@
 
     <Feature Id="Service" Level="1">
       <ComponentRef Id="Words.Web.config" />
-      <ComponentRef Id="words_db" />
       <ComponentRef Id="words_json" />
       <ComponentRef Id="WordsWeb_AppData" />
       <ComponentRef Id="WordsWeb_Logs" />
