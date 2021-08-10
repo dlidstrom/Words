@@ -44,7 +44,7 @@
 
         public SuccinctTreeData GetData()
         {
-            SuccinctTreeData data = new SuccinctTreeData(
+            SuccinctTreeData data = new(
                 encoding.Bytes.ChunkSplit(80).ToArray(),
                 encodingBits,
                 letterData.Bytes.ChunkSplit(80).ToArray());
@@ -54,9 +54,11 @@
         public List<string> Matches(string s, int limit)
         {
             if (string.IsNullOrWhiteSpace(s))
+            {
                 throw new ArgumentException();
+            }
 
-            List<string> matches = new List<string>();
+            List<string> matches = new();
 
             const int pos = 0;
             SuccinctNode node = letterData.GetNode(0);
@@ -68,9 +70,11 @@
         public List<string> NearSearch(string s, int d, int limit)
         {
             if (string.IsNullOrWhiteSpace(s))
+            {
                 throw new ArgumentException();
+            }
 
-            List<string> matches = new List<string>();
+            List<string> matches = new();
 
             const int pos = 0;
             SuccinctNode node = letterData.GetNode(0);
@@ -88,86 +92,111 @@
             int limit)
         {
             if (node == null || matches.Count >= limit)
+            {
                 return;
+            }
+
             (SuccinctNode center, SuccinctNode left, SuccinctNode right) = LoadChildren(node);
             LogImpl(() => $"Visiting {node}, Left = {left?.Char}, Center = {center?.Char}, Right = {right?.Char}");
 
-            char c = pos == s.Length ? default(char) : s[pos];
-            if (WildcardMatchLeft(c, node.Char) || c < node.Char)
+            char c = pos == s.Length ? default : s[pos];
+            if (c < node.Char || WildcardMatchLeft(c, node.Char))
+            {
                 Matches(s, substr, pos, left, matches, limit);
+            }
 
-            if (WildcardMatch(c, node.Char) || c == node.Char)
+            if (c == node.Char || WildcardMatch(c, node.Char))
+            {
                 Matches(s, substr + node.Char, pos + 1, center, matches, limit);
+            }
 
             if (c == default(char) && node.WordEnd)
+            {
                 matches.Add(substr);
+            }
 
-            if (WildcardMatchRight(c, node.Char) || c > node.Char)
+            if (c > node.Char || WildcardMatchRight(c, node.Char))
+            {
                 Matches(s, substr, pos, right, matches, limit);
+            }
         }
 
         private bool WildcardMatch(char c, char node)
         {
-            if (c == '?')
-                return true;
-            if (c == '#')
-                return language.Consonants.Contains(node);
-            if (c == '@')
-                return language.Vowels.Contains(node);
-            return false;
+            return c switch
+            {
+                '?' => true,
+                '#' => language.Consonants.Contains(node),
+                '@' => language.Vowels.Contains(node),
+                _ => false
+            };
         }
 
         private bool WildcardMatchLeft(char c, char node)
         {
-            if (c == '?')
-                return true;
-            if (c == '#')
-                return language.Consonants.Min <= node;
-            if (c == '@')
-                return language.Vowels.Min <= node;
-            return false;
+            return c switch
+            {
+                '?' => true,
+                '#' => language.Consonants.Min <= node,
+                '@' => language.Vowels.Min <= node,
+                _ => false
+            };
         }
 
         private bool WildcardMatchRight(char c, char node)
         {
-            if (c == '?')
-                return true;
-            if (c == '#')
-                return node <= language.Consonants.Max;
-            if (c == '@')
-                return node <= language.Vowels.Max;
-            return false;
+            return c switch
+            {
+                '?' => true,
+                '#' => node <= language.Consonants.Max,
+                '@' => node <= language.Vowels.Max,
+                _ => false
+            };
         }
 
         private void NearSearch(string s, string substr, int pos, SuccinctNode node, List<string> matches, int limit, int depth)
         {
             if (node == null || matches.Count >= limit || depth < 0)
+            {
                 return;
+            }
 
             (SuccinctNode center, SuccinctNode left, SuccinctNode right) = LoadChildren(node);
-            char c = default(char);
+            char c = default;
             if (pos < s.Length)
+            {
                 c = s[pos];
+            }
 
             if (depth > 0 || c < node.Char)
+            {
                 NearSearch(s, substr, pos, left, matches, limit, depth);
+            }
 
             if (node.WordEnd)
             {
                 if (s.Length - pos <= depth)
+                {
                     matches.Add(substr);
+                }
             }
             else
             {
                 int newDepth = c == node.Char ? depth : depth - 1;
                 if (c != default(char))
+                {
                     NearSearch(s, substr + node.Char, pos + 1, center, matches, limit, newDepth);
+                }
                 else
+                {
                     NearSearch(s, substr + node.Char, pos, center, matches, limit, newDepth);
+                }
             }
 
             if (depth > 0 || c > node.Char)
+            {
                 NearSearch(s, substr, pos, right, matches, limit, depth);
+            }
         }
 
         private (SuccinctNode center, SuccinctNode left, SuccinctNode right) LoadChildren(
@@ -180,53 +209,53 @@
             switch (numberOfChildren)
             {
                 case 3:
-                {
+                    {
                         SuccinctNode center = letterData.GetNode(firstChild);
                         SuccinctNode left = letterData.GetNode(firstChild + 1);
                         SuccinctNode right = letterData.GetNode(firstChild + 2);
-                    return (center, left, right);
-                }
+                        return (center, left, right);
+                    }
 
                 case 2:
-                {
+                    {
                         SuccinctNode center = letterData.GetNode(firstChild);
                         SuccinctNode leftOrRight = letterData.GetNode(firstChild + 1);
-                    if (leftOrRight.Char < node.Char)
-                    {
+                        if (leftOrRight.Char < node.Char)
+                        {
                             SuccinctNode left = leftOrRight;
-                        return (center, left, null);
-                    }
+                            return (center, left, null);
+                        }
 
                         SuccinctNode right = leftOrRight;
-                    return (center, null, right);
-                }
-
-                case 1:
-                {
-                        SuccinctNode child = letterData.GetNode(firstChild);
-                    if (node.WordEnd)
-                    {
-                        if (child.Char < node.Char)
-                        {
-                                SuccinctNode left = child;
-                            return (null, left, null);
-                        }
-
-                        if (child.Char > node.Char)
-                        {
-                                SuccinctNode right = child;
-                            return (null, null, right);
-                        }
+                        return (center, null, right);
                     }
 
+                case 1:
+                    {
+                        SuccinctNode child = letterData.GetNode(firstChild);
+                        if (node.WordEnd)
+                        {
+                            if (child.Char < node.Char)
+                            {
+                                SuccinctNode left = child;
+                                return (null, left, null);
+                            }
+
+                            if (child.Char > node.Char)
+                            {
+                                SuccinctNode right = child;
+                                return (null, null, right);
+                            }
+                        }
+
                         SuccinctNode center = child;
-                    return (center, null, null);
-                }
+                        return (center, null, null);
+                    }
 
                 default:
-                {
-                    return (null, null, null);
-                }
+                    {
+                        return (null, null, null);
+                    }
             }
         }
 

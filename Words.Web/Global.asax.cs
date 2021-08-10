@@ -1,15 +1,17 @@
 ﻿namespace Words.Web
 {
     using System;
+    using System.Collections.Generic;
     using System.Configuration;
     using System.Data;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
+    using Dapper;
     using Infrastructure;
-    using LiteDB;
     using Newtonsoft.Json;
     using NLog;
     using Npgsql;
@@ -18,7 +20,6 @@
     public class MvcApplication : HttpApplication
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        private DatabaseWrapper databaseWrapper;
 
         public static WordFinder WordFinder { get; private set; }
 
@@ -68,16 +69,15 @@
             RegisterRoutes(RouteTable.Routes);
 
             string appDataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
-            databaseWrapper = new DatabaseWrapper(Path.Combine(appDataDirectory, "words.db"));
             string filename = Path.Combine(appDataDirectory, "words.json");
-            WordFinder = LoadWordFinder(filename);
+            string connectionString = ConfigurationManager.ConnectionStrings["Words"].ConnectionString;
+            WordFinder = LoadWordFinder(filename, connectionString);
             Log.Info("Dictionary loaded");
         }
 
         protected void Application_End()
         {
             Log.Info("Application ending");
-            databaseWrapper?.Dispose();
         }
 
         protected void Application_BeginRequest()
@@ -105,16 +105,37 @@
             }
         }
 
-        private WordFinder LoadWordFinder(string filename)
+        private WordFinder LoadWordFinder(string filename, string connectionString)
         {
             string succinctTreeDataJson = File.ReadAllText(filename, Encoding.UTF8);
             SuccinctTreeData succinctTreeData = JsonConvert.DeserializeObject<SuccinctTreeData>(succinctTreeDataJson);
             WordFinder wordFinder = WordFinder.CreateSuccinct(
                 succinctTreeData,
                 Language.Swedish,
-                x => databaseWrapper.WordPermutations.FindById(new BsonValue(x))?.Words ?? new string[0],
-                x => databaseWrapper.NormalizedToOriginals.FindById(new BsonValue(x))?.Original);
+                x => GetPermutations(connectionString, x),
+                x => GetOriginal(connectionString, x));
             return wordFinder;
+
+            static string[] GetOriginal(string connectionString, string[] normalized)
+            {
+                using IDbConnection connection = new NpgsqlConnection(connectionString);
+                connection.Open();
+                IEnumerable<string> query =
+                    connection.Query<string>(
+                        "select original from normalized where normalized = any(@normalized)",
+                        new { normalized });
+                return query.ToArray();
+            }
+
+            static string[] GetPermutations(string connectionString, string normalized)
+            {
+                using IDbConnection connection = new NpgsqlConnection(connectionString);
+                IEnumerable<string> query =
+                    connection.Query<string>(
+                        "select permutation from permutation where normalized = @normalized",
+                        new { normalized });
+                return query.ToArray();
+            }
         }
     }
 }

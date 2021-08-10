@@ -1,23 +1,25 @@
 ﻿namespace Words.Console
 {
-    using Mono.Terminal;
-    using Newtonsoft.Json;
     using System;
+    using System.Collections.Generic;
+    using System.Data;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text;
-    using LiteDB;
+    using Dapper;
+    using Mono.Terminal;
+    using Newtonsoft.Json;
+    using Npgsql;
     using Raven.Client.Documents;
     using Raven.Client.Documents.Session;
-    using System.Data;
-    using Dapper;
 
     public static class Program
     {
-        private const string EncodingFilename = @"C:\Programming\words.json";
-        private const string DbFilename = @"C:\Programming\words.db";
-        private const string WordsFilename = @"C:\Programming\Words\Words.Web\App_Data\words.txt";
+        private const string NormalizedToOriginalsFilename = @"C:\Programming\normalized_to_originals.csv";
+        private const string WordPermutationsFilename = @"C:\Programming\word_permutations.csv";
+        private const string EncodingFilename = @"C:\Programming\Words\Words.Web\App_Data\words.json";
+        private const string WordsFilename = @"C:\Programming\words.txt";
 
         public static void Main(string[] args)
         {
@@ -25,34 +27,37 @@
             {
                 if (args.Length > 0 && args[0] == "encode")
                 {
+                    Console.WriteLine($"Reading {WordsFilename}");
                     string[] lines = File.ReadAllLines(WordsFilename, Encoding.UTF8);
+                    Console.WriteLine("Creating ternary tree");
                     WordFinder wordFinder = WordFinder.CreateTernary(lines, Language.Swedish);
+                    Console.WriteLine("Encoding succinct");
                     SuccinctTree tree = wordFinder.EncodeSuccinct();
                     string json = JsonConvert.SerializeObject(tree.GetData(), Formatting.Indented);
                     File.WriteAllText(EncodingFilename, json);
-                    if (File.Exists(DbFilename))
-                    {
-                        File.Delete(DbFilename);
-                    }
+                    Console.WriteLine($"Created {EncodingFilename}");
 
-                    using (DatabaseWrapper db = new DatabaseWrapper(DbFilename))
-                    {
-                        string[] orderedKeys = wordFinder.NormalizedToOriginal
-                            .Where(x => x.Key != x.Value)
-                            .Select(x => x.Key)
-                            .OrderBy(x => x)
-                            .ToArray();
-                        _ = db.NormalizedToOriginals.InsertBulk(
-                            orderedKeys
-                            .Select(x => new NormalizedToOriginal(x, wordFinder.NormalizedToOriginal[x])));
+                    IEnumerable<string> orderedKeys =
+                        from item in wordFinder.NormalizedToOriginal
+                        orderby item.Key
+                        select $"{item.Key};{item.Value}";
+                    File.WriteAllLines(
+                        NormalizedToOriginalsFilename,
+                        new[] { "normalized;original" }.Concat(orderedKeys),
+                        Encoding.UTF8);
+                    Console.WriteLine($"Created {NormalizedToOriginalsFilename}");
 
-                        System.Collections.Generic.KeyValuePair<string, System.Collections.Generic.SortedSet<string>>[] permutations = wordFinder.Permutations
-                            .Where(x => x.Value.Count > 1)
-                            .ToArray();
-                        _ = db.WordPermutations.InsertBulk(
-                            permutations
-                                .Select(x => new WordPermutations(x.Key, x.Value.ToArray())));
-                    }
+                    IEnumerable<string> permutations =
+                        from item in wordFinder.Permutations
+                        orderby item.Key
+                        from val in item.Value
+                        orderby val
+                        select $"{item.Key};{val}";
+                    File.WriteAllLines(
+                        WordPermutationsFilename,
+                        new[] { "normalized;permutation" }.Concat(permutations),
+                        Encoding.UTF8);
+                    Console.WriteLine($"Created {WordPermutationsFilename}");
                 }
                 else if (args.Length > 1 && args[0] == "migrate")
                 {
@@ -68,7 +73,7 @@
                         while (true)
                         {
                             using (IDocumentSession session = documentStore.OpenSession())
-                            using (IDbConnection connection = new Npgsql.NpgsqlConnection($"Host=localhost;Database=words;Username=prisma;Password={password};Include Error Detail=true"))
+                            using (IDbConnection connection = new NpgsqlConnection($"Host=localhost;Database=words;Username=prisma;Password={password};Include Error Detail=true"))
                             {
                                 connection.Open();
                                 IDbTransaction tran = connection.BeginTransaction();
@@ -115,13 +120,13 @@
                         }
                     }
                 }
-                else if (args.Length > 1 && args[0] == "test-run")
+                else if (args.Length == 2 && args[0] == "test-run")
                 {
-                    Run();
+                    Run(args[1]);
                 }
                 else
                 {
-                    Console.WriteLine("Usage: encode|migrate|test-run");
+                    Console.WriteLine("Usage: encode|migrate|test-run <connstr>");
                 }
             }
             catch (Exception ex)
@@ -130,16 +135,34 @@
             }
         }
 
-        private static void Run()
+        private static string[] GetPermutations(IDbConnection connection, string normalized)
+        {
+            IEnumerable<string> query =
+                connection.Query<string>(
+                    "select permutation from permutation where normalized = @normalized",
+                    new { normalized });
+            return query.ToArray();
+        }
+
+        private static string[] GetOriginal(IDbConnection connection, string[] normalized)
+        {
+            IEnumerable<string> query =
+                connection.Query<string>(
+                    "select original from normalized where normalized in(@normalized)",
+                    new { normalized });
+            return query.ToArray();
+        }
+
+        private static void Run(string connectionString)
         {
             Console.Write("Constructing search trees...");
             Stopwatch stopwatch = Stopwatch.StartNew();
-            using (DatabaseWrapper db = new DatabaseWrapper(DbFilename))
+            using (IDbConnection connection = new NpgsqlConnection(connectionString))
             {
-                DatabaseWrapper wrapper = db;
+                connection.Open();
                 (WordFinder ternary, WordFinder succinct) = CreateWordFinders(
-                    x => wrapper.WordPermutations.FindById(new BsonValue(x))?.Words ?? new string[0],
-                    x => wrapper.NormalizedToOriginals.FindById(new BsonValue(x))?.Original);
+                    x => GetPermutations(connection, x),
+                    x => GetOriginal(connection, x));
 
                 stopwatch.Stop();
                 Console.WriteLine("{0} ms", stopwatch.ElapsedMilliseconds);
@@ -159,7 +182,7 @@
                         foreach (WordFinder wordFinder in new[] { ternary, succinct }.Where(x => x != null))
                         {
                             stopwatch.Restart();
-                            System.Collections.Generic.List<Match> matches = wordFinder.Matches(input, 2);
+                            List<Match> matches = wordFinder.Matches(input, 2);
                             stopwatch.Stop();
                             if (matches.Count > 0)
                             {
@@ -187,7 +210,7 @@
 
         private static (WordFinder ternary, WordFinder succinct) CreateWordFinders(
             Func<string, string[]> getPermutations,
-            Func<string, string> getOriginal)
+            Func<string[], string[]> getOriginal)
         {
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\english-word-list.txt", Encoding.UTF8, Language.English);
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\swedish-english.txt", Encoding.UTF8, Language.Swedish);

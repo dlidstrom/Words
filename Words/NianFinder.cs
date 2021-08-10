@@ -9,7 +9,7 @@ namespace Words
 
     public class NianFinder
     {
-        private readonly Dictionary<string, SortedSet<string>> permutations = new Dictionary<string, SortedSet<string>>();
+        private readonly Dictionary<string, SortedSet<string>> permutations = new();
         private readonly CultureInfo cultureInfo;
 
         public NianFinder(string nianWordFile, Encoding encoding, CultureInfo cultureInfo)
@@ -21,7 +21,7 @@ namespace Words
                 // sort characters and use that as key
                 char[] chars = word.ToCharArray();
                 Array.Sort(chars);
-                string key = new string(chars);
+                string key = new(chars);
                 if (permutations.TryGetValue(key, out SortedSet<string> list))
                     list.Add(word);
                 else
@@ -44,7 +44,7 @@ namespace Words
                 combinations.UnionWith(Combinations(input));
             }
 
-            List<Match> matches = new List<Match>();
+            List<Match> matches = new();
             foreach (string combination in combinations)
             {
                 if (permutations.TryGetValue(combination, out SortedSet<string> list))
@@ -60,7 +60,7 @@ namespace Words
 
         private static SortedSet<string> Combinations(string arr)
         {
-            SortedSet<string> result = new SortedSet<string>();
+            SortedSet<string> result = new();
             char middle = arr[4];
             arr = arr.Substring(0, 4) + arr.Substring(5, 4);
             for (int i = 0; i < arr.Length; i++)

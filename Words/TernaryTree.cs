@@ -48,7 +48,7 @@
     public class TernaryTree : ITree
     {
         private readonly Language language;
-        private readonly List<Node> nodes = new List<Node>();
+        private readonly List<Node> nodes = new();
         private Node root;
 
         /// <summary>
@@ -91,9 +91,11 @@
         public void Add(string s)
         {
             if (string.IsNullOrWhiteSpace(s))
+            {
                 throw new ArgumentException("s");
+            }
 
-            Add(s, 0, ref root);
+            _ = Add(s, 0, ref root);
         }
 
         /// <summary>
@@ -103,29 +105,42 @@
         public void Add(params string[] s)
         {
             if (s == null)
+            {
                 throw new ArgumentNullException(nameof(s));
+            }
 
             foreach (string item in s)
+            {
                 Add(item);
+            }
         }
 
         public bool Contains(string s)
         {
             if (string.IsNullOrWhiteSpace(s))
+            {
                 throw new ArgumentException();
+            }
 
             int pos = 0;
             Node node = root;
             while (node != null)
             {
                 if (s[pos] < node.Char)
+                {
                     node = node.Left;
+                }
                 else if (s[pos] > node.Char)
+                {
                     node = node.Right;
+                }
                 else
                 {
                     if (++pos == s.Length)
+                    {
                         return node.WordEnd;
+                    }
+
                     node = node.Center;
                 }
             }
@@ -136,9 +151,11 @@
         public List<string> Matches(string s, int limit)
         {
             if (string.IsNullOrWhiteSpace(s))
+            {
                 throw new ArgumentException();
+            }
 
-            List<string> matches = new List<string>();
+            List<string> matches = new();
 
             const int pos = 0;
             Node node = root;
@@ -166,7 +183,9 @@
         public void Traverse(Action<string> action)
         {
             if (action == null)
+            {
                 throw new ArgumentNullException(nameof(action));
+            }
 
             Traverse(root, action, string.Empty);
         }
@@ -174,22 +193,31 @@
         private void Traverse(Node node, Action<string> action, string s)
         {
             if (node == null)
+            {
                 return;
+            }
 
             Traverse(node.Left, action, s);
             if (node.WordEnd)
+            {
                 action.Invoke(s);
+            }
             else
+            {
                 Traverse(node.Center, action, s + node.Char);
+            }
+
             Traverse(node.Right, action, s);
         }
 
         public List<string> NearSearch(string s, int d, int limit)
         {
             if (string.IsNullOrWhiteSpace(s))
+            {
                 throw new ArgumentException();
+            }
 
-            List<string> matches = new List<string>();
+            List<string> matches = new();
 
             const int pos = 0;
             Node node = root;
@@ -201,7 +229,7 @@
 
         private Node Add(string s, int pos, ref Node node)
         {
-            char c = pos == s.Length ? default(char) : s[pos];
+            char c = pos == s.Length ? default : s[pos];
             if (node == null)
             {
                 node = new Node { Char = c, WordEnd = false };
@@ -209,16 +237,24 @@
             }
 
             if (c < node.Char)
+            {
                 node.Left = Add(s, pos, ref node.Left);
+            }
             else if (c == node.Char)
             {
                 if (pos != s.Length)
+                {
                     node.Center = Add(s, pos + 1, ref node.Center);
+                }
                 else
+                {
                     node.WordEnd = true;
+                }
             }
             else
+            {
                 node.Right = Add(s, pos, ref node.Right);
+            }
 
             return node;
         }
@@ -251,22 +287,33 @@
         private void Matches(string s, string substr, int pos, Node node, List<string> matches, int limit)
         {
             if (node == null || matches.Count >= limit)
+            {
                 return;
+            }
+
             Log($"Visiting {node}");
             Nodes++;
 
-            char c = pos == s.Length ? default(char) : s[pos];
+            char c = pos == s.Length ? default : s[pos];
             if (WildcardMatchLeft(c, node.Char) || c < node.Char)
+            {
                 Matches(s, substr, pos, node.Left, matches, limit);
+            }
 
             if (WildcardMatch(c, node.Char) || c == node.Char)
+            {
                 Matches(s, substr + node.Char, pos + 1, node.Center, matches, limit);
+            }
 
             if (c == default(char) && node.WordEnd)
+            {
                 matches.Add(substr);
+            }
 
             if (WildcardMatchRight(c, node.Char) || c > node.Char)
+            {
                 Matches(s, substr, pos, node.Right, matches, limit);
+            }
         }
 
         /// <summary>
@@ -277,13 +324,13 @@
         /// <returns></returns>
         private bool WildcardMatch(char c, char node)
         {
-            if (c == '?')
-                return true;
-            if (c == '#')
-                return language.Consonants.Contains(node);
-            if (c == '@')
-                return language.Vowels.Contains(node);
-            return false;
+            return c switch
+            {
+                '?' => true,
+                '#' => language.Consonants.Contains(node),
+                '@' => language.Vowels.Contains(node),
+                _ => false
+            };
         }
 
         /// <summary>
@@ -294,13 +341,13 @@
         /// <returns></returns>
         private bool WildcardMatchLeft(char c, char node)
         {
-            if (c == '?')
-                return true;
-            if (c == '#')
-                return language.Consonants.Min <= node;
-            if (c == '@')
-                return language.Vowels.Min <= node;
-            return false;
+            return c switch
+            {
+                '?' => true,
+                '#' => language.Consonants.Min <= node,
+                '@' => language.Vowels.Min <= node,
+                _ => false
+            };
         }
 
         /// <summary>
@@ -311,13 +358,13 @@
         /// <returns></returns>
         private bool WildcardMatchRight(char c, char node)
         {
-            if (c == '?')
-                return true;
-            if (c == '#')
-                return node <= language.Consonants.Max;
-            if (c == '@')
-                return node <= language.Vowels.Max;
-            return false;
+            return c switch
+            {
+                '?' => true,
+                '#' => node <= language.Consonants.Max,
+                '@' => node <= language.Vowels.Max,
+                _ => false
+            };
         }
 
         /// <summary>
@@ -352,41 +399,55 @@
         private void NearSearch(string s, string substr, int pos, Node node, List<string> matches, int limit, int depth)
         {
             if (node == null || matches.Count >= limit || depth < 0)
+            {
                 return;
+            }
 
             Nodes++;
 
-            char c = default(char);
+            char c = default;
             if (pos < s.Length)
+            {
                 c = s[pos];
+            }
 
             if (depth > 0 || c < node.Char)
+            {
                 NearSearch(s, substr, pos, node.Left, matches, limit, depth);
+            }
 
             if (node.WordEnd)
             {
                 if (s.Length - pos <= depth)
+                {
                     matches.Add(substr);
+                }
             }
             else
             {
                 int newDepth = c == node.Char ? depth : depth - 1;
                 if (c != default(char))
+                {
                     NearSearch(s, substr + node.Char, pos + 1, node.Center, matches, limit, newDepth);
+                }
                 else
+                {
                     NearSearch(s, substr + node.Char, pos, node.Center, matches, limit, newDepth);
+                }
             }
 
             if (depth > 0 || c > node.Char)
+            {
                 NearSearch(s, substr, pos, node.Right, matches, limit, depth);
+            }
         }
 
         public SuccinctTree EncodeSuccinct()
         {
-            BitWriter encodingWriter = new BitWriter();
-            BitWriter letterWriter = new BitWriter();
+            BitWriter encodingWriter = new();
+            BitWriter letterWriter = new();
             encodingWriter.Write(0x02, 2);
-            Queue<Node> queue = new Queue<Node>();
+            Queue<Node> queue = new();
             queue.Enqueue(root);
             while (queue.Count > 0)
             {
@@ -421,7 +482,7 @@
             }
 
             (string data, int totalBits) encoding = encodingWriter.GetData();
-            int expectedBits = 2 * nodes.Count + 1;
+            int expectedBits = (2 * nodes.Count) + 1;
             if (encoding.totalBits != expectedBits)
             {
                 string message = string.Format(
@@ -432,7 +493,7 @@
             }
 
             (string data, int totalBits) letterData = letterWriter.GetData();
-            SuccinctTree tree = new SuccinctTree(
+            SuccinctTree tree = new(
                 encoding,
                 letterData,
                 language);

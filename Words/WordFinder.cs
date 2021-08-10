@@ -8,7 +8,7 @@
     {
         private readonly ITree tree;
         private readonly Func<string, string[]> getPermutations;
-        private readonly Func<string, string> getOriginal;
+        private readonly Func<string[], string[]> getOriginal;
         private readonly Language language;
 
         private WordFinder(
@@ -16,7 +16,7 @@
             Dictionary<string, SortedSet<string>> permutations,
             Func<string, string[]> getPermutations,
             Dictionary<string, string> normalizedToOriginal,
-            Func<string, string> getOriginal,
+            Func<string[], string[]> getOriginal,
             Language language,
             string treeType)
         {
@@ -37,9 +37,9 @@
 
         public static WordFinder CreateTernary(string[] lines, Language language)
         {
-            TernaryTree tree = new TernaryTree(language);
-            Dictionary<string, SortedSet<string>> permutations = new Dictionary<string, SortedSet<string>>();
-            Dictionary<string, string> normalizedToOriginal = new Dictionary<string, string>();
+            TernaryTree tree = new(language);
+            Dictionary<string, SortedSet<string>> permutations = new();
+            Dictionary<string, string> normalizedToOriginal = new();
             IEnumerable<string> words = Randomize(lines);
             foreach (string word in words)
             {
@@ -65,27 +65,29 @@
                 // sort characters and use that as key
                 char[] chars = normalized.ToCharArray();
                 Array.Sort(chars);
-                string key = new string(chars);
+                string key = new(chars);
                 if (permutations.TryGetValue(key, out SortedSet<string> list))
-                    list.Add(word);
+                {
+                    _ = list.Add(word);
+                }
                 else
+                {
                     permutations.Add(key, new SortedSet<string> { word });
+                }
             }
 
-            WordFinder wordFinder = new WordFinder(
+            WordFinder wordFinder = new(
                 tree,
                 permutations,
                 s =>
                 {
-                    if (permutations.TryGetValue(s, out SortedSet<string> list))
-                    {
-                        return list.ToArray();
-                    }
-
-                    return new string[0];
+                    return
+                        permutations.TryGetValue(s, out SortedSet<string> list)
+                        ? list.ToArray()
+                        : (new string[0]);
                 },
                 normalizedToOriginal,
-                s => normalizedToOriginal[s],
+                s => s.Select(x => normalizedToOriginal[x]).ToArray(),
                 language,
                 "TERN");
             return wordFinder;
@@ -95,10 +97,10 @@
             SuccinctTreeData succinctTreeData,
             Language language,
             Func<string, string[]> getPermutations,
-            Func<string, string> getOriginal)
+            Func<string[], string[]> getOriginal)
         {
-            SuccinctTree tree = new SuccinctTree(succinctTreeData, language);
-            WordFinder wordFinder = new WordFinder(
+            SuccinctTree tree = new(succinctTreeData, language);
+            WordFinder wordFinder = new(
                 tree,
                 null,
                 getPermutations,
@@ -112,9 +114,11 @@
         public List<Match> Matches(string input, int d, int limit = 100)
         {
             if (input == null)
+            {
                 throw new ArgumentNullException(nameof(input));
+            }
 
-            List<Match> matches = new List<Match>();
+            List<Match> matches = new();
             Matches(input, matches.Add, d, limit);
             return matches;
         }
@@ -122,13 +126,12 @@
         private void Matches(string input, Action<Match> action, int d, int limit = 100)
         {
             string normalized = language.ToLower(input);
-            Match[] originalMatches = tree.Matches(normalized, limit)
+            Match[] originalMatches = getOriginal.Invoke(tree.Matches(normalized, limit).ToArray())
                 .Select(m =>
                 {
-                    string original = getOriginal.Invoke(m) ?? m;
-                    Match match = new Match
+                    Match match = new()
                     {
-                        Value = original,
+                        Value = m,
                         Type = MatchType.Word
                     };
                     return match;
@@ -152,16 +155,14 @@
 
         private List<Match> Anagram(string input)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
             string normalized = language.ToLower(input);
-            List<Match> matches = new List<Match>();
+            List<Match> matches = new();
             if (input.IndexOfAny(new[] { '?', '@', '#', '*' }) < 0)
             {
                 // also try to find permutations
                 char[] chars = normalized.ToCharArray();
                 Array.Sort(chars);
-                string key = new string(chars);
+                string key = new(chars);
                 string[] list = getPermutations.Invoke(key);
                 matches.AddRange(
                     list.Where(m => language.ToLower(m) != normalized)
@@ -178,14 +179,13 @@
         private Match[] Near(string input, int d)
         {
             string normalized = language.ToLower(input);
-            Match[] matches = tree.NearSearch(normalized, d)
-                .Where(m => m != normalized)
+            string[] hits = tree.NearSearch(normalized, d).Where(m => m != normalized).ToArray();
+            Match[] matches = getOriginal.Invoke(hits)
                 .Select(m =>
                 {
-                    string original = getOriginal.Invoke(m) ?? m;
-                    Match match = new Match
+                    Match match = new()
                     {
-                        Value = original,
+                        Value = m,
                         Type = MatchType.Near
                     };
                     return match;
@@ -196,7 +196,7 @@
 
         private static IEnumerable<string> Randomize(string[] list)
         {
-            Random random = new Random();
+            Random random = new();
             int n = list.Length;
             while (n > 0)
             {
@@ -216,7 +216,14 @@
                 return ternary.EncodeSuccinct();
             }
 
-            return (SuccinctTree)tree;
+#pragma warning disable IDE0046 // Convert to conditional expression, fails here
+            if (tree is SuccinctTree succinct)
+#pragma warning restore IDE0046
+            {
+                return succinct;
+            }
+
+            throw new Exception($"Unrecognized tree {tree.GetType()}");
         }
     }
 }

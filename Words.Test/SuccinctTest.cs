@@ -1,4 +1,5 @@
-﻿namespace Words.Test
+﻿#pragma warning disable IDE0060 // Remove unused parameter, used for dynamic test names
+namespace Words.Test
 {
     using NUnit.Framework;
     using System;
@@ -13,7 +14,7 @@
         public void RegularSearch(string[] s, string m)
         {
             // Arrange
-            TernaryTree ternaryTree = new TernaryTree(Language.Swedish)
+            TernaryTree ternaryTree = new(Language.Swedish)
             {
                 Log = Console.WriteLine
             };
@@ -35,7 +36,7 @@
         public void ConsonantsSearch()
         {
             // Arrange
-            TernaryTree ternaryTree = new TernaryTree(Language.Swedish);
+            TernaryTree ternaryTree = new(Language.Swedish);
             ternaryTree.Add("abeg", "abhg", "abfg", "abug", "abtg");
             ITree tree = ternaryTree.EncodeSuccinct();
 
@@ -51,7 +52,7 @@
         public void WildCardSearch()
         {
             // Arrange
-            TernaryTree ternaryTree = new TernaryTree(Language.Swedish);
+            TernaryTree ternaryTree = new(Language.Swedish);
             ternaryTree.Add("abcd", "aecd");
             ITree tree = ternaryTree.EncodeSuccinct();
 
@@ -67,7 +68,7 @@
         public void VowelsSearch()
         {
             // Arrange
-            TernaryTree ternaryTree = new TernaryTree(Language.Swedish);
+            TernaryTree ternaryTree = new(Language.Swedish);
             ternaryTree.Add("abcd", "ebcd", "tbcd", "ubcd");
             ITree tree = ternaryTree.EncodeSuccinct();
 
@@ -83,7 +84,7 @@
         public void NearSearch()
         {
             // Arrange
-            TernaryTree ternaryTree = new TernaryTree(Language.Swedish);
+            TernaryTree ternaryTree = new(Language.Swedish);
             ternaryTree.Add("abcde", "abce", "abcf");
             ITree tree = ternaryTree.EncodeSuccinct();
 
@@ -95,10 +96,10 @@
             Assert.That(matches, Is.EqualTo(ternaryTreeMatches));
         }
 
-        [TestCaseSource(nameof(VerifySource))]
+        [TestCaseSource(nameof(VerifyMatchSource))]
         public void VerifyMatches(int wordsToAdd, int i, string addedWords)
         {
-            TernaryTree ternary = new TernaryTree(Language.Swedish);
+            TernaryTree ternary = new(Language.Swedish);
             foreach (string addedWord in addedWords.Split(','))
             {
                 ternary.Add(addedWord);
@@ -107,7 +108,9 @@
             SuccinctTree succinct = ternary.EncodeSuccinct();
 
             // Act
-            foreach (string addedWord in addedWords.Split(','))
+            string[] words = addedWords.Split(',');
+            Assert.That(words, Is.Not.Empty);
+            foreach (string addedWord in words)
             {
                 List<string> ternaryMatches = ternary.Matches(addedWord, 100);
                 List<string> succinctMatches = succinct.Matches(addedWord, 100);
@@ -120,10 +123,10 @@
             }
         }
 
-        [TestCaseSource(nameof(VerifySource))]
+        [TestCaseSource(nameof(VerifyNearSource))]
         public void VerifyNear(int wordsToAdd, int i, string addedWords)
         {
-            TernaryTree ternary = new TernaryTree(Language.Swedish);
+            TernaryTree ternary = new(Language.Swedish);
             foreach (string addedWord in addedWords.Split(','))
             {
                 ternary.Add(addedWord);
@@ -132,7 +135,9 @@
             SuccinctTree succinct = ternary.EncodeSuccinct();
 
             // Act
-            foreach (string addedWord in addedWords.Split(','))
+            string[] words = addedWords.Split(',');
+            Assert.That(words, Is.Not.Empty);
+            foreach (string addedWord in words)
             {
                 List<string> ternaryMatches = ((ITree)ternary).NearSearch(addedWord);
                 List<string> succinctMatches = ((ITree)succinct).NearSearch(addedWord);
@@ -145,30 +150,33 @@
             }
         }
 
-        private static IEnumerable<TestCaseData> VerifySource
+        private static IEnumerable<TestCaseData> VerifyMatchSource => VerifySource("match");
+
+        private static IEnumerable<TestCaseData> VerifyNearSource => VerifySource("near");
+
+        private static IEnumerable<TestCaseData> VerifySource(string prefix)
         {
-            get
+            const string filename = @"C:\Programming\words.txt";
+            string[] lines = File.ReadAllLines(filename, Encoding.UTF8);
+            Random random = new();
+
+            // try adding more and more words
+            for (int wordsToAdd = 2; wordsToAdd < 25; wordsToAdd++)
             {
-                const string filename = @"C:\Programming\Words\Words.Web\App_Data\words.txt";
-                string[] lines = File.ReadAllLines(filename, Encoding.UTF8);
-                Random random = new Random();
-
-                // try adding more and more words
-                for (int wordsToAdd = 2; wordsToAdd < 25; wordsToAdd++)
+                // try a few random selections
+                for (int i = 0; i < 30; i++)
                 {
-                    // try a few random selections
-                    for (int i = 0; i < 30; i++)
+                    List<string> randomWords = new();
+                    for (int j = 0; j < wordsToAdd; j++)
                     {
-                        List<string> addedWords = new List<string>();
-                        for (int j = 0; j < wordsToAdd; j++)
-                        {
-                            int wordIndex = random.Next(lines.Length);
-                            string word = lines[wordIndex];
-                            addedWords.Add(word);
-                        }
-
-                        yield return new TestCaseData(wordsToAdd, i, string.Join(",", addedWords));
+                        int wordIndex = random.Next(lines.Length);
+                        string word = lines[wordIndex];
+                        randomWords.Add(word);
                     }
+
+                    string addedWords = string.Join(",", randomWords);
+                    TestCaseData testCaseData = new(wordsToAdd, i, addedWords);
+                    yield return testCaseData.SetName($"{prefix} {wordsToAdd} {i}");
                 }
             }
         }
