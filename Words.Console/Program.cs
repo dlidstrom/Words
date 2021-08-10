@@ -39,25 +39,23 @@
 
                     IEnumerable<string> orderedKeys =
                         from item in wordFinder.NormalizedToOriginal
-                        where item.Key != item.Value
                         orderby item.Key
-                        select $"{item.Key},{item.Value}";
+                        select $"{item.Key};{item.Value}";
                     File.WriteAllLines(
                         NormalizedToOriginalsFilename,
-                        new[] { "normalized,original" }.Concat(orderedKeys),
+                        new[] { "normalized;original" }.Concat(orderedKeys),
                         Encoding.UTF8);
                     Console.WriteLine($"Created {NormalizedToOriginalsFilename}");
 
                     IEnumerable<string> permutations =
                         from item in wordFinder.Permutations
-                        where item.Value.Count > 1
                         orderby item.Key
                         from val in item.Value
                         orderby val
-                        select $"{item.Key},{val}";
+                        select $"{item.Key};{val}";
                     File.WriteAllLines(
                         WordPermutationsFilename,
-                        new[] { "normalized,permutation" }.Concat(permutations),
+                        new[] { "normalized;permutation" }.Concat(permutations),
                         Encoding.UTF8);
                     Console.WriteLine($"Created {WordPermutationsFilename}");
                 }
