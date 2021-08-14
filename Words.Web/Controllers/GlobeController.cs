@@ -46,6 +46,17 @@
             return ViewGlobe(model);
         }
 
+        [Route("globe4")]
+        public ActionResult Globe4()
+        {
+            ViewModel model = new()
+            {
+                GlobeImage = "earth-large.jpg",
+                BumpImage = "bump-large.jpg"
+            };
+            return ViewGlobe(model);
+        }
+
         private ActionResult ViewGlobe(ViewModel model)
         {
             List<string> locations = new() { "lat,lng,pop" };
@@ -69,6 +80,7 @@
             }
 
             ViewBag.data = string.Join("\\n", locations);
+            ViewBag.count = MvcApplication.Transact((conn, tran) => conn.ExecuteScalar<int>("select count(*) from query", null, tran));
             return View("Index", model);
         }
 

@@ -66,7 +66,10 @@
     <Content Include="Content\css\words.css" />
     <Content Include="Content\images\4_no_ice_clouds_mts_16k.jpg" />
     <Content Include="Content\images\4_no_ice_clouds_mts_8k.jpg" />
+    <Content Include="Content\images\bump-large.jpg" />
+    <Content Include="Content\images\clouds-large.jpg" />
     <Content Include="Content\images\earth-blue-marble.jpg" />
+    <Content Include="Content\images\earth-large.jpg" />
     <Content Include="Content\images\earth-topology.png" />
     <Content Include="Content\images\earth-water.png" />
     <Content Include="Content\images\elev_bump_16k.jpg" />
