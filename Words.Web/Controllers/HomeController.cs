@@ -1,4 +1,6 @@
-﻿namespace Words.Web.Controllers
+﻿#nullable enable
+
+namespace Words.Web.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -37,7 +39,7 @@
 
                 // perform search again
                 Stopwatch sw = Stopwatch.StartNew();
-                List<Match> matches = MvcApplication.WordFinder.Matches(text, 2);
+                List<Match> matches = MvcApplication.Matches(text);
                 sw.Stop();
                 results = new ResultsViewModel(text, matches, sw.Elapsed.TotalMilliseconds);
                 _ = HttpContext.Cache.Add(
@@ -76,7 +78,7 @@
             }
 
             Stopwatch sw = Stopwatch.StartNew();
-            List<Match> matches = MvcApplication.WordFinder.Matches(q.Text, 2);
+            List<Match> matches = MvcApplication.Matches(q.Text);
             sw.Stop();
             ResultsViewModel results = new(q.Text, matches, sw.Elapsed.TotalMilliseconds);
             Log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1:F2}", q.Text, sw.Elapsed.TotalMilliseconds);

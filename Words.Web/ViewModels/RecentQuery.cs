@@ -1,4 +1,6 @@
-﻿namespace Words.Web.ViewModels
+﻿#nullable enable
+
+namespace Words.Web.ViewModels
 {
     public class RecentQuery
     {

@@ -1,4 +1,6 @@
-﻿namespace Words.Console
+﻿#nullable enable
+
+namespace Words.Console
 {
     using System;
     using System.Collections.Generic;
@@ -29,31 +31,20 @@
                     string[] lines = File.ReadAllLines(WordsFilename, Encoding.UTF8);
 
                     // several trees
-                    List<(int, SuccinctTreeData)> trees = new();
+                    List<Bucket> trees = new();
                     IEnumerable<IGrouping<int, string>> buckets =
                         from line in lines
-                        group line by line.Length switch
-                        {
-                            int i when i is >= 1 and <= 7 => 1,
-                            int i when i is 8 => 2,
-                            int i when i is 9 => 3,
-                            int i when i is 10 => 4,
-                            int i when i is 11 => 5,
-                            int i when i is 12 => 6,
-                            int i when i is 13 => 7,
-                            int i when i is 14 => 8,
-                            int i when i is >= 15 and <= 16 => 8,
-                            _ => 10
-                        }
+                        group line by Bucket.ToBucket(line.Length)
                         into grouping
                         select grouping;
-                    foreach (IGrouping<int, string> bucket in buckets)
+                    foreach (IGrouping<int, string> bucket in buckets.OrderBy(x => x.Key))
                     {
-                        Console.WriteLine("Creating ternary tree");
-                        WordFinder wordFinder = WordFinder.CreateTernary(bucket.ToArray(), Language.Swedish);
+                        string[] bucketLines = bucket.ToArray();
+                        Console.WriteLine($"Creating ternary tree bucket={bucket.Key} size={bucketLines.Length}");
+                        WordFinder wordFinder = WordFinder.CreateTernary(bucketLines, Language.Swedish);
                         Console.WriteLine("Encoding succinct");
                         SuccinctTree tree = wordFinder.EncodeSuccinct();
-                        trees.Add((bucket.Key, tree.GetData()));
+                        trees.Add(new Bucket(bucket.Key, tree.GetData()));
                     }
 
                     string json = JsonConvert.SerializeObject(trees, Formatting.Indented);
@@ -180,7 +171,12 @@
             WordFinder wordFinderTernary = WordFinder.CreateTernary(lines, Language.Swedish);
 
             string succinctTreeDataJson = File.ReadAllText(EncodingFilename);
-            SuccinctTreeData succinctTreeData = JsonConvert.DeserializeObject<SuccinctTreeData>(succinctTreeDataJson);
+            SuccinctTreeData? succinctTreeData = JsonConvert.DeserializeObject<SuccinctTreeData>(succinctTreeDataJson);
+            if (succinctTreeData is null)
+            {
+                throw new Exception("deserialization failed");
+            }
+
             WordFinder wordFinderSuccinct = WordFinder.CreateSuccinct(
                 succinctTreeData,
                 Language.Swedish,

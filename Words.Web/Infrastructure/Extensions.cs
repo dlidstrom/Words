@@ -1,4 +1,6 @@
-﻿namespace Words.Web.Infrastructure
+﻿#nullable enable
+
+namespace Words.Web.Infrastructure
 {
     using System;
     using System.IO;

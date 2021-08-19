@@ -1,4 +1,6 @@
-﻿namespace Words.Web
+﻿#nullable enable
+
+namespace Words.Web
 {
     using System;
     using System.Collections.Generic;
@@ -21,7 +23,20 @@
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        public static WordFinder WordFinder { get; private set; }
+        private static IDictionary<int, WordFinder>? wordFinders;
+
+        public static List<Match> Matches(string text)
+        {
+            if (wordFinders is null)
+            {
+                throw new Exception("expected not null");
+            }
+
+            int bucket = Bucket.ToBucket(text.Length);
+            return wordFinders.TryGetValue(bucket, out WordFinder? wordFinder)
+                ? wordFinder.Matches(text, 0)
+                : throw new Exception($"no word finder found for word: {text}");
+        }
 
         public static TResult Transact<TResult>(Func<IDbConnection, IDbTransaction, TResult> func)
         {
@@ -71,7 +86,7 @@
             string appDataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
             string filename = Path.Combine(appDataDirectory, "words.json");
             string connectionString = ConfigurationManager.ConnectionStrings["Words"].ConnectionString;
-            WordFinder = LoadWordFinder(filename, connectionString);
+            wordFinders = LoadWordFinders(filename, connectionString);
             Log.Info("Dictionary loaded");
         }
 
@@ -105,16 +120,25 @@
             }
         }
 
-        private WordFinder LoadWordFinder(string filename, string connectionString)
+        private IDictionary<int, WordFinder> LoadWordFinders(string filename, string connectionString)
         {
             string succinctTreeDataJson = File.ReadAllText(filename, Encoding.UTF8);
-            SuccinctTreeData succinctTreeData = JsonConvert.DeserializeObject<SuccinctTreeData>(succinctTreeDataJson);
-            WordFinder wordFinder = WordFinder.CreateSuccinct(
-                succinctTreeData,
-                Language.Swedish,
-                x => GetPermutations(connectionString, x),
-                x => GetOriginal(connectionString, x));
-            return wordFinder;
+            Bucket[]? buckets = JsonConvert.DeserializeObject<Bucket[]>(succinctTreeDataJson);
+            if (buckets is null)
+            {
+                throw new Exception("deserialization failed");
+            }
+
+            IDictionary<int, WordFinder> wordFinders =
+                buckets.ToDictionary(
+                    x => x.Number,
+                    x =>
+                        WordFinder.CreateSuccinct(
+                            x.Data,
+                            Language.Swedish,
+                            y => GetPermutations(connectionString, y),
+                            y => GetOriginal(connectionString, y)));
+            return wordFinders;
 
             static string[] GetOriginal(string connectionString, string[] normalized)
             {

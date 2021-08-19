@@ -1,4 +1,6 @@
-﻿#pragma warning disable IDE0060 // Remove unused parameter, used for dynamic test names
+﻿#nullable enable
+
+#pragma warning disable IDE0060 // Remove unused parameter, used for dynamic test names
 namespace Words.Test
 {
     using NUnit.Framework;

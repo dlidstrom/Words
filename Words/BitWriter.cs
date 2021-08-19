@@ -1,4 +1,6 @@
-﻿namespace Words
+﻿#nullable enable
+
+namespace Words
 {
     using System.Collections.Generic;
     using System.Text;

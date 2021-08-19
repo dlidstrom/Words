@@ -1,4 +1,6 @@
-﻿namespace Words.Console
+﻿#nullable enable
+
+namespace Words.Console
 {
     public class Query
     {

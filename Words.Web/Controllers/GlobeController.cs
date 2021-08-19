@@ -1,4 +1,6 @@
-﻿namespace Words.Web.Controllers
+﻿#nullable enable
+
+namespace Words.Web.Controllers
 {
     using System;
     using System.Collections.Generic;

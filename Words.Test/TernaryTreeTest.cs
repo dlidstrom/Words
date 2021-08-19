@@ -1,4 +1,6 @@
-﻿namespace Words.Test
+﻿#nullable enable
+
+namespace Words.Test
 {
     using System.Collections.Generic;
     using NUnit.Framework;

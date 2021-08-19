@@ -1,4 +1,6 @@
-﻿namespace Words.Web.ViewModels
+﻿#nullable enable
+
+namespace Words.Web.ViewModels
 {
     using System;
     using System.Collections.Generic;

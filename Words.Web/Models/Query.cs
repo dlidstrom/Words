@@ -1,4 +1,6 @@
-﻿namespace Words.Web.Models
+﻿#nullable enable
+
+namespace Words.Web.Models
 {
     public enum QueryType
     {

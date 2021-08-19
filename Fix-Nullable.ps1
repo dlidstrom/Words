@@ -6,4 +6,4 @@ $files = Get-ChildItem -Filter *.cs -Recurse -Path . |
 $files |
     Where-Object { (Get-Content -Raw $_.FullName) -notmatch "\#nullable" } |
     ForEach-Object { $c = (Get-Content -Raw $_.FullName); ("#nullable enable`r`n`r`n" + $c) |
-    Out-File -NoNewline -Encoding utf8BOM $_.FullName; $_.FullName }
+    Out-File -NoNewline -Encoding utf8 $_.FullName; $_.FullName }

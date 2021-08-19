@@ -1,3 +1,5 @@
+﻿#nullable enable
+
 namespace Words
 {
     using System;
@@ -39,7 +41,7 @@ namespace Words
             for (int i = 0; i < e; i++)
             {
                 int ix = input.IndexOf('e');
-                input = input.Substring(0, ix) + '�' + input.Substring(ix + 1);
+                input = input.Substring(0, ix) + 'é' + input.Substring(ix + 1);
 
                 combinations.UnionWith(Combinations(input));
             }
