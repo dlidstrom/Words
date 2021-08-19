@@ -11,8 +11,6 @@
     using Mono.Terminal;
     using Newtonsoft.Json;
     using Npgsql;
-    using Raven.Client.Documents;
-    using Raven.Client.Documents.Session;
 
     public static class Program
     {
@@ -29,16 +27,42 @@
                 {
                     Console.WriteLine($"Reading {WordsFilename}");
                     string[] lines = File.ReadAllLines(WordsFilename, Encoding.UTF8);
-                    Console.WriteLine("Creating ternary tree");
-                    WordFinder wordFinder = WordFinder.CreateTernary(lines, Language.Swedish);
-                    Console.WriteLine("Encoding succinct");
-                    SuccinctTree tree = wordFinder.EncodeSuccinct();
-                    string json = JsonConvert.SerializeObject(tree.GetData(), Formatting.Indented);
+
+                    // several trees
+                    List<(int, SuccinctTreeData)> trees = new();
+                    IEnumerable<IGrouping<int, string>> buckets =
+                        from line in lines
+                        group line by line.Length switch
+                        {
+                            int i when i is >= 1 and <= 7 => 1,
+                            int i when i is 8 => 2,
+                            int i when i is 9 => 3,
+                            int i when i is 10 => 4,
+                            int i when i is 11 => 5,
+                            int i when i is 12 => 6,
+                            int i when i is 13 => 7,
+                            int i when i is 14 => 8,
+                            int i when i is >= 15 and <= 16 => 8,
+                            _ => 10
+                        }
+                        into grouping
+                        select grouping;
+                    foreach (IGrouping<int, string> bucket in buckets)
+                    {
+                        Console.WriteLine("Creating ternary tree");
+                        WordFinder wordFinder = WordFinder.CreateTernary(bucket.ToArray(), Language.Swedish);
+                        Console.WriteLine("Encoding succinct");
+                        SuccinctTree tree = wordFinder.EncodeSuccinct();
+                        trees.Add((bucket.Key, tree.GetData()));
+                    }
+
+                    string json = JsonConvert.SerializeObject(trees, Formatting.Indented);
                     File.WriteAllText(EncodingFilename, json);
                     Console.WriteLine($"Created {EncodingFilename}");
 
+                    WordFinder allWords = WordFinder.CreateTernary(lines, Language.Swedish);
                     IEnumerable<string> orderedKeys =
-                        from item in wordFinder.NormalizedToOriginal
+                        from item in allWords.NormalizedToOriginal
                         orderby item.Key
                         select $"{item.Key};{item.Value}";
                     File.WriteAllLines(
@@ -48,7 +72,7 @@
                     Console.WriteLine($"Created {NormalizedToOriginalsFilename}");
 
                     IEnumerable<string> permutations =
-                        from item in wordFinder.Permutations
+                        from item in allWords.Permutations
                         orderby item.Key
                         from val in item.Value
                         orderby val
@@ -59,74 +83,13 @@
                         Encoding.UTF8);
                     Console.WriteLine($"Created {WordPermutationsFilename}");
                 }
-                else if (args.Length > 1 && args[0] == "migrate")
-                {
-                    // move all words into postgres
-                    string password = args[1];
-                    using (IDocumentStore documentStore = new DocumentStore
-                    {
-                        Urls = new[] { "http://localhost:8080" },
-                        Database = "Krysshjalpen"
-                    }.Initialize())
-                    {
-                        int start = 0;
-                        while (true)
-                        {
-                            using (IDocumentSession session = documentStore.OpenSession())
-                            using (IDbConnection connection = new NpgsqlConnection($"Host=localhost;Database=words;Username=prisma;Password={password};Include Error Detail=true"))
-                            {
-                                connection.Open();
-                                IDbTransaction tran = connection.BeginTransaction();
-
-                                Query[] queries = session.Advanced.LoadStartingWith<Query>(
-                                    "queries/",
-                                    start: start);
-                                if (queries.Length == 0)
-                                {
-                                    break;
-                                }
-
-                                foreach (Query query in queries)
-                                {
-                                    IMetadataDictionary metadata = session.Advanced.GetMetadataFor(query);
-
-                                    string id = session.Advanced.GetDocumentId(query);
-                                    if (int.TryParse(
-                                        id.Replace("queries/", string.Empty).Replace("-A", string.Empty),
-                                        out int ravendbId) == false)
-                                    {
-                                        throw new Exception($"Failed to parse {id}");
-                                    }
-
-                                    var values = new
-                                    {
-                                        Type = query.Type ?? string.Empty,
-                                        Text = query.Text.Substring(0, Math.Min(255, query.Text.Length)),
-                                        ElapsedMilliseconds = (int)Math.Round(query.ElapsedMilliseconds),
-                                        CreatedDate = session.Advanced.GetLastModifiedFor(query),
-                                        RavenDbId = ravendbId
-                                    };
-                                    Console.WriteLine(values);
-                                    _ = connection.Execute(
-                                        @"insert into query(type, text, elapsed_milliseconds, ravendb_id, created_date)
-                                          values (@type, @text, @elapsedmilliseconds, @ravendbid, @createddate)
-                                          on conflict(ravendb_id) do nothing",
-                                        values);
-                                }
-
-                                tran.Commit();
-                                start += queries.Length;
-                            }
-                        }
-                    }
-                }
                 else if (args.Length == 2 && args[0] == "test-run")
                 {
                     Run(args[1]);
                 }
                 else
                 {
-                    Console.WriteLine("Usage: encode|migrate|test-run <connstr>");
+                    Console.WriteLine("Usage: encode|test-run <connstr>");
                 }
             }
             catch (Exception ex)
@@ -157,54 +120,52 @@
         {
             Console.Write("Constructing search trees...");
             Stopwatch stopwatch = Stopwatch.StartNew();
-            using (IDbConnection connection = new NpgsqlConnection(connectionString))
+            using IDbConnection connection = new NpgsqlConnection(connectionString);
+            connection.Open();
+            (WordFinder ternary, WordFinder succinct) = CreateWordFinders(
+                x => GetPermutations(connection, x),
+                x => GetOriginal(connection, x));
+
+            stopwatch.Stop();
+            Console.WriteLine("{0} ms", stopwatch.ElapsedMilliseconds);
+
+            Console.WriteLine("Enter word to search for. A single 'q' exits.");
+            LineEditor lineEditor = new("input");
+            string input = lineEditor.Edit(": ", string.Empty);
+            while (input != "q")
             {
-                connection.Open();
-                (WordFinder ternary, WordFinder succinct) = CreateWordFinders(
-                    x => GetPermutations(connection, x),
-                    x => GetOriginal(connection, x));
-
-                stopwatch.Stop();
-                Console.WriteLine("{0} ms", stopwatch.ElapsedMilliseconds);
-
-                Console.WriteLine("Enter word to search for. A single 'q' exits.");
-                LineEditor lineEditor = new LineEditor("input");
-                string input = lineEditor.Edit(": ", string.Empty);
-                while (input != "q")
+                do
                 {
-                    do
+                    if (string.IsNullOrWhiteSpace(input))
                     {
-                        if (string.IsNullOrWhiteSpace(input))
-                        {
-                            break;
-                        }
-
-                        foreach (WordFinder wordFinder in new[] { ternary, succinct }.Where(x => x != null))
-                        {
-                            stopwatch.Restart();
-                            List<Match> matches = wordFinder.Matches(input, 2);
-                            stopwatch.Stop();
-                            if (matches.Count > 0)
-                            {
-                                Console.WriteLine(
-                                    "{0} Found {1} words matching '{2}':",
-                                    wordFinder.TreeType,
-                                    matches.Count,
-                                    input);
-                                matches.ForEach(m => Console.WriteLine("{0,-7}: {1}", m.Type, m.Value));
-                            }
-                            else
-                            {
-                                Console.WriteLine("Did not find any words matching '{0}'", input);
-                            }
-
-                            Console.WriteLine("Search completed in {0:F2} ms", 1000.0 * stopwatch.ElapsedTicks / Stopwatch.Frequency);
-                        }
+                        break;
                     }
-                    while (false);
 
-                    input = lineEditor.Edit(": ", string.Empty);
+                    foreach (WordFinder wordFinder in new[] { ternary, succinct }.Where(x => x != null))
+                    {
+                        stopwatch.Restart();
+                        List<Match> matches = wordFinder.Matches(input, 2);
+                        stopwatch.Stop();
+                        if (matches.Count > 0)
+                        {
+                            Console.WriteLine(
+                                "{0} Found {1} words matching '{2}':",
+                                wordFinder.TreeType,
+                                matches.Count,
+                                input);
+                            matches.ForEach(m => Console.WriteLine("{0,-7}: {1}", m.Type, m.Value));
+                        }
+                        else
+                        {
+                            Console.WriteLine("Did not find any words matching '{0}'", input);
+                        }
+
+                        Console.WriteLine("Search completed in {0:F2} ms", 1000.0 * stopwatch.ElapsedTicks / Stopwatch.Frequency);
+                    }
                 }
+                while (false);
+
+                input = lineEditor.Edit(": ", string.Empty);
             }
         }
 

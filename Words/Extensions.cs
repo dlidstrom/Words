@@ -19,7 +19,7 @@
 
         public static int Select(this RankDirectory directory, int y)
         {
-            return directory.Select(0, y, y - 1, Math.Min(directory.NumBits, 4 * y + 1));
+            return directory.Select(0, y, y - 1, Math.Min(directory.NumBits, (4 * y) + 1));
         }
 
         public static int Select(this RankDirectory directory, int y, int low, int high)
@@ -30,7 +30,9 @@
         public static IEnumerable<string> ChunkSplit(this string str, int chunkSize)
         {
             for (int i = 0; i < str.Length; i += chunkSize)
+            {
                 yield return str.Substring(i, Math.Min(chunkSize, str.Length - i));
+            }
         }
     }
 }
