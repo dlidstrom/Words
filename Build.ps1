@@ -82,7 +82,7 @@ foreach ($file in $filesToReset) {
 $yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Push the tag."
 $no = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Exit script."
 $options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
-$result = $host.ui.PromptForChoice("Push the tag", "Push the tag to remote?", $options, 1)
+$result = $host.ui.PromptForChoice("Push the tag", "Push the tag to remote?", $options, 0)
 
 switch ($result)
     {
