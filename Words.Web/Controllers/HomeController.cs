@@ -14,6 +14,7 @@ namespace Words.Web.Controllers
     using Models;
     using NLog;
     using ViewModels;
+    using Words.Web.Entities;
     using Words.Web.Infrastructure;
 
     public class HomeController : Controller
@@ -90,17 +91,15 @@ namespace Words.Web.Controllers
                     insert into query(type, text, elapsed_milliseconds, created_date, user_agent, user_host_address, browser_screen_pixels_height, browser_screen_pixels_width)
                     values (@type, @text, @elapsedmilliseconds, @createddate, @useragent, @userhostaddress::cidr, @browserscreenpixelsheight, @browserscreenpixelswidth)
                     returning query_id",
-                    new
-                    {
-                        Type = QueryType.Word.ToString(),
-                        q.Text,
-                        ElapsedMilliseconds = (int)Math.Round(sw.Elapsed.TotalMilliseconds),
-                        CreatedDate = DateTime.UtcNow,
-                        Request.UserAgent,
-                        Request.UserHostAddress,
-                        BrowserScreenPixelsHeight = Request.Browser.ScreenPixelsHeight,
-                        BrowserScreenPixelsWidth = Request.Browser.ScreenPixelsWidth
-                    },
+                    new Query(
+                        Type: QueryType.Word.ToString(),
+                        Text: q.Text,
+                        ElapsedMilliseconds: (int)Math.Round(sw.Elapsed.TotalMilliseconds),
+                        CreatedDate: DateTime.UtcNow,
+                        UserAgent: Request.UserAgent,
+                        UserHostAddress: Request.UserHostAddress,
+                        BrowserScreenPixelsHeight: Request.Browser.ScreenPixelsHeight,
+                        BrowserScreenPixelsWidth: Request.Browser.ScreenPixelsWidth),
                     tran);
                 return id;
             });
