@@ -51,7 +51,7 @@ namespace Words
     {
         private readonly Language language;
         private readonly List<Node> nodes = new();
-        private Node root;
+        private Node? root;
 
         /// <summary>
         /// Initializes a new instance of the TernaryTree class.
@@ -125,7 +125,7 @@ namespace Words
             }
 
             int pos = 0;
-            Node node = root;
+            Node? node = root;
             while (node != null)
             {
                 if (s[pos] < node.Char)
@@ -160,7 +160,7 @@ namespace Words
             List<string> matches = new();
 
             const int pos = 0;
-            Node node = root;
+            Node? node = root;
             Nodes = 0;
             Matches(s, string.Empty, pos, node, matches, limit);
 
@@ -192,7 +192,7 @@ namespace Words
             Traverse(root, action, string.Empty);
         }
 
-        private void Traverse(Node node, Action<string> action, string s)
+        private void Traverse(Node? node, Action<string> action, string s)
         {
             if (node == null)
             {
@@ -222,14 +222,14 @@ namespace Words
             List<string> matches = new();
 
             const int pos = 0;
-            Node node = root;
+            Node? node = root;
             Nodes = 0;
             NearSearch(s, string.Empty, pos, node, matches, limit, d);
 
             return matches;
         }
 
-        private Node Add(string s, int pos, ref Node node)
+        private Node Add(string s, int pos, ref Node? node)
         {
             char c = pos == s.Length ? default : s[pos];
             if (node == null)
@@ -286,7 +286,7 @@ namespace Words
         /// <param name="node"></param>
         /// <param name="matches"></param>
         /// <param name="limit"></param>
-        private void Matches(string s, string substr, int pos, Node node, List<string> matches, int limit)
+        private void Matches(string s, string substr, int pos, Node? node, List<string> matches, int limit)
         {
             if (node == null || matches.Count >= limit)
             {
@@ -398,7 +398,7 @@ namespace Words
         /// <param name="matches"></param>
         /// <param name="limit"></param>
         /// <param name="depth"></param>
-        private void NearSearch(string s, string substr, int pos, Node node, List<string> matches, int limit, int depth)
+        private void NearSearch(string s, string substr, int pos, Node? node, List<string> matches, int limit, int depth)
         {
             if (node == null || matches.Count >= limit || depth < 0)
             {
@@ -446,6 +446,11 @@ namespace Words
 
         public SuccinctTree EncodeSuccinct()
         {
+            if (root is null)
+            {
+                throw new Exception("Empty tree");
+            }
+
             BitWriter encodingWriter = new();
             BitWriter letterWriter = new();
             encodingWriter.Write(0x02, 2);

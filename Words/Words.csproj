@@ -55,7 +55,6 @@
     <Compile Include="MatchType.cs" />
     <Compile Include="NianFinder.cs" />
     <Compile Include="Node.cs" />
-    <Compile Include="NormalizedToOriginal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RankDirectory.cs" />
     <Compile Include="SuccinctNode.cs" />
@@ -63,7 +62,6 @@
     <Compile Include="SuccinctTreeData.cs" />
     <Compile Include="TernaryTree.cs" />
     <Compile Include="WordFinder.cs" />
-    <Compile Include="WordPermutations.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig">

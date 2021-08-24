@@ -15,9 +15,9 @@ namespace Words
 
         private WordFinder(
             ITree tree,
-            Dictionary<string, SortedSet<string>> permutations,
+            Dictionary<string, SortedSet<string>>? permutations,
             Func<string, string[]> getPermutations,
-            Dictionary<string, string> normalizedToOriginal,
+            Dictionary<string, string>? normalizedToOriginal,
             Func<string[], string[]> getOriginal,
             Language language,
             string treeType)
@@ -33,9 +33,9 @@ namespace Words
 
         public string TreeType { get; }
 
-        public Dictionary<string, SortedSet<string>> Permutations { get; }
+        public Dictionary<string, SortedSet<string>>? Permutations { get; }
 
-        public Dictionary<string, string> NormalizedToOriginal { get; }
+        public Dictionary<string, string>? NormalizedToOriginal { get; }
 
         public static WordFinder CreateTernary(string[] lines, Language language)
         {
@@ -131,11 +131,7 @@ namespace Words
             Match[] originalMatches = getOriginal.Invoke(tree.Matches(normalized, limit).ToArray())
                 .Select(m =>
                 {
-                    Match match = new()
-                    {
-                        Value = m,
-                        Type = MatchType.Word
-                    };
+                    Match match = new(m, MatchType.Word);
                     return match;
                 })
                 .ToArray();
@@ -168,11 +164,7 @@ namespace Words
                 string[] list = getPermutations.Invoke(key);
                 matches.AddRange(
                     list.Where(m => language.ToLower(m) != normalized)
-                        .Select(m => new Match
-                        {
-                            Value = m,
-                            Type = MatchType.Anagram
-                        }));
+                        .Select(m => new Match(m, MatchType.Anagram)));
             }
 
             return matches;
@@ -185,11 +177,7 @@ namespace Words
             Match[] matches = getOriginal.Invoke(hits)
                 .Select(m =>
                 {
-                    Match match = new()
-                    {
-                        Value = m,
-                        Type = MatchType.Near
-                    };
+                    Match match = new(m, MatchType.Near);
                     return match;
                 })
                 .ToArray();

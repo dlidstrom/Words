@@ -67,7 +67,7 @@ namespace Words.Web.Controllers
         [HttpPost]
         public ActionResult Search(QueryViewModel q)
         {
-            if (ModelState.IsValid == false)
+            if (ModelState.IsValid == false || q.Text is null)
             {
                 return View(q);
             }
@@ -116,7 +116,7 @@ namespace Words.Web.Controllers
 
             _ = HttpContext.Cache.Add(
                 $"query-{Encoding.UTF8.GetBytes(q.Text).ComputeHash()}",
-                new QueryId { Id = queryId },
+                new QueryId(queryId, q.Text),
                 null,
                 Cache.NoAbsoluteExpiration,
                 TimeSpan.FromDays(1),
@@ -145,11 +145,6 @@ namespace Words.Web.Controllers
             Log.Info("Cache item {key} removed due to {reason}: {@value}", key, reason, value);
         }
 
-        private class QueryId
-        {
-            public int Id { get; set; }
-
-            public string Text { get; set; }
-        }
+        private record QueryId(int Id, string Text);
     }
 }

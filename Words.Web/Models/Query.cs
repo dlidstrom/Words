@@ -14,16 +14,4 @@ namespace Words.Web.Models
         /// </summary>
         Nian
     }
-
-    public class Query
-    {
-        public Query()
-        {
-            Type = QueryType.Word;
-        }
-
-        public QueryType Type { get; set; }
-        public string Text { get; set; }
-        public double ElapsedMilliseconds { get; set; }
-    }
 }

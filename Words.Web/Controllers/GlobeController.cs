@@ -100,9 +100,9 @@ namespace Words.Web.Controllers
 
         public class ViewModel
         {
-            public string GlobeImage { get; set; }
+            public string? GlobeImage { get; set; }
 
-            public string BumpImage { get; set; }
+            public string? BumpImage { get; set; }
         }
     }
 }

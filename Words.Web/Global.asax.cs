@@ -27,13 +27,8 @@ namespace Words.Web
 
         public static List<Match> Matches(string text)
         {
-            if (wordFinders is null)
-            {
-                throw new Exception("expected not null");
-            }
-
             int bucket = Bucket.ToBucket(text.Length);
-            return wordFinders.TryGetValue(bucket, out WordFinder? wordFinder)
+            return wordFinders!.TryGetValue(bucket, out WordFinder? wordFinder)
                 ? wordFinder.Matches(text, 0)
                 : throw new Exception($"no word finder found for word: {text}");
         }

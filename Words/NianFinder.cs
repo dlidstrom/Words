@@ -25,16 +25,22 @@ namespace Words
                 Array.Sort(chars);
                 string key = new(chars);
                 if (permutations.TryGetValue(key, out SortedSet<string> list))
-                    list.Add(word);
+                {
+                    _ = list.Add(word);
+                }
                 else
+                {
                     permutations.Add(key, new SortedSet<string> { word });
+                }
             }
         }
 
         public List<Match> Nine(string input)
         {
             if (input.Length != 9)
+            {
                 throw new ArgumentException("Invalid length (must be 9 characters)", nameof(input));
+            }
 
             SortedSet<string> combinations = Combinations(input);
             int e = input.Count(c => c == 'e');
@@ -51,7 +57,7 @@ namespace Words
             {
                 if (permutations.TryGetValue(combination, out SortedSet<string> list))
                 {
-                    IEnumerable<Match> anagrams = list.Select(m => new Match { Value = m, Type = MatchType.Anagram });
+                    IEnumerable<Match> anagrams = list.Select(m => new Match(m, MatchType.Anagram));
                     matches.AddRange(anagrams);
                 }
             }
@@ -79,11 +85,13 @@ namespace Words
             {
                 char[] chars = sub.ToCharArray();
                 Array.Sort(chars);
-                result.Add(new string(chars));
+                _ = result.Add(new string(chars));
             }
 
             for (int i = p; i < arr.Length; i++)
+            {
                 Combine(arr, sub + arr[i], i + 1, ref result);
+            }
         }
     }
 }

@@ -42,7 +42,7 @@ namespace Words
             this.language = language;
         }
 
-        public Action<string> Log { get; set; }
+        public Action<string>? Log { get; set; }
 
         public SuccinctTreeData GetData()
         {
@@ -89,7 +89,7 @@ namespace Words
             string s,
             string substr,
             int pos,
-            SuccinctNode node,
+            SuccinctNode? node,
             List<string> matches,
             int limit)
         {
@@ -98,7 +98,7 @@ namespace Words
                 return;
             }
 
-            (SuccinctNode center, SuccinctNode left, SuccinctNode right) = LoadChildren(node);
+            (SuccinctNode? center, SuccinctNode? left, SuccinctNode? right) = LoadChildren(node);
             LogImpl(() => $"Visiting {node}, Left = {left?.Char}, Center = {center?.Char}, Right = {right?.Char}");
 
             char c = pos == s.Length ? default : s[pos];
@@ -156,14 +156,14 @@ namespace Words
             };
         }
 
-        private void NearSearch(string s, string substr, int pos, SuccinctNode node, List<string> matches, int limit, int depth)
+        private void NearSearch(string s, string substr, int pos, SuccinctNode? node, List<string> matches, int limit, int depth)
         {
             if (node == null || matches.Count >= limit || depth < 0)
             {
                 return;
             }
 
-            (SuccinctNode center, SuccinctNode left, SuccinctNode right) = LoadChildren(node);
+            (SuccinctNode? center, SuccinctNode? left, SuccinctNode? right) = LoadChildren(node);
             char c = default;
             if (pos < s.Length)
             {
@@ -201,7 +201,7 @@ namespace Words
             }
         }
 
-        private (SuccinctNode center, SuccinctNode left, SuccinctNode right) LoadChildren(
+        private (SuccinctNode? center, SuccinctNode? left, SuccinctNode? right) LoadChildren(
             SuccinctNode node)
         {
             int sel = directory.Select(node.NodeIndex + 1);

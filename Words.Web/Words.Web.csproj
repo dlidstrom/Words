@@ -107,7 +107,6 @@
     <Compile Include="Models\Query.cs" />
     <Compile Include="ViewModels\RecentQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ViewModels\NianQueryViewModel.cs" />
     <Compile Include="ViewModels\QueryViewModel.cs" />
     <Compile Include="ViewModels\ResultsViewModel.cs" />
   </ItemGroup>
