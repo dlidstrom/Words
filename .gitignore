@@ -47,3 +47,4 @@ Words.Core/node_modules
 Words.Core/dist
 /.ionide
 /Words.Web/Web.Release.config
+.vscode

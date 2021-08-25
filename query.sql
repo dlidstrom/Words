@@ -13,3 +13,4 @@ ALTER TABLE "public"."query" ADD COLUMN user_agent VARCHAR(255);
 ALTER TABLE "public"."query" ADD COLUMN user_host_address VARCHAR(255);
 ALTER TABLE "public"."query" ADD COLUMN browser_screen_pixels_height INT;
 ALTER TABLE "public"."query" ADD COLUMN browser_screen_pixels_width INT;
+ALTER TABLE "public"."query" ADD COLUMN result_date TIMESTAMP WITHOUT TIME ZONE NULL;

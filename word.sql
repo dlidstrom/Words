@@ -3,3 +3,5 @@ CREATE TABLE "public"."word" (
     word_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     text VARCHAR(255) NOT NULL
 );
+
+ALTER TABLE "public"."word" ADD COLUMN "score" integer NOT NULL DEFAULT 0;
