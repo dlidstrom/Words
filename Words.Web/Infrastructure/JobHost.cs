@@ -2,9 +2,11 @@
 {
     using System;
     using System.Web.Hosting;
+    using NLog;
 
     public class JobHost : IRegisteredObject
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly object _lock = new();
         private volatile bool _shuttingDown;
 
@@ -32,7 +34,14 @@
                     return;
                 }
 
-                work();
+                try
+                {
+                    work();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
             }
         }
     }

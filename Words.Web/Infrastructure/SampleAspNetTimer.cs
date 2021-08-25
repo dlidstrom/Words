@@ -1,11 +1,8 @@
-﻿[assembly: WebActivatorEx.PreApplicationStartMethod(typeof(Words.Web.Infrastructure.JobTimer), "Start")]
-
-namespace Words.Web.Infrastructure
+﻿namespace Words.Web.Infrastructure
 {
     using System;
     using System.Collections.Generic;
     using System.Configuration;
-    using System.Data;
     using System.Linq;
     using System.Threading;
     using Dapper;
@@ -29,23 +26,38 @@ namespace Words.Web.Infrastructure
         private static void RefreshQueryStatistics()
         {
             // get queries for analysis
-            QueryWithoutStatistics[] queriesWithoutStatistics = MvcApplication.Transact(QueriesWithoutStatistics);
-        }
-
-        private static QueryWithoutStatistics[] QueriesWithoutStatistics(IDbConnection connection, IDbTransaction transaction)
-        {
-            IEnumerable<QueryWithoutStatistics> query =
-                connection.Query<QueryWithoutStatistics>(@"
-select
-    q.query_id as queryid
+            while (true)
+            {
+                QueryWithoutStatistics[] queriesWithoutStatistics = MvcApplication.Transact((connection, transaction) =>
+                {
+                    IEnumerable<QueryWithoutStatistics> query =
+                        connection.Query<QueryWithoutStatistics>(@"
+SELECT
+    q.query_id
     , q.text
-from query q
-left join query_statistic qs on qs.query_id = q.query_id
-where qs.query_id is null",
-                null,
-                transaction);
-            QueryWithoutStatistics[] result = query.ToArray();
-            return result;
+FROM
+    query q
+WHERE
+    q.result_date IS NULL
+ORDER BY
+    q.created_date
+LIMIT 25",
+                        null,
+                        transaction);
+                    QueryWithoutStatistics[] result = query.ToArray();
+                    return result;
+                });
+
+                if (queriesWithoutStatistics.Any() == false)
+                {
+                    break;
+                }
+
+                foreach (QueryWithoutStatistics query in queriesWithoutStatistics)
+                {
+                    List<Match> x = MvcApplication.Matches(query.Text, SearchType.Word, -1);
+                }
+            }
         }
 
         private class QueryWithoutStatistics

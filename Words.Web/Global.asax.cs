@@ -25,11 +25,11 @@ namespace Words.Web
 
         private static IDictionary<int, WordFinder>? wordFinders;
 
-        public static List<Match> Matches(string text)
+        public static List<Match> Matches(string text, SearchType searchType, int limit)
         {
             int bucket = Bucket.ToBucket(text.Length);
             return wordFinders!.TryGetValue(bucket, out WordFinder? wordFinder)
-                ? wordFinder.Matches(text, 0)
+                ? wordFinder.Matches(text, 0, searchType, limit)
                 : throw new Exception($"no word finder found for word: {text}");
         }
 
@@ -83,6 +83,9 @@ namespace Words.Web
             string connectionString = ConfigurationManager.ConnectionStrings["Words"].ConnectionString;
             wordFinders = LoadWordFinders(filename, connectionString);
             Log.Info("Dictionary loaded");
+
+            // read configuration here
+            JobTimer.Start();
         }
 
         protected void Application_End()
