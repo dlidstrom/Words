@@ -105,7 +105,7 @@
     </Compile>
     <Compile Include="Infrastructure\JobHost.cs" />
     <Compile Include="Infrastructure\Extensions.cs" />
-    <Compile Include="Infrastructure\SampleAspNetTimer.cs" />
+    <Compile Include="Infrastructure\JobTimer.cs" />
     <Compile Include="Infrastructure\UserTrackerLogAttribute.cs" />
     <Compile Include="Models\Query.cs" />
     <Compile Include="ViewModels\RecentQuery.cs" />

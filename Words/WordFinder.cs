@@ -32,6 +32,8 @@ namespace Words
 
         public string TreeType { get; }
 
+        public ITree Advanced => tree;
+
         public Dictionary<string, SortedSet<string>>? Permutations { get; }
 
         public Dictionary<string, string>? NormalizedToOriginal { get; }

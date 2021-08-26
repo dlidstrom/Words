@@ -3,11 +3,15 @@
 namespace Words.Web.Infrastructure
 {
     using System;
+    using System.Collections.Generic;
+    using System.Data;
     using System.IO;
     using System.Security.Cryptography;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Web.Hosting;
     using System.Web.Mvc;
+    using Dapper;
 
     public static class UrlExtensions
     {
@@ -46,6 +50,17 @@ namespace Words.Web.Infrastructure
             }
 
             return hashBuilder.ToString();
+        }
+
+        public static async Task<IEnumerable<T>> QueryAsync<T>(
+            this IDbConnection connection,
+            string sql,
+            Func<T> _,
+            object? param = null,
+            IDbTransaction? transaction = null)
+        {
+            IEnumerable<T> result = await connection.QueryAsync<T>(sql, param, transaction);
+            return result;
         }
     }
 }

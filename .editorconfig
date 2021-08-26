@@ -3,3 +3,6 @@
 # Default severity for all analyzer diagnostics
 dotnet_analyzer_diagnostic.severity = error
 csharp_using_directive_placement=inside_namespace:error
+
+# IDE0032: Use auto property
+dotnet_diagnostic.IDE0032.severity = none

@@ -1,14 +1,15 @@
 ﻿namespace Words.Web.Infrastructure
 {
     using System;
+    using System.Threading;
+    using System.Threading.Tasks;
     using System.Web.Hosting;
     using NLog;
 
     public class JobHost : IRegisteredObject
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private readonly object _lock = new();
-        private volatile bool _shuttingDown;
+        private readonly CancellationTokenSource cancellationTokenSource = new();
 
         public JobHost()
         {
@@ -17,31 +18,25 @@
 
         public void Stop(bool immediate)
         {
-            lock (_lock)
-            {
-                _shuttingDown = true;
-            }
+            cancellationTokenSource.Cancel();
 
             HostingEnvironment.UnregisterObject(this);
         }
 
-        public void DoWork(Action work)
+        public async Task DoWork(Func<CancellationToken, Task> work)
         {
-            lock (_lock)
+            if (cancellationTokenSource.IsCancellationRequested)
             {
-                if (_shuttingDown)
-                {
-                    return;
-                }
+                return;
+            }
 
-                try
-                {
-                    work();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                }
+            try
+            {
+                await work.Invoke(cancellationTokenSource.Token);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
             }
         }
     }

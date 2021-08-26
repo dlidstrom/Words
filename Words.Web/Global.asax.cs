@@ -9,6 +9,8 @@ namespace Words.Web
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
@@ -33,6 +35,15 @@ namespace Words.Web
                 : throw new Exception($"no word finder found for word: {text}");
         }
 
+        public static ITree Advanced(string text)
+        {
+            int bucket = Bucket.ToBucket(text.Length);
+            return wordFinders!.TryGetValue(bucket, out WordFinder? wordFinder)
+                ? wordFinder.Advanced
+                : throw new Exception($"no word finder found for word: {text}");
+        }
+
+        [Obsolete]
         public static TResult Transact<TResult>(Func<IDbConnection, IDbTransaction, TResult> func)
         {
             ConnectionStringSettings connectionString = ConfigurationManager.ConnectionStrings["Words"];
@@ -44,6 +55,7 @@ namespace Words.Web
             return result;
         }
 
+        [Obsolete]
         public static void Transact(Action<IDbConnection, IDbTransaction> action)
         {
             _ = Transact((conn, tran) =>
@@ -51,6 +63,36 @@ namespace Words.Web
                 action.Invoke(conn, tran);
                 return false;
             });
+        }
+
+        public static async Task<TResult> Transact<TResult>(
+            Func<IDbConnection, IDbTransaction, Task<TResult>> func,
+            CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                throw new Exception("cancellation requested");
+            }
+
+            ConnectionStringSettings connectionString = ConfigurationManager.ConnectionStrings["Words"];
+            using IDbConnection connection = new NpgsqlConnection(connectionString.ConnectionString);
+            connection.Open();
+            IDbTransaction tran = connection.BeginTransaction();
+            TResult result = await func.Invoke(connection, tran);
+            tran.Commit();
+            return result;
+        }
+
+        public static async Task Transact(
+            Func<IDbConnection, IDbTransaction, Task> action,
+            CancellationToken cancellationToken)
+        {
+            _ = await Transact(async (conn, tran) =>
+            {
+                await action.Invoke(conn, tran);
+                return false;
+            },
+            cancellationToken);
         }
 
         private static void RegisterGlobalFilters(GlobalFilterCollection filters)
