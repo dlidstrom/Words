@@ -6,6 +6,7 @@ namespace Words.Web
     using System.Collections.Generic;
     using System.Configuration;
     using System.Data;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -19,6 +20,7 @@ namespace Words.Web
     using Newtonsoft.Json;
     using NLog;
     using Npgsql;
+    using Npgsql.Logging;
     using Logger = NLog.Logger;
 
     public class MvcApplication : HttpApplication
@@ -125,6 +127,11 @@ namespace Words.Web
             string connectionString = ConfigurationManager.ConnectionStrings["Words"].ConnectionString;
             wordFinders = LoadWordFinders(filename, connectionString);
             Log.Info("Dictionary loaded");
+            NpgsqlLogManager.Provider = new SqlLoggingProvider();
+            if (Debugger.IsAttached)
+            {
+                NpgsqlLogManager.IsParameterLoggingEnabled = true;
+            }
 
             // read configuration here
             JobTimer.Start();

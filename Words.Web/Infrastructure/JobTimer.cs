@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -65,7 +66,7 @@ LIMIT 25",
 
                 Logger.Info("found {queries} queries to update", queriesWithoutStatistics.Length);
                 List<Task> tasks = new();
-                SemaphoreSlim semaphore = new(4);
+                SemaphoreSlim semaphore = new(Debugger.IsAttached ? 1 : 4);
                 foreach (var query in queriesWithoutStatistics)
                 {
                     Task task = RunUpdateQueryWithSemaphore(query.Text, query.QueryId, semaphore);
@@ -91,7 +92,7 @@ LIMIT 25",
                 {
                     Logger.Info("analyzing query {text} ({queryId}", text, queryId);
                     List<Match> matches = MvcApplication.Matches(text, SearchType.Word, 101);
-                    await MvcApplication.Transact(
+                    int[] wordIds = await MvcApplication.Transact(
                         async (connection, transaction) =>
                         {
                             if (matches.Count <= 100)
@@ -112,6 +113,30 @@ INSERT INTO result_word (query_id, word_id)
 VALUES (@queryId, @wordId)
 ON CONFLICT(query_id, word_id) DO NOTHING",
                                         pars,
+                                        transaction);
+                                return pars.Select(x => x.WordId).ToArray();
+                            }
+
+                            return Array.Empty<int>();
+                        },
+                            cancellationToken);
+
+                    await MvcApplication.Transact(
+                        async (connection, transaction) =>
+                        {
+                            if (wordIds.Any())
+                            {
+                                _ = await connection.ExecuteAsync(@"
+UPDATE word
+SET score = subquery.score
+FROM(SELECT rw.word_id
+          , count(*) AS score
+    FROM result_word rw
+    WHERE rw.word_id = ANY(@wordIds)
+    GROUP BY rw.word_id) as subquery
+WHERE word.word_id = subquery.word_id
+",
+                                        new { wordIds },
                                         transaction);
                             }
 

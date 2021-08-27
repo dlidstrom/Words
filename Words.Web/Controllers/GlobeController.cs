@@ -6,6 +6,8 @@ namespace Words.Web.Controllers
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using System.Web.Caching;
     using System.Web.Mvc;
     using Dapper;
@@ -16,50 +18,50 @@ namespace Words.Web.Controllers
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         [Route("globe1")]
-        public ActionResult Index()
+        public async Task<ActionResult> Index(CancellationToken cancellationToken)
         {
             ViewModel model = new()
             {
                 GlobeImage = "earth-blue-marble.jpg",
                 BumpImage = "earth-topology.png"
             };
-            return ViewGlobe(model);
+            return await ViewGlobe(model, cancellationToken);
         }
 
         [Route("globe2")]
-        public ActionResult Globe2()
+        public async Task<ActionResult> Globe2(CancellationToken cancellationToken)
         {
             ViewModel model = new()
             {
                 GlobeImage = "4_no_ice_clouds_mts_16k.jpg",
                 BumpImage = "elev_bump_16k.jpg"
             };
-            return ViewGlobe(model);
+            return await ViewGlobe(model, cancellationToken);
         }
 
         [Route("globe3")]
-        public ActionResult Globe3()
+        public async Task<ActionResult> Globe3(CancellationToken cancellationToken)
         {
             ViewModel model = new()
             {
                 GlobeImage = "4_no_ice_clouds_mts_8k.jpg",
                 BumpImage = "elev_bump_16k.jpg"
             };
-            return ViewGlobe(model);
+            return await ViewGlobe(model, cancellationToken);
         }
 
         [Route("globe4")]
-        public ActionResult Globe4()
+        public async Task<ActionResult> Globe4(CancellationToken cancellationToken)
         {
             ViewModel model = new()
             {
                 GlobeImage = "earth-large.jpg",
                 BumpImage = "bump-large.jpg"
             };
-            return ViewGlobe(model);
+            return await ViewGlobe(model, cancellationToken);
         }
 
-        private ActionResult ViewGlobe(ViewModel model)
+        private async Task<ActionResult> ViewGlobe(ViewModel model, CancellationToken cancellationToken)
         {
             List<string> locations = new() { "lat,lng,pop" };
             if (HttpContext.Cache.Get("globe-data") is Location[] cachedData)
@@ -68,8 +70,9 @@ namespace Words.Web.Controllers
             }
             else
             {
-                Location[] data = MvcApplication.Transact((conn, tran) =>
-                    conn.Query<Location>("select latitude, longitude from v_geolocation").ToArray());
+                Location[] data = await MvcApplication.Transact(async (conn, tran) =>
+                    (await conn.QueryAsync<Location>("select latitude, longitude from v_geolocation")).ToArray(),
+                    cancellationToken);
                 _ = HttpContext.Cache.Add(
                     "globe-data",
                     data,
@@ -82,7 +85,9 @@ namespace Words.Web.Controllers
             }
 
             ViewBag.data = string.Join("\\n", locations);
-            ViewBag.count = MvcApplication.Transact((conn, tran) => conn.ExecuteScalar<int>("select count(*) from query", null, tran));
+            ViewBag.count = await MvcApplication.Transact(async (conn, tran) =>
+                await conn.ExecuteScalarAsync<int>("select count(*) from query", null, tran),
+                cancellationToken);
             return View("Index", model);
         }
 

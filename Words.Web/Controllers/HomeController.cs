@@ -8,6 +8,8 @@ namespace Words.Web.Controllers
     using System.Globalization;
     using System.Linq;
     using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
     using System.Web.Caching;
     using System.Web.Mvc;
     using Dapper;
@@ -21,18 +23,19 @@ namespace Words.Web.Controllers
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        public ActionResult Index(int? id)
+        public async Task<ActionResult> Index(int? id, CancellationToken cancellationToken)
         {
             if (id != null)
             {
-                string text = MvcApplication.Transact((conn, tran) =>
-                    conn.QuerySingle<string>("select text from query where query_id = @id", new { id }));
+                string text = await MvcApplication.Transact(async (conn, tran) =>
+                    await conn.QuerySingleAsync<string>("select text from query where query_id = @id", new { id }),
+                    cancellationToken);
                 if (HttpContext.Cache.Get($"query-{id}") is ResultsViewModel results)
                 {
                     QueryViewModel cachedModel = new() { Text = text, Results = results };
                     if (results.Count == 0)
                     {
-                        cachedModel.Recent = GetRecentQueries();
+                        cachedModel.Recent = await GetRecentQueries(cancellationToken);
                     }
 
                     return View(cachedModel);
@@ -54,19 +57,19 @@ namespace Words.Web.Controllers
                 QueryViewModel model = new() { Text = text, Results = results };
                 if (results.Count == 0)
                 {
-                    model.Recent = GetRecentQueries();
+                    model.Recent = await GetRecentQueries(cancellationToken);
                 }
 
                 return View(model);
             }
 
             // get recent queries
-            RecentQuery[] recentQueries = GetRecentQueries();
+            RecentQuery[] recentQueries = await GetRecentQueries(cancellationToken);
             return View(new QueryViewModel { Recent = recentQueries });
         }
 
         [HttpPost]
-        public ActionResult Search(QueryViewModel q)
+        public async Task<ActionResult> Search(QueryViewModel q, CancellationToken cancellationToken)
         {
             if (ModelState.IsValid == false || q.Text is null)
             {
@@ -85,9 +88,9 @@ namespace Words.Web.Controllers
             Log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1:F2}", q.Text, sw.Elapsed.TotalMilliseconds);
 
             // save query
-            int queryId = MvcApplication.Transact((connection, tran) =>
+            int queryId = await MvcApplication.Transact(async (connection, tran) =>
             {
-                int id = connection.QuerySingle<int>(@"
+                int id = await connection.QuerySingleAsync<int>(@"
                     insert into query(type, text, elapsed_milliseconds, created_date, user_agent, user_host_address, browser_screen_pixels_height, browser_screen_pixels_width)
                     values (@type, @text, @elapsedmilliseconds, @createddate, @useragent, @userhostaddress::cidr, @browserscreenpixelsheight, @browserscreenpixelswidth)
                     returning query_id",
@@ -102,7 +105,8 @@ namespace Words.Web.Controllers
                         BrowserScreenPixelsWidth: Request.Browser.ScreenPixelsWidth),
                     tran);
                 return id;
-            });
+            },
+            cancellationToken);
 
             _ = HttpContext.Cache.Add(
                 $"query-{queryId}",
@@ -125,17 +129,19 @@ namespace Words.Web.Controllers
             return RedirectToAction(nameof(Index), new { id = queryId });
         }
 
-        private RecentQuery[] GetRecentQueries()
+        private async Task<RecentQuery[]> GetRecentQueries(CancellationToken cancellationToken)
         {
-            RecentQuery[] recentQueries = MvcApplication.Transact((connection, tran) =>
+            RecentQuery[] recentQueries = await MvcApplication.Transact(async (connection, tran) =>
             {
-                return connection.Query<RecentQuery>(@"
+                IEnumerable<RecentQuery> qs = await connection.QueryAsync<RecentQuery>(@"
                     select query_id as queryid
                            , text
                     from query
                     order by created_date desc
-                    limit 20").ToArray();
-            });
+                    limit 20");
+                return qs.ToArray();
+            },
+            cancellationToken);
             return recentQueries;
         }
 

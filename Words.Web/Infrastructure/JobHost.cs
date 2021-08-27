@@ -1,6 +1,7 @@
 ﻿namespace Words.Web.Infrastructure
 {
     using System;
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Web.Hosting;
@@ -35,7 +36,7 @@
             }
             catch (Exception ex)
             {
-                Logger.Error(ex);
+                Logger.Error(ex.Demystify());
             }
         }
     }
