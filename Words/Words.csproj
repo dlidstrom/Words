@@ -57,6 +57,7 @@
     <Compile Include="Node.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RankDirectory.cs" />
+    <Compile Include="SearchType.cs" />
     <Compile Include="SuccinctNode.cs" />
     <Compile Include="SuccinctTree.cs" />
     <Compile Include="SuccinctTreeData.cs" />

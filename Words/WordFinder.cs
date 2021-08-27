@@ -5,7 +5,6 @@ namespace Words
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
     public class WordFinder
     {
         private readonly ITree tree;
@@ -32,6 +31,8 @@ namespace Words
         }
 
         public string TreeType { get; }
+
+        public ITree Advanced => tree;
 
         public Dictionary<string, SortedSet<string>>? Permutations { get; }
 
@@ -113,7 +114,7 @@ namespace Words
             return wordFinder;
         }
 
-        public List<Match> Matches(string input, int d, int limit = 100)
+        public List<Match> Matches(string input, int d, SearchType searchType = SearchType.All, int limit = 100)
         {
             if (input == null)
             {
@@ -121,33 +122,48 @@ namespace Words
             }
 
             List<Match> matches = new();
-            Matches(input, matches.Add, d, limit);
+            Matches(input, matches.Add, d, searchType, limit);
             return matches;
         }
 
-        private void Matches(string input, Action<Match> action, int d, int limit = 100)
+        private void Matches(
+            string input,
+            Action<Match> action,
+            int d,
+            SearchType searchType,
+            int limit)
         {
-            string normalized = language.ToLower(input);
-            Match[] originalMatches = getOriginal.Invoke(tree.Matches(normalized, limit).ToArray())
-                .Select(m =>
+            if ((searchType & SearchType.Word) != SearchType.None)
+            {
+                string normalized = language.ToLower(input);
+                Match[] originalMatches = getOriginal.Invoke(tree.Matches(normalized, limit).ToArray())
+                    .Select(m =>
+                    {
+                        Match match = new(m, MatchType.Word);
+                        return match;
+                    })
+                    .ToArray();
+
+                foreach (Match s in originalMatches)
                 {
-                    Match match = new(m, MatchType.Word);
-                    return match;
-                })
-                .ToArray();
-            foreach (Match s in originalMatches)
-            {
-                action.Invoke(s);
+                    action.Invoke(s);
+                }
             }
 
-            foreach (Match s in Anagram(input))
+            if ((searchType & SearchType.Anagram) != SearchType.None)
             {
-                action.Invoke(s);
+                foreach (Match s in Anagram(input))
+                {
+                    action.Invoke(s);
+                }
             }
 
-            foreach (Match s in Near(input, d))
+            if ((searchType & SearchType.Near) != SearchType.None)
             {
-                action.Invoke(s);
+                foreach (Match s in Near(input, d))
+                {
+                    action.Invoke(s);
+                }
             }
         }
 

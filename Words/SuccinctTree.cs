@@ -93,7 +93,7 @@ namespace Words
             List<string> matches,
             int limit)
         {
-            if (node == null || matches.Count >= limit)
+            if (node == null || (limit > 0 && matches.Count >= limit))
             {
                 return;
             }
