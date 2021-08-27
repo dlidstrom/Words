@@ -49,7 +49,7 @@ WHERE
 ORDER BY
     q.created_date
 LIMIT 25",
-                            () => new { QueryId = default(int), Text = default(string) },
+                            () => new { QueryId = default(int), Text = string.Empty },
                             null,
                             transaction);
                         var result = query.ToArray();
@@ -63,10 +63,34 @@ LIMIT 25",
                     break;
                 }
 
-                Logger.Info("found {queries} to update", queriesWithoutStatistics.Length);
+                Logger.Info("found {queries} queries to update", queriesWithoutStatistics.Length);
+                List<Task> tasks = new();
+                SemaphoreSlim semaphore = new(4);
                 foreach (var query in queriesWithoutStatistics)
                 {
-                    List<Match> matches = MvcApplication.Matches(query.Text, SearchType.Word, 101);
+                    Task task = RunUpdateQueryWithSemaphore(query.Text, query.QueryId, semaphore);
+                    tasks.Add(task);
+
+                    async Task RunUpdateQueryWithSemaphore(string text, int queryId, SemaphoreSlim semaphore)
+                    {
+                        await semaphore.WaitAsync();
+                        try
+                        {
+                            await UpdateQuery(text, queryId);
+                        }
+                        finally
+                        {
+                            _ = semaphore.Release();
+                        }
+                    }
+                }
+
+                await Task.WhenAll(tasks);
+
+                async Task UpdateQuery(string text, int queryId)
+                {
+                    Logger.Info("analyzing query {text} ({queryId}", text, queryId);
+                    List<Match> matches = MvcApplication.Matches(text, SearchType.Word, 101);
                     await MvcApplication.Transact(
                         async (connection, transaction) =>
                         {
@@ -78,11 +102,11 @@ SELECT w.text
        , w.word_id AS WordId
 FROM word w
 WHERE w.text = ANY(@matches)",
-                                        () => new { Text = default(string), WordId = default(int) },
+                                        () => new { Text = string.Empty, WordId = default(int) },
                                         new { Matches = matches.Select(x => x.Value).ToArray() },
                                         transaction);
                                 Dictionary<string, int> wordDict = wordIdsQuery.ToDictionary(x => x.Text, x => x.WordId);
-                                var pars = matches.Select(x => new { query.QueryId, WordId = wordDict[x.Value] }).ToArray();
+                                var pars = matches.Select(x => new { queryId, WordId = wordDict[x.Value] }).ToArray();
                                 _ = await connection.ExecuteAsync(@"
 INSERT INTO result_word (query_id, word_id)
 VALUES (@queryId, @wordId)
@@ -95,7 +119,7 @@ ON CONFLICT(query_id, word_id) DO NOTHING",
 UPDATE query q
 SET result_date = @date
 WHERE q.query_id = @queryId",
-                                new { query.QueryId, Date = DateTime.Now },
+                                new { queryId, Date = DateTime.Now },
                                 transaction);
                         },
                             cancellationToken);

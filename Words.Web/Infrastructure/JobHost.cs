@@ -19,7 +19,6 @@
         public void Stop(bool immediate)
         {
             cancellationTokenSource.Cancel();
-
             HostingEnvironment.UnregisterObject(this);
         }
 
