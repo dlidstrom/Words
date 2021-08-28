@@ -23,16 +23,21 @@ namespace Words.Web.Infrastructure
             DateTime timeStamp = filterContext.HttpContext.Timestamp;
             string query = string.Empty;
             if (filterContext.RouteData.Values["q"] != null)
+            {
                 query = filterContext.RouteData.Values["q"].ToString();
+            }
 
             StringBuilder message = new();
-            message.AppendFormat("UserName={0}|", userName);
-            message.AppendFormat("RemoteIp={0}|", GetIp(filterContext.HttpContext.Request));
-            message.AppendFormat("Controller={0}|", controllerName);
-            message.AppendFormat("Action={0}|", actionName);
-            message.AppendFormat("TimeStamp={0}|", timeStamp);
+            _ = message
+                .AppendFormat("UserName={0}|", userName)
+                .AppendFormat("RemoteIp={0}|", GetIp(filterContext.HttpContext.Request))
+                .AppendFormat("Controller={0}|", controllerName)
+                .AppendFormat("Action={0}|", actionName)
+                .AppendFormat("TimeStamp={0}|", timeStamp);
             if (!string.IsNullOrEmpty(query))
-                message.AppendFormat("Query={0}|", query);
+            {
+                _ = message.AppendFormat("Query={0}|", query);
+            }
 
             Log.Info(message.ToString());
             base.OnActionExecuted(filterContext);
@@ -42,7 +47,7 @@ namespace Words.Web.Infrastructure
         /// Gets the IP address of the request.
         /// This method is more useful than built in because in
         /// some cases it may show real user IP address even under proxy.
-        /// The <see cref="System.Net.IPAddress.None" /> value
+        /// The <see cref="IPAddress.None" /> value
         /// will be returned if getting is failed.
         /// </summary>
         /// <param name="request">The HTTP request object.</param>
@@ -64,7 +69,9 @@ namespace Words.Web.Infrastructure
             // trickery needed because TryParse throws ArgumentNullException
             IPAddress result = IPAddress.None;
             if (remoteAddress != null)
-                IPAddress.TryParse(remoteAddress, out result);
+            {
+                _ = IPAddress.TryParse(remoteAddress, out result);
+            }
 
             return result;
         }

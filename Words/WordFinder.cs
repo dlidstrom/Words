@@ -43,7 +43,7 @@ namespace Words
             TernaryTree tree = new(language);
             Dictionary<string, SortedSet<string>> permutations = new();
             Dictionary<string, string> normalizedToOriginal = new();
-            IEnumerable<string> words = Randomize(lines);
+            IEnumerable<string> words = lines.Randomize();
             foreach (string word in words)
             {
                 string normalized = language.ToLower(word);
@@ -198,21 +198,6 @@ namespace Words
                 })
                 .ToArray();
             return matches;
-        }
-
-        private static IEnumerable<string> Randomize(string[] list)
-        {
-            Random random = new();
-            int n = list.Length;
-            while (n > 0)
-            {
-                n--;
-                int k = random.Next(n + 1);
-                string value = list[k];
-                list[k] = list[n];
-                list[n] = value;
-                yield return value;
-            }
         }
 
         public SuccinctTree EncodeSuccinct()

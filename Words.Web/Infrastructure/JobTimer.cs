@@ -90,7 +90,7 @@ LIMIT 25",
 
                 async Task UpdateQuery(string text, int queryId)
                 {
-                    Logger.Info("analyzing query {text} ({queryId}", text, queryId);
+                    Logger.Info("analyzing query {text} ({queryId})", text, queryId);
                     List<Match> matches = MvcApplication.Matches(text, SearchType.Word, 101);
                     int[] wordIds = await MvcApplication.Transact(
                         async (connection, transaction) =>

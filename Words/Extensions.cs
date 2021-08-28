@@ -36,5 +36,20 @@ namespace Words
                 yield return str.Substring(i, Math.Min(chunkSize, str.Length - i));
             }
         }
+
+        public static IEnumerable<TResult> Randomize<TResult>(this TResult[] list)
+        {
+            Random random = new();
+            int n = list.Length;
+            while (n > 0)
+            {
+                n--;
+                int k = random.Next(n + 1);
+                TResult value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+                yield return value;
+            }
+        }
     }
 }

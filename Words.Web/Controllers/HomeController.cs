@@ -131,17 +131,30 @@ namespace Words.Web.Controllers
 
         private async Task<RecentQuery[]> GetRecentQueries(CancellationToken cancellationToken)
         {
-            RecentQuery[] recentQueries = await MvcApplication.Transact(async (connection, tran) =>
+            if (HttpContext.Cache.Get("recent-queries") is RecentQuery[] cachedRecentQueries)
             {
-                IEnumerable<RecentQuery> qs = await connection.QueryAsync<RecentQuery>(@"
-                    select query_id as queryid
-                           , text
-                    from query
-                    order by created_date desc
-                    limit 20");
-                return qs.ToArray();
-            },
-            cancellationToken);
+                return cachedRecentQueries;
+            }
+
+            RecentQuery[] recentQueries =
+                await MvcApplication.Transact(async (connection, tran) =>
+                {
+                    IEnumerable<RecentQuery> qs = await connection.QueryAsync<RecentQuery>(@"
+                        SELECT q.query_id as queryid
+                               , q.text
+                               , q.created_date as createddate
+                        FROM query q TABLESAMPLE BERNOULLI(1)");
+                    return qs.ToArray().Randomize().Take(20).OrderBy(x => x.CreatedDate).ToArray();
+                },
+                cancellationToken);
+            _ = HttpContext.Cache.Add(
+                "recent-queries",
+                recentQueries,
+                null,
+                Cache.NoAbsoluteExpiration,
+                TimeSpan.FromDays(1),
+                CacheItemPriority.Normal,
+                OnCacheItemRemoved);
             return recentQueries;
         }
 
