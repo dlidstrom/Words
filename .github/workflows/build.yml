@@ -4,13 +4,15 @@ on:
   push:
     branches: [master]
 
-steps:
-- uses: actions/checkout@v2
+jobs:
+  build:
+    steps:
+    - uses: actions/checkout@v2
 
-- name: Setup dotnet 5.0
-  uses: actions/setup-dotnet@v1
-  with:
-    dotnet-version: 5.0.*
+    - name: Setup dotnet 5.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.*
 
-- name: Build
-  run: dotnet build --configuration Release Words.Core.sln
+    - name: Build
+      run: dotnet build --configuration Release Words.Core.sln
