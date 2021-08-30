@@ -5,7 +5,8 @@ on:
     branches: [master]
 
 jobs:
-  build:
+  build-core:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
 
@@ -16,3 +17,11 @@ jobs:
 
     - name: Build
       run: dotnet build --configuration Release Words.Core.sln
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.3
+    - name: Build
+      run: msbuild -p:Build -p:Configuration=Release Words.sln
