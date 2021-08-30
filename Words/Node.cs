@@ -4,10 +4,10 @@ namespace Words
 {
     using System.Diagnostics;
 
-    [DebuggerDisplay("Char = {Char}, WordEnd = {WordEnd}, Left = {Left?.Char}, Center = {Center?.Char}, Right = {Right?.Char}")]
+    [DebuggerDisplay("Char = {Character}, WordEnd = {WordEnd}, Left = {Left?.Character}, Center = {Center?.Character}, Right = {Right?.Character}")]
     public class Node
     {
-        public char Char { get; set; }
+        public char Character { get; set; }
         public bool WordEnd { get; set; }
         public Node? Left;
         public Node? Center;
@@ -15,7 +15,7 @@ namespace Words
 
         public override string ToString()
         {
-            return $"Char = {Char}, WordEnd = {WordEnd}, Left = {Left?.Char}, Center = {Center?.Char}, Right = {Right?.Char}";
+            return $"Char = {Character}, WordEnd = {WordEnd}, Left = {Left?.Character}, Center = {Center?.Character}, Right = {Right?.Character}";
         }
     }
 }

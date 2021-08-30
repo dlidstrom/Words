@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Remove="**/*.cs" />
+        <Compile Include="BitString.cs" />
+        <Compile Include="BitWriter.cs" />
+        <Compile Include="Bucket.cs" />
+        <Compile Include="Extensions.cs" />
+        <Compile Include="Node.cs" />
+        <Compile Include="RankDirectory.cs" />
+        <Compile Include="SuccinctNode.cs" />
+        <Compile Include="SuccinctTreeData.cs" />
+    </ItemGroup>
+</Project>
