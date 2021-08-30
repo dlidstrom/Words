@@ -24,4 +24,4 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.3
     - name: Build
-      run: msbuild -p:Build -p:Configuration=Release Words.sln
+      run: msbuild -t:Build -p:Configuration=Release Words.sln
