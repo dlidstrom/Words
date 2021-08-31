@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace Words.Test
 {
@@ -30,7 +30,7 @@ namespace Words.Test
         {
             // Arrange
             BitWriter bitWriter = new();
-            bitWriter.Write(new Node { Char = (char)0, WordEnd = true });
+            bitWriter.Write(new Node { Character = (char)0, WordEnd = true });
             string str = bitWriter.GetData().data;
             BitString bitString = new(str);
 
@@ -38,7 +38,7 @@ namespace Words.Test
             SuccinctNode c = bitString.GetNode(0);
 
             // Assert
-            Assert.That(c.Char, Is.EqualTo('\u0000'));
+            Assert.That(c.Character, Is.EqualTo('\u0000'));
             Assert.That(c.WordEnd, Is.True);
         }
 
