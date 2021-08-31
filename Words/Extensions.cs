@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace Words
 {
@@ -16,7 +16,7 @@ namespace Words
 
         public static void Write(this BitWriter bitWriter, Node node)
         {
-            bitWriter.Write(node.Char, 16);
+            bitWriter.Write(node.Character, 16);
         }
 
         public static int Select(this RankDirectory directory, int y)
