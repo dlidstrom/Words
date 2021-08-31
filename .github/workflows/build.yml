@@ -17,6 +17,10 @@ jobs:
 
     - name: Build
       run: dotnet build --configuration Release Words.Core.sln
+
+    - name: Test
+      run: dotnet test --no-restore --configuration Release Words.Core.sln
+
   build-windows:
     runs-on: windows-latest
     steps:
