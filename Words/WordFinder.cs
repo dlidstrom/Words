@@ -52,7 +52,7 @@ namespace Words
                 if (normalizedToOriginal.TryGetValue(normalized, out string? added)
                     && added != word)
                 {
-                    throw new ApplicationException($"Two words normalize to the same value: {word} and {added} -> {normalized}");
+                    throw new InvalidOperationException($"Two words normalize to the same value: {word} and {added} -> {normalized}");
                 }
 
                 try
@@ -61,7 +61,7 @@ namespace Words
                 }
                 catch (Exception ex)
                 {
-                    throw new ApplicationException($"Duplicate word found: {word}", ex);
+                    throw new InvalidOperationException($"Duplicate word found: {word}", ex);
                 }
 
                 tree.Add(normalized);
@@ -215,7 +215,7 @@ namespace Words
                 return succinct;
             }
 
-            throw new ApplicationException($"Unrecognized tree {tree.GetType()}");
+            throw new InvalidOperationException($"Unrecognized tree {tree.GetType()}");
         }
     }
 }

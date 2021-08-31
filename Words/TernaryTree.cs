@@ -449,7 +449,7 @@ namespace Words
         {
             if (root is null)
             {
-                throw new ApplicationException("Empty tree");
+                throw new InvalidOperationException("Empty tree");
             }
 
             BitWriter encodingWriter = new();
@@ -498,7 +498,7 @@ namespace Words
                     "Unexpected number of bits. Expected 2 * nodes.Count + 1 = {0} but got {1}.",
                     expectedBits,
                     encoding.totalBits);
-                throw new ApplicationException(message);
+                throw new InvalidOperationException(message);
             }
 
             (string data, int totalBits) letterData = letterWriter.GetData();
