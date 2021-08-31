@@ -1,4 +1,5 @@
-﻿#nullable enable
+#nullable enable
+#pragma warning disable CA1051
 
 namespace Words
 {
