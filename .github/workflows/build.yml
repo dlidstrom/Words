@@ -30,7 +30,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.3
 
     - name: Restore
-      run: msbuild -t:restore
+      run: msbuild -t:restore Words.sln
 
     - name: Build
       run: msbuild -t:Build -p:Configuration=Release Words.sln
