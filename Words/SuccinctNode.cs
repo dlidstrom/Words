@@ -1,27 +1,27 @@
-﻿#nullable enable
+#nullable enable
 
 namespace Words
 {
     using System.Diagnostics;
 
-    [DebuggerDisplay("Char = {Char} WordEnd = {WordEnd} NodeIndex = {NodeIndex}")]
+    [DebuggerDisplay("Character = {Character} WordEnd = {WordEnd} NodeIndex = {NodeIndex}")]
     public class SuccinctNode
     {
         public SuccinctNode(char c, int nodeIndex)
         {
-            Char = c;
+            Character = c;
             NodeIndex = nodeIndex;
         }
 
-        public char Char { get; }
+        public char Character { get; }
 
-        public bool WordEnd => Char == 0;
+        public bool WordEnd => Character == 0;
 
         public int NodeIndex { get; }
 
         public override string ToString()
         {
-            return $"{nameof(Char)} = {Char}, {nameof(WordEnd)} = {WordEnd}";
+            return $"{nameof(Character)} = {Character}, {nameof(WordEnd)} = {WordEnd}";
         }
     }
 }
