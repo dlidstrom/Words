@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace Words
 {
@@ -94,7 +94,7 @@ namespace Words
         {
             if (string.IsNullOrWhiteSpace(s))
             {
-                throw new ArgumentException("s");
+                throw new ArgumentException("requires non-empty", nameof(s));
             }
 
             _ = Add(s, 0, ref root);
@@ -121,18 +121,18 @@ namespace Words
         {
             if (string.IsNullOrWhiteSpace(s))
             {
-                throw new ArgumentException();
+                throw new ArgumentException("requires non-empty", nameof(s));
             }
 
             int pos = 0;
             Node? node = root;
             while (node != null)
             {
-                if (s[pos] < node.Char)
+                if (s[pos] < node.Character)
                 {
                     node = node.Left;
                 }
-                else if (s[pos] > node.Char)
+                else if (s[pos] > node.Character)
                 {
                     node = node.Right;
                 }
@@ -154,7 +154,7 @@ namespace Words
         {
             if (string.IsNullOrWhiteSpace(s))
             {
-                throw new ArgumentException();
+                throw new ArgumentException("requires non-empty", nameof(s));
             }
 
             List<string> matches = new();
@@ -206,7 +206,7 @@ namespace Words
             }
             else
             {
-                Traverse(node.Center, action, s + node.Char);
+                Traverse(node.Center, action, s + node.Character);
             }
 
             Traverse(node.Right, action, s);
@@ -216,7 +216,7 @@ namespace Words
         {
             if (string.IsNullOrWhiteSpace(s))
             {
-                throw new ArgumentException();
+                throw new ArgumentException("requires non-empty", nameof(s));
             }
 
             List<string> matches = new();
@@ -234,15 +234,15 @@ namespace Words
             char c = pos == s.Length ? default : s[pos];
             if (node == null)
             {
-                node = new Node { Char = c, WordEnd = false };
+                node = new Node { Character = c, WordEnd = false };
                 nodes.Add(node);
             }
 
-            if (c < node.Char)
+            if (c < node.Character)
             {
                 node.Left = Add(s, pos, ref node.Left);
             }
-            else if (c == node.Char)
+            else if (c == node.Character)
             {
                 if (pos != s.Length)
                 {
@@ -297,14 +297,14 @@ namespace Words
             Nodes++;
 
             char c = pos == s.Length ? default : s[pos];
-            if (WildcardMatchLeft(c, node.Char) || c < node.Char)
+            if (WildcardMatchLeft(c, node.Character) || c < node.Character)
             {
                 Matches(s, substr, pos, node.Left, matches, limit);
             }
 
-            if (WildcardMatch(c, node.Char) || c == node.Char)
+            if (WildcardMatch(c, node.Character) || c == node.Character)
             {
-                Matches(s, substr + node.Char, pos + 1, node.Center, matches, limit);
+                Matches(s, substr + node.Character, pos + 1, node.Center, matches, limit);
             }
 
             if (c == default(char) && node.WordEnd)
@@ -312,7 +312,7 @@ namespace Words
                 matches.Add(substr);
             }
 
-            if (WildcardMatchRight(c, node.Char) || c > node.Char)
+            if (WildcardMatchRight(c, node.Character) || c > node.Character)
             {
                 Matches(s, substr, pos, node.Right, matches, limit);
             }
@@ -413,7 +413,7 @@ namespace Words
                 c = s[pos];
             }
 
-            if (depth > 0 || c < node.Char)
+            if (depth > 0 || c < node.Character)
             {
                 NearSearch(s, substr, pos, node.Left, matches, limit, depth);
             }
@@ -427,18 +427,18 @@ namespace Words
             }
             else
             {
-                int newDepth = c == node.Char ? depth : depth - 1;
+                int newDepth = c == node.Character ? depth : depth - 1;
                 if (c != default(char))
                 {
-                    NearSearch(s, substr + node.Char, pos + 1, node.Center, matches, limit, newDepth);
+                    NearSearch(s, substr + node.Character, pos + 1, node.Center, matches, limit, newDepth);
                 }
                 else
                 {
-                    NearSearch(s, substr + node.Char, pos, node.Center, matches, limit, newDepth);
+                    NearSearch(s, substr + node.Character, pos, node.Center, matches, limit, newDepth);
                 }
             }
 
-            if (depth > 0 || c > node.Char)
+            if (depth > 0 || c > node.Character)
             {
                 NearSearch(s, substr, pos, node.Right, matches, limit, depth);
             }
@@ -448,7 +448,7 @@ namespace Words
         {
             if (root is null)
             {
-                throw new Exception("Empty tree");
+                throw new ApplicationException("Empty tree");
             }
 
             BitWriter encodingWriter = new();

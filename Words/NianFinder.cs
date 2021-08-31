@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace Words
 {
@@ -24,7 +24,7 @@ namespace Words
                 char[] chars = word.ToCharArray();
                 Array.Sort(chars);
                 string key = new(chars);
-                if (permutations.TryGetValue(key, out SortedSet<string> list))
+                if (permutations.TryGetValue(key, out SortedSet<string>? list))
                 {
                     _ = list.Add(word);
                 }
@@ -55,7 +55,7 @@ namespace Words
             List<Match> matches = new();
             foreach (string combination in combinations)
             {
-                if (permutations.TryGetValue(combination, out SortedSet<string> list))
+                if (permutations.TryGetValue(combination, out SortedSet<string>? list))
                 {
                     IEnumerable<Match> anagrams = list.Select(m => new Match(m, MatchType.Anagram));
                     matches.AddRange(anagrams);

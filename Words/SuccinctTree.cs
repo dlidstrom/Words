@@ -99,17 +99,17 @@ namespace Words
             }
 
             (SuccinctNode? center, SuccinctNode? left, SuccinctNode? right) = LoadChildren(node);
-            LogImpl(() => $"Visiting {node}, Left = {left?.Char}, Center = {center?.Char}, Right = {right?.Char}");
+            LogImpl(() => $"Visiting {node}, Left = {left?.Character}, Center = {center?.Character}, Right = {right?.Character}");
 
             char c = pos == s.Length ? default : s[pos];
-            if (c < node.Char || WildcardMatchLeft(c, node.Char))
+            if (c < node.Character || WildcardMatchLeft(c, node.Character))
             {
                 Matches(s, substr, pos, left, matches, limit);
             }
 
-            if (c == node.Char || WildcardMatch(c, node.Char))
+            if (c == node.Character || WildcardMatch(c, node.Character))
             {
-                Matches(s, substr + node.Char, pos + 1, center, matches, limit);
+                Matches(s, substr + node.Character, pos + 1, center, matches, limit);
             }
 
             if (c == default(char) && node.WordEnd)
@@ -117,7 +117,7 @@ namespace Words
                 matches.Add(substr);
             }
 
-            if (c > node.Char || WildcardMatchRight(c, node.Char))
+            if (c > node.Character || WildcardMatchRight(c, node.Character))
             {
                 Matches(s, substr, pos, right, matches, limit);
             }
@@ -170,7 +170,7 @@ namespace Words
                 c = s[pos];
             }
 
-            if (depth > 0 || c < node.Char)
+            if (depth > 0 || c < node.Character)
             {
                 NearSearch(s, substr, pos, left, matches, limit, depth);
             }
@@ -184,18 +184,18 @@ namespace Words
             }
             else
             {
-                int newDepth = c == node.Char ? depth : depth - 1;
+                int newDepth = c == node.Character ? depth : depth - 1;
                 if (c != default(char))
                 {
-                    NearSearch(s, substr + node.Char, pos + 1, center, matches, limit, newDepth);
+                    NearSearch(s, substr + node.Character, pos + 1, center, matches, limit, newDepth);
                 }
                 else
                 {
-                    NearSearch(s, substr + node.Char, pos, center, matches, limit, newDepth);
+                    NearSearch(s, substr + node.Character, pos, center, matches, limit, newDepth);
                 }
             }
 
-            if (depth > 0 || c > node.Char)
+            if (depth > 0 || c > node.Character)
             {
                 NearSearch(s, substr, pos, right, matches, limit, depth);
             }
@@ -222,7 +222,7 @@ namespace Words
                     {
                         SuccinctNode center = letterData.GetNode(firstChild);
                         SuccinctNode leftOrRight = letterData.GetNode(firstChild + 1);
-                        if (leftOrRight.Char < node.Char)
+                        if (leftOrRight.Character < node.Character)
                         {
                             SuccinctNode left = leftOrRight;
                             return (center, left, null);
@@ -237,13 +237,13 @@ namespace Words
                         SuccinctNode child = letterData.GetNode(firstChild);
                         if (node.WordEnd)
                         {
-                            if (child.Char < node.Char)
+                            if (child.Character < node.Character)
                             {
                                 SuccinctNode left = child;
                                 return (null, left, null);
                             }
 
-                            if (child.Char > node.Char)
+                            if (child.Character > node.Character)
                             {
                                 SuccinctNode right = child;
                                 return (null, null, right);

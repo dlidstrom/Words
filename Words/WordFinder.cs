@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace Words
 {
@@ -49,9 +49,10 @@ namespace Words
                 string normalized = language.ToLower(word);
 
                 // keep original
-                if (normalizedToOriginal.TryGetValue(normalized, out string added) && added != word)
+                if (normalizedToOriginal.TryGetValue(normalized, out string? added)
+                    && added != word)
                 {
-                    throw new Exception($"Two words normalize to the same value: {word} and {added} -> {normalized}");
+                    throw new ApplicationException($"Two words normalize to the same value: {word} and {added} -> {normalized}");
                 }
 
                 try
@@ -60,7 +61,7 @@ namespace Words
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Duplicate word found: {word}", ex);
+                    throw new ApplicationException($"Duplicate word found: {word}", ex);
                 }
 
                 tree.Add(normalized);
@@ -69,7 +70,7 @@ namespace Words
                 char[] chars = normalized.ToCharArray();
                 Array.Sort(chars);
                 string key = new(chars);
-                if (permutations.TryGetValue(key, out SortedSet<string> list))
+                if (permutations.TryGetValue(key, out SortedSet<string>? list))
                 {
                     _ = list.Add(word);
                 }
@@ -85,9 +86,9 @@ namespace Words
                 s =>
                 {
                     return
-                        permutations.TryGetValue(s, out SortedSet<string> list)
+                        permutations.TryGetValue(s, out SortedSet<string>? list)
                         ? list.ToArray()
-                        : (new string[0]);
+                        : Array.Empty<string>();
                 },
                 normalizedToOriginal,
                 s => s.Select(x => normalizedToOriginal[x]).ToArray(),
@@ -214,7 +215,7 @@ namespace Words
                 return succinct;
             }
 
-            throw new Exception($"Unrecognized tree {tree.GetType()}");
+            throw new ApplicationException($"Unrecognized tree {tree.GetType()}");
         }
     }
 }
