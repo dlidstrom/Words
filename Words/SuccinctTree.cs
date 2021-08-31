@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace Words
 {
@@ -57,7 +57,7 @@ namespace Words
         {
             if (string.IsNullOrWhiteSpace(s))
             {
-                throw new ArgumentException();
+                throw new ArgumentException("must be non-empty", nameof(s));
             }
 
             List<string> matches = new();
@@ -73,7 +73,7 @@ namespace Words
         {
             if (string.IsNullOrWhiteSpace(s))
             {
-                throw new ArgumentException();
+                throw new ArgumentException("must be non-empty", nameof(s));
             }
 
             List<string> matches = new();
