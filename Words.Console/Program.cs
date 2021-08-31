@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace Words.Console
 {
@@ -174,7 +174,7 @@ namespace Words.Console
             SuccinctTreeData? succinctTreeData = JsonConvert.DeserializeObject<SuccinctTreeData>(succinctTreeDataJson);
             if (succinctTreeData is null)
             {
-                throw new Exception("deserialization failed");
+                throw new InvalidOperationException("deserialization failed");
             }
 
             WordFinder wordFinderSuccinct = WordFinder.CreateSuccinct(
