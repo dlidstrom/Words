@@ -4,7 +4,7 @@ namespace Words
 {
     using System;
     using System.Collections.Generic;
-    using System.Text.Globalization;
+    using System.Globalization;
 
     /// <summary>
     /// Ternary search tree for string matching.
