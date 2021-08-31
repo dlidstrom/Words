@@ -4,6 +4,7 @@ namespace Words
 {
     using System;
     using System.Collections.Generic;
+    using System.Text.Globalization;
 
     /// <summary>
     /// Ternary search tree for string matching.
@@ -493,6 +494,7 @@ namespace Words
             if (encoding.totalBits != expectedBits)
             {
                 string message = string.Format(
+                    CultureInfo.InvariantCulture,
                     "Unexpected number of bits. Expected 2 * nodes.Count + 1 = {0} but got {1}.",
                     expectedBits,
                     encoding.totalBits);
