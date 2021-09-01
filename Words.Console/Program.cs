@@ -10,7 +10,6 @@ namespace Words.Console
     using System.Linq;
     using System.Text;
     using Dapper;
-    using Mono.Terminal;
     using Newtonsoft.Json;
     using Npgsql;
 
@@ -121,8 +120,7 @@ namespace Words.Console
             Console.WriteLine("{0} ms", stopwatch.ElapsedMilliseconds);
 
             Console.WriteLine("Enter word to search for. A single 'q' exits.");
-            LineEditor lineEditor = new("input");
-            string input = lineEditor.Edit(": ", string.Empty);
+            string? input = Console.ReadLine();
             while (input != "q")
             {
                 do
@@ -156,7 +154,7 @@ namespace Words.Console
                 }
                 while (false);
 
-                input = lineEditor.Edit(": ", string.Empty);
+                input = Console.ReadLine();
             }
         }
 
