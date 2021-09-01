@@ -1,6 +1,9 @@
-﻿// auto-generated
+// auto-generated
 
 namespace System.Runtime.CompilerServices
 {
-    public class IsExternalInit { }
+    // this can be removed for .NET5
+    public class IsExternalInit
+    {
+    }
 }
