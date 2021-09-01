@@ -5,3 +5,5 @@ CREATE TABLE "public"."word" (
 );
 
 ALTER TABLE "public"."word" ADD COLUMN "score" integer NOT NULL DEFAULT 0;
+ALTER TABLE "public"."word" ADD COLUMN "permutation" TEXT NULL;
+ALTER TABLE "public"."word" ADD COLUMN "normalized" TEXT NULL;
