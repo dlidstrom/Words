@@ -10,6 +10,9 @@
     <PackageReference Include="NUnit" Version="3.13.2" />
     <ProjectReference Include="../Words/Words.Core.csproj" />
     <Compile Remove="Properties/*.cs" />
+    <Content Include="words.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

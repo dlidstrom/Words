@@ -158,7 +158,7 @@ namespace Words.Test
 
         private static IEnumerable<TestCaseData> VerifySource(string prefix)
         {
-            const string filename = @"C:\Programming\words.txt";
+            const string filename = "words.txt";
             string[] lines = File.ReadAllLines(filename, Encoding.UTF8);
             Random random = new();
 
