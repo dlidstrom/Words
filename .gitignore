@@ -48,3 +48,6 @@ Words.Core/dist
 /.ionide
 /Words.Web/Web.Release.config
 .vscode
+Words.Console/normalized_to_originals.csv
+Words.Console/word_permutations.csv
+Words.Console/words.json

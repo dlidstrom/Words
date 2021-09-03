@@ -15,19 +15,19 @@ namespace Words.Console
 
     public static class Program
     {
-        private const string NormalizedToOriginalsFilename = @"C:\Programming\normalized_to_originals.csv";
-        private const string WordPermutationsFilename = @"C:\Programming\word_permutations.csv";
-        private const string EncodingFilename = @"C:\Programming\Words\Words.Web\App_Data\words.json";
-        private const string WordsFilename = @"C:\Programming\words.txt";
+        private const string NormalizedToOriginalsFilename = "normalized_to_originals.csv";
+        private const string WordPermutationsFilename = "word_permutations.csv";
+        private const string EncodingFilename = "words.json";
 
         public static void Main(string[] args)
         {
             try
             {
-                if (args.Length > 0 && args[0] == "encode")
+                if (args.Length == 2 && args[0] == "encode")
                 {
-                    Console.WriteLine($"Reading {WordsFilename}");
-                    string[] lines = File.ReadAllLines(WordsFilename, Encoding.UTF8);
+                    string wordsFilename = args[1];
+                    Console.WriteLine($"Reading {wordsFilename}");
+                    string[] lines = File.ReadAllLines(wordsFilename, Encoding.UTF8);
 
                     // several trees
                     List<Bucket> trees = new();
@@ -73,13 +73,13 @@ namespace Words.Console
                         Encoding.UTF8);
                     Console.WriteLine($"Created {WordPermutationsFilename}");
                 }
-                else if (args.Length == 2 && args[0] == "test-run")
+                else if (args.Length == 3 && args[0] == "test-run")
                 {
-                    Run(args[1]);
+                    Run(args[1], args[2]);
                 }
                 else
                 {
-                    Console.WriteLine("Usage: encode|test-run <connstr>");
+                    Console.WriteLine("Usage: encode <words.txt> | test-run <connstr> <words.txt>");
                 }
             }
             catch (Exception ex)
@@ -106,13 +106,14 @@ namespace Words.Console
             return query.ToArray();
         }
 
-        private static void Run(string connectionString)
+        private static void Run(string connectionString, string wordsFilename)
         {
             Console.Write("Constructing search trees...");
             Stopwatch stopwatch = Stopwatch.StartNew();
             using IDbConnection connection = new NpgsqlConnection(connectionString);
             connection.Open();
             (WordFinder ternary, WordFinder succinct) = CreateWordFinders(
+                wordsFilename,
                 x => GetPermutations(connection, x),
                 x => GetOriginal(connection, x));
 
@@ -159,13 +160,14 @@ namespace Words.Console
         }
 
         private static (WordFinder ternary, WordFinder succinct) CreateWordFinders(
+            string wordsFilename,
             Func<string, string[]> getPermutations,
             Func<string[], string[]> getOriginal)
         {
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\english-word-list.txt", Encoding.UTF8, Language.English);
             //var wordFinder = new WordFinder(@"C:\Users\danlid\Dropbox\Programming\TernarySearchTree\swedish-english.txt", Encoding.UTF8, Language.Swedish);
 
-            string[] lines = File.ReadAllLines(WordsFilename, Encoding.UTF8);
+            string[] lines = File.ReadAllLines(wordsFilename, Encoding.UTF8);
             WordFinder wordFinderTernary = WordFinder.CreateTernary(lines, Language.Swedish);
 
             string succinctTreeDataJson = File.ReadAllText(EncodingFilename);
