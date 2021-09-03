@@ -1,7 +1,10 @@
-﻿#nullable enable
+﻿#if !NET
+#nullable enable
+#endif
 
 namespace Words.Web.Controllers
 {
+#if NET40
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -18,16 +21,36 @@ namespace Words.Web.Controllers
     using ViewModels;
     using Words.Web.Entities;
     using Words.Web.Infrastructure;
+#else
+    using System.Data;
+    using Dapper;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Caching.Memory;
+    using Words.Web.ViewModels;
+#endif
 
-    public class HomeController : Controller
+    public class HomeController : AbstractController
     {
+#if NET40
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+#else
+        private readonly ILogger logger;
+
+        public HomeController(
+            IMemoryCache memoryCache,
+            ILogger<HomeController> logger,
+            IDbConnection connection)
+            : base(memoryCache, connection)
+        {
+            this.logger = logger;
+        }
+#endif
 
         public async Task<ActionResult> Index(int? id, CancellationToken cancellationToken)
         {
             if (id != null)
             {
-                string text = await MvcApplication.Transact(async (conn, tran) =>
+                string text = await Transact(async (conn, tran) =>
                     await conn.QuerySingleAsync<string>("select text from query where query_id = @id", new { id }),
                     cancellationToken);
                 if (HttpContext.Cache.Get($"query-{id}") is ResultsViewModel results)
@@ -156,11 +179,6 @@ namespace Words.Web.Controllers
                 CacheItemPriority.Normal,
                 OnCacheItemRemoved);
             return recentQueries;
-        }
-
-        private void OnCacheItemRemoved(string key, object value, CacheItemRemovedReason reason)
-        {
-            Log.Info("Cache item {key} removed due to {reason}: {@value}", key, reason, value);
         }
 
         private record QueryId(int Id, string Text);

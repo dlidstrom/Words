@@ -37,21 +37,25 @@ namespace Words.Web.Core
             {
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
+                app.UseHsts(); // ?
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            app.UseAuthorization(); // ?
 
-            app.UseEndpoints(endpoints =>
+            app.UseEndpoints(endpoints => // ?
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            AppDomain.CurrentDomain.SetData(
+                "DataDirectory",
+                Path.Combine(env.ContentRootPath, "App_Data"));
         }
     }
 }

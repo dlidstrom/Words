@@ -107,7 +107,7 @@
     <Compile Include="Infrastructure\Extensions.cs" />
     <Compile Include="Infrastructure\JobTimer.cs" />
     <Compile Include="Infrastructure\UserTrackerLogAttribute.cs" />
-    <Compile Include="Models\Query.cs" />
+    <Compile Include="Models\QueryType.cs" />
     <Compile Include="SqlLoggingProvider.cs" />
     <Compile Include="ViewModels\RecentQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

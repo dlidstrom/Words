@@ -3,5 +3,17 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../Words.Web/Controllers/AbstractController.cs" />
+    <Compile Include="../Words.Web/Controllers/HomeController.cs" />
+    <Compile Include="../Words.Web/ViewModels/QueryViewModel.cs" />
+    <Compile Include="../Words.Web/ViewModels/RecentQuery.cs" />
+    <Compile Include="../Words.Web/ViewModels/ResultsViewModel.cs" />
+  </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.90" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.0-preview.7.21377.19" />
+    <ProjectReference Include="../Words/Words.Core.csproj" />
+  </ItemGroup>
 </Project>
