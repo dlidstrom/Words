@@ -63,7 +63,7 @@ namespace Words.Web
 #endif
         }
 
-#if NET40
+#if !NET
         private void OnCacheItemRemoved(string key, object value, CacheItemRemovedReason reason)
         {
             Log.Info("Cache item {key} removed due to {reason}: {@value}", key, reason, value);

@@ -1,10 +1,17 @@
-﻿#if !NET
+﻿#if NET
 #nullable enable
 #endif
 
 namespace Words.Web.Controllers
 {
-#if NET40
+#if NET
+    using System;
+    using System.Data;
+    using Dapper;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Caching.Memory;
+    using Words.Web.ViewModels;
+#else
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -21,12 +28,6 @@ namespace Words.Web.Controllers
     using ViewModels;
     using Words.Web.Entities;
     using Words.Web.Infrastructure;
-#else
-    using System.Data;
-    using Dapper;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Extensions.Caching.Memory;
-    using Words.Web.ViewModels;
 #endif
 
     public class HomeController : AbstractController
