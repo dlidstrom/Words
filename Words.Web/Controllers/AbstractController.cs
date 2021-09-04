@@ -7,10 +7,11 @@ namespace Words.Web
 #if NET
     using System.Data;
     using Dapper;
+    using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Caching.Memory;
 #endif
 
-    public abstract class AbstractController
+    public abstract class AbstractController : Controller
     {
 #if NET
         private readonly IMemoryCache memoryCache;
