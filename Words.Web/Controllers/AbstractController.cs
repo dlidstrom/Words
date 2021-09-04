@@ -20,10 +20,10 @@ namespace Words.Web
             (this.memoryCache, this.connection) = (memoryCache, connection);
 #endif
 
-        protected TResult? CacheGet<TResult>(string cacheKey)
+        protected object? CacheGet(string cacheKey)
         {
 #if NET
-            return memoryCache.Get<TResult?>(cacheKey);
+            return memoryCache.Get(cacheKey);
 #else
             return HttpContext.Cache.Get($"query-{id}") as TResult?;
 #endif

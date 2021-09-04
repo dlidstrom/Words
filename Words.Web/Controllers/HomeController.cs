@@ -54,7 +54,7 @@ namespace Words.Web.Controllers
                 string text = await Transact(async (conn, tran) =>
                     await conn.QuerySingleAsync<string>("select text from query where query_id = @id", new { id }),
                     cancellationToken);
-                if (HttpContext.Cache.Get($"query-{id}") is ResultsViewModel results)
+                if (CacheGet($"query-{id}") is ResultsViewModel results)
                 {
                     QueryViewModel cachedModel = new() { Text = text, Results = results };
                     if (results.Count == 0)
