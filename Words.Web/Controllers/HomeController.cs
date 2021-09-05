@@ -7,6 +7,7 @@ namespace Words.Web.Controllers
 #if NET
     using System;
     using System.Data;
+    using System.Diagnostics;
     using Dapper;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Caching.Memory;
