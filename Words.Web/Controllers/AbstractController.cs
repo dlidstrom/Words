@@ -16,9 +16,16 @@ namespace Words.Web
 #if NET
         private readonly IMemoryCache memoryCache;
         private readonly IDbConnection connection;
+        private readonly WordFinders wordFinders;
 
-        protected AbstractController(IMemoryCache memoryCache, IDbConnection connection) =>
+        protected AbstractController(
+            IMemoryCache memoryCache,
+            IDbConnection connection,
+            WordFinders wordFinders)
+        {
             (this.memoryCache, this.connection) = (memoryCache, connection);
+            this.wordFinders = wordFinders;
+        }
 #endif
 
         protected object? CacheGet(string cacheKey)
@@ -61,6 +68,15 @@ namespace Words.Web
             await MvcApplication.Transact(
                 action,
                 cancellationToken);
+#endif
+        }
+
+        protected List<Match> Matches(string text, SearchType searchType, int limit)
+        {
+#if NET
+            return wordFinders.Matches(text, searchType, limit);
+#else
+            return MvcApplication.Matches(text, searchType, limit);
 #endif
         }
 

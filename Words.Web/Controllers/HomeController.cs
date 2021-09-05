@@ -68,7 +68,7 @@ namespace Words.Web.Controllers
 
                 // perform search again
                 Stopwatch sw = Stopwatch.StartNew();
-                List<Match> matches = MvcApplication.Matches(text, SearchType.All, 100);
+                List<Match> matches = Matches(text, SearchType.All, 100);
                 sw.Stop();
                 results = new ResultsViewModel(text, matches, sw.Elapsed.TotalMilliseconds);
                 _ = HttpContext.Cache.Add(
@@ -107,7 +107,7 @@ namespace Words.Web.Controllers
             }
 
             Stopwatch sw = Stopwatch.StartNew();
-            List<Match> matches = MvcApplication.Matches(q.Text, SearchType.All, 100);
+            List<Match> matches = Matches(q.Text, SearchType.All, 100);
             sw.Stop();
             ResultsViewModel results = new(q.Text, matches, sw.Elapsed.TotalMilliseconds);
             Log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1:F2}", q.Text, sw.Elapsed.TotalMilliseconds);
