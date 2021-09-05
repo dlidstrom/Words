@@ -6,9 +6,9 @@ namespace Words.Web
 {
 #if NET
     using System.Data;
-    using Dapper;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Caching.Memory;
+    using Words.Web.Core;
 #endif
 
     public abstract class AbstractController : Controller
@@ -16,14 +16,18 @@ namespace Words.Web
 #if NET
         private readonly IMemoryCache memoryCache;
         private readonly IDbConnection connection;
+        private readonly ILogger logger;
         private readonly WordFinders wordFinders;
 
         protected AbstractController(
             IMemoryCache memoryCache,
             IDbConnection connection,
+            ILogger logger,
             WordFinders wordFinders)
         {
-            (this.memoryCache, this.connection) = (memoryCache, connection);
+            this.memoryCache = memoryCache;
+            this.connection = connection;
+            this.logger = logger;
             this.wordFinders = wordFinders;
         }
 #endif
@@ -34,6 +38,27 @@ namespace Words.Web
             return memoryCache.Get(cacheKey);
 #else
             return HttpContext.Cache.Get($"query-{id}") as TResult?;
+#endif
+        }
+
+        protected void CachePut(string key, object item, TimeSpan expirationDelay)
+        {
+#if NET
+            MemoryCacheEntryOptions opts = new()
+            {
+                AbsoluteExpirationRelativeToNow = expirationDelay
+            };
+            opts.RegisterPostEvictionCallback(EvictionCallback);
+            memoryCache.Set(key, item, opts);
+#else
+            _ = HttpContext.Cache.Add(
+                key,
+                item,
+                null,
+                Cache.NoAbsoluteExpiration,
+                expirationDelay,
+                CacheItemPriority.Normal,
+                OnCacheItemRemoved);
 #endif
         }
 
@@ -80,10 +105,16 @@ namespace Words.Web
 #endif
         }
 
-#if !NET
+
+#if NET
+        private void EvictionCallback(object key, object value, EvictionReason reason, object state)
+        {
+            logger.CacheItemRemoved(key, reason, value);
+        }
+#else
         private void OnCacheItemRemoved(string key, object value, CacheItemRemovedReason reason)
         {
-            Log.Info("Cache item {key} removed due to {reason}: {@value}", key, reason, value);
+            LogManager.GetCurrentClassLogger().Info("Cache item {key} removed due to {reason}: {@value}", key, reason, value);
         }
 #endif
     }

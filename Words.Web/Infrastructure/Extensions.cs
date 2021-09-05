@@ -9,12 +9,18 @@ namespace Words.Web.Infrastructure
     using System.Security.Cryptography;
     using System.Text;
     using System.Threading.Tasks;
+#if NET
+    using Microsoft.AspNetCore.Mvc.Routing;
+#else
     using System.Web.Hosting;
     using System.Web.Mvc;
+#endif
     using Dapper;
+    using System.Globalization;
 
     public static class UrlExtensions
     {
+#if !NET
         public static string ContentCacheBreak(this UrlHelper url, string contentPath)
         {
             if (contentPath == null)
@@ -38,6 +44,7 @@ namespace Words.Web.Infrastructure
 
             return $"{url.Content(contentPath)}{hashPart}";
         }
+#endif
 
         public static string ComputeHash(this byte[] bytes)
         {
@@ -46,7 +53,11 @@ namespace Words.Web.Infrastructure
             StringBuilder hashBuilder = new();
             foreach (byte b in hash)
             {
+#if NET
+                hashBuilder.Append(CultureInfo.InvariantCulture, $"{b:x2}");
+#else
                 _ = hashBuilder.Append($"{b:x2}");
+#endif
             }
 
             return hashBuilder.ToString();

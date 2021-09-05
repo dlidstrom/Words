@@ -6,6 +6,9 @@
   <ItemGroup>
     <Compile Include="../Words.Web/Controllers/AbstractController.cs" />
     <Compile Include="../Words.Web/Controllers/HomeController.cs" />
+    <Compile Include="../Words.Web/Infrastructure/Extensions.cs" />
+    <Compile Include="../Words.Web/Entities/Query.cs" />
+    <Compile Include="../Words.Web/Models/QueryType.cs" />
     <Compile Include="../Words.Web/ViewModels/QueryViewModel.cs" />
     <Compile Include="../Words.Web/ViewModels/RecentQuery.cs" />
     <Compile Include="../Words.Web/ViewModels/ResultsViewModel.cs" />
