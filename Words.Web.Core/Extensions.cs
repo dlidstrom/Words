@@ -1,7 +1,5 @@
 namespace Words.Web.Core
 {
-    using static System.FormattableString;
-
     public static class Extensions
     {
         private static readonly Action<ILogger, object, object, object, Exception?> cacheItemRemoved;

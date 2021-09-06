@@ -9,6 +9,13 @@ namespace Words.Web
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Caching.Memory;
     using Words.Web.Core;
+#else
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Threading;
+    using System.Web.Caching;
+    using System.Web.Mvc;
 #endif
 
     public abstract class AbstractController : Controller
