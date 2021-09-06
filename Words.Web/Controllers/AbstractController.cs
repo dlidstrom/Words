@@ -17,6 +17,7 @@ namespace Words.Web
     using System.Threading.Tasks;
     using System.Web.Caching;
     using System.Web.Mvc;
+    using NLog;
 #endif
 
     public abstract class AbstractController : Controller
@@ -45,7 +46,7 @@ namespace Words.Web
 #if NET
             return memoryCache.Get(cacheKey);
 #else
-            return HttpContext.Cache.Get($"query-{id}") as TResult?;
+            return HttpContext.Cache.Get(cacheKey);
 #endif
         }
 
