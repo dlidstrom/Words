@@ -18,6 +18,7 @@ namespace Words.Web.Controllers
     using Words.Web.Models;
     using Words.Web.ViewModels;
     using Microsoft.Net.Http.Headers;
+    using Words.Web.Core;
 #else
     using System;
     using System.Collections.Generic;
@@ -111,7 +112,7 @@ namespace Words.Web.Controllers
             sw.Stop();
             ResultsViewModel results = new(q.Text, matches, sw.Elapsed.TotalMilliseconds);
 #if NET
-            logger.LogInformation(Invariant($"Query '{q.Text}',{sw.Elapsed.TotalMilliseconds:F2}"));
+            logger.QueryElapsed(q.Text, sw.Elapsed.TotalMilliseconds);
 #else
             Log.Info(CultureInfo.InvariantCulture, "Query '{0}',{1:F2}", q.Text, sw.Elapsed.TotalMilliseconds);
 #endif

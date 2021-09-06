@@ -48,7 +48,7 @@ namespace Words.Web.Infrastructure
 
         public static string ComputeHash(this byte[] bytes)
         {
-            using MD5 md5 = MD5.Create();
+            using SHA512 md5 = SHA512.Create();
             byte[] hash = md5.ComputeHash(bytes);
             StringBuilder hashBuilder = new();
             foreach (byte b in hash)
