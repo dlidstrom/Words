@@ -1,16 +1,22 @@
 namespace Words.Web.Core
 {
     using System.Data;
+    using System.Text;
+    using System.Text.Json;
+    using Dapper;
     using Npgsql;
 
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            WebHostEnvironment = env;
         }
 
         public IConfiguration Configuration { get; }
+
+        public IWebHostEnvironment WebHostEnvironment {get;set;}
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -18,7 +24,12 @@ namespace Words.Web.Core
             WordsOptions wordsOptions = new();
             Configuration.GetSection(WordsOptions.Words).Bind(wordsOptions);
             services.AddControllersWithViews();
-            services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(wordsOptions.ConnectionString));
+            services.AddScoped<IDbConnection>(sp => {
+                NpgsqlConnection connection = new(wordsOptions.ConnectionString);
+                connection.Open();
+                return connection;
+            });
+            services.AddSingleton(LoadWordFinders(Path.Combine(WebHostEnvironment.ContentRootPath, "App_Data", "words.json")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,6 +62,20 @@ namespace Words.Web.Core
             AppDomain.CurrentDomain.SetData(
                 "DataDirectory",
                 Path.Combine(env.ContentRootPath, "App_Data"));
+        }
+
+        private static WordFinders LoadWordFinders(string filename)
+        {
+            string path = Path.Combine("DataDirectory", filename);
+            string succinctTreeDataJson = File.ReadAllText(path, Encoding.UTF8);
+            Bucket[]? buckets = JsonSerializer.Deserialize<Bucket[]>(succinctTreeDataJson);
+            if (buckets is null)
+            {
+                throw new InvalidOperationException("deserialization failed");
+            }
+
+            WordFinders wordFinders = new(buckets);
+            return wordFinders;
         }
     }
 }

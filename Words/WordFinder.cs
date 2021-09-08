@@ -115,7 +115,13 @@ namespace Words
             return wordFinder;
         }
 
-        public List<Match> Matches(string input, int d, SearchType searchType = SearchType.All, int limit = 100)
+        public List<Match> Matches(
+            string input,
+            int d,
+            Func<string[], string[]> getOriginal,
+            Func<string, string[]> getPermutations,
+            SearchType searchType = SearchType.All,
+            int limit = 100)
         {
             if (input == null)
             {
@@ -123,7 +129,14 @@ namespace Words
             }
 
             List<Match> matches = new();
-            Matches(input, matches.Add, d, searchType, limit);
+            Matches(
+                input,
+                matches.Add,
+                d,
+                getOriginal,
+                getPermutations,
+                searchType,
+                limit);
             return matches;
         }
 
@@ -131,6 +144,8 @@ namespace Words
             string input,
             Action<Match> action,
             int d,
+            Func<string[], string[]> getOriginal,
+            Func<string, string[]> getPermutations,
             SearchType searchType,
             int limit)
         {
