@@ -27,13 +27,20 @@ namespace Words.Web
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
+        private static string connectionString = null!;
         private static IDictionary<int, WordFinder>? wordFinders;
 
         public static List<Match> Matches(string text, SearchType searchType, int limit)
         {
             int bucket = Bucket.ToBucket(text.Length);
             return wordFinders!.TryGetValue(bucket, out WordFinder? wordFinder)
-                ? wordFinder.Matches(text, 0, searchType, limit)
+                ? wordFinder.Matches(
+                    text,
+                    0,
+                    x => GetOriginal(connectionString, x),
+                    x => GetPermutations(connectionString, x),
+                    searchType,
+                    limit)
                 : throw new Exception($"no word finder found for word: {text}");
         }
 
@@ -124,7 +131,7 @@ namespace Words.Web
 
             string appDataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
             string filename = Path.Combine(appDataDirectory, "words.json");
-            string connectionString = ConfigurationManager.ConnectionStrings["Words"].ConnectionString;
+            connectionString = ConfigurationManager.ConnectionStrings["Words"].ConnectionString;
             wordFinders = LoadWordFinders(filename, connectionString);
             Log.Info("Dictionary loaded");
             NpgsqlLogManager.Provider = new SqlLoggingProvider();
@@ -186,27 +193,27 @@ namespace Words.Web
                             y => GetPermutations(connectionString, y),
                             y => GetOriginal(connectionString, y)));
             return wordFinders;
+        }
 
-            static string[] GetOriginal(string connectionString, string[] normalized)
-            {
-                using IDbConnection connection = new NpgsqlConnection(connectionString);
-                connection.Open();
-                IEnumerable<string> query =
-                    connection.Query<string>(
-                        "select original from normalized where normalized = any(@normalized)",
-                        new { normalized });
-                return query.ToArray();
-            }
+        private static string[] GetOriginal(string connectionString, string[] normalized)
+        {
+            using IDbConnection connection = new NpgsqlConnection(connectionString);
+            connection.Open();
+            IEnumerable<string> query =
+                connection.Query<string>(
+                    "select original from normalized where normalized = any(@normalized)",
+                    new { normalized });
+            return query.ToArray();
+        }
 
-            static string[] GetPermutations(string connectionString, string normalized)
-            {
-                using IDbConnection connection = new NpgsqlConnection(connectionString);
-                IEnumerable<string> query =
-                    connection.Query<string>(
-                        "select permutation from permutation where normalized = @normalized",
-                        new { normalized });
-                return query.ToArray();
-            }
+        private static string[] GetPermutations(string connectionString, string normalized)
+        {
+            using IDbConnection connection = new NpgsqlConnection(connectionString);
+            IEnumerable<string> query =
+                connection.Query<string>(
+                    "select permutation from permutation where normalized = @normalized",
+                    new { normalized });
+            return query.ToArray();
         }
     }
 }
