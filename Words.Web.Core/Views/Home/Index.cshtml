@@ -1,8 +1,137 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿
+@*
+@model QueryViewModel
+@helper Table(string header, List<string> results)
+{
+    <div class="row">
+        <div class="span4"><h3>@header</h3></div>
+    </div>
+    foreach (string item in results)
+    {
+        <div class="row">
+            <div class="span6">
+                <table class="table table-bordered table-striped table-condensed">
+                    <tr>
+                        <td colspan="4">@item</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href='https://www.google.se/search?query=@item' target="_blank">
+                                <img src='@Url.ContentCacheBreak("/Content/images/g.png")' alt="Google" />
+                            </a>
+                        </td>
+                        <td>
+                            <a href='https://sv.wikipedia.org/wiki/@item' target="_blank">
+                                <img src='@Url.ContentCacheBreak("/Content/images/w.png")' alt="Wikipedia" />
+                            </a>
+                        </td>
+                        <td>
+                            <a href='https://www.ne.se/sok?q=@item' target="_blank">
+                                <img src='@Url.ContentCacheBreak("/Content/images/ne.png")' alt="NE" />
+                            </a>
+                        </td>
+                        <td>
+                            <a href='https://www.synonymer.se/sv-syn/@item' target="_blank">
+                                <img src='@Url.ContentCacheBreak("/Content/images/s.png")' alt="Synonymer" />
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    }
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row">
+    <div class="span8">
+        @using (Html.BeginForm(
+            "Search",
+            "Home",
+            null,
+            FormMethod.Post,
+            new { @class = "well form-search input-append" }))
+        {
+            @Html.TextBoxFor(
+                m => m.Text,
+                new
+                {
+                    @class = "input-large",
+                    placeholder = "Ange sökterm",
+                    autocorrect = "off",
+                    autocapitalize = "off",
+                    autocomplete = "off",
+                    autofocus = "autofocus"
+                })
+            <button type="submit" class="btn btn-primary">
+                <i class="icon-search icon-white"></i>
+                Sök
+            </button>
+        }
+    </div>
 </div>
+
+<div id="content">
+    @Html.Partial("_Help")
+</div>
+
+@if (Model.Results != null)
+{
+    <div class="row">
+        <div class="span4">
+            <p>
+                Sökningen tog @Model.Results.ElapsedMilliseconds.ToString("N2") ms.
+                @if (Model.Results.Count == 0)
+                {
+                    @:Hittade 0 resultat.
+                }
+                else
+                {
+                    @:Hittade @Model.Results.Count resultat:
+                }
+            </p>
+        </div>
+    </div>
+
+    if (Model.Results.Words.Any())
+    {
+        <div id="home-results-words">
+            @Table("Ord", Model.Results.Words)
+        </div>
+    }
+
+    if (Model.Results.Anagrams.Any())
+    {
+        <div id="home-results-anagrams">
+            @Table("Anagram", Model.Results.Anagrams)
+        </div>
+    }
+
+    if (Model.Results.Near.Any())
+    {
+        <div id="home-results-near">
+            @Table("Nära", Model.Results.Near)
+        </div>
+    }
+}
+
+@if (Model.Recent.Any())
+{
+    <div class="row">
+        <div class="span4"><h4>Nyligen gjorda sökningar:</h4></div>
+    </div>
+    <div class="row">
+        <div class="span6">
+            <table class="table table-bordered table-striped table-condensed">
+                @foreach (RecentQuery item in Model.Recent)
+                {
+                    <tr>
+                        <td>@Html.ActionLink(item.Text, "Index", new { id = item.QueryId })</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+}
+*@
+
+<email mail-to="Support">Daniel</email>

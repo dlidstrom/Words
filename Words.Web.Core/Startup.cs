@@ -3,7 +3,6 @@ namespace Words.Web.Core
     using System.Data;
     using System.Text;
     using System.Text.Json;
-    using Dapper;
     using Npgsql;
 
     public class Startup
@@ -21,8 +20,11 @@ namespace Words.Web.Core
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            WordsOptions wordsOptions = new();
-            Configuration.GetSection(WordsOptions.Words).Bind(wordsOptions);
+            WordsOptions wordsOptions =
+                Configuration
+                    .GetSection(WordsOptions.Words)
+                    .Get<WordsOptions>();
+            services.Configure<WordsOptions>(Configuration.GetSection(WordsOptions.Words));
             services.AddControllersWithViews();
             services.AddScoped<IDbConnection>(sp => {
                 NpgsqlConnection connection = new(wordsOptions.ConnectionString);
