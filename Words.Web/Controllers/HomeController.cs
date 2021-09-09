@@ -94,7 +94,10 @@ namespace Words.Web.Controllers
             return View(new QueryViewModel { Recent = recentQueries });
         }
 
-        [HttpPost]
+#if NET
+        [ValidateAntiForgeryToken]
+#endif
+        [HttpPost("search")]
         public async Task<ActionResult> Search(QueryViewModel q, CancellationToken cancellationToken)
         {
             if (ModelState.IsValid == false || q.Text is null)

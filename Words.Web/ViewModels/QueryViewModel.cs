@@ -18,6 +18,7 @@ namespace Words.Web.ViewModels
         [Required(ErrorMessage = "*")]
         [MinLength(1)]
         [MaxLength(255)]
+        [DataType(DataType.Text)]
         public string? Text { get; set; }
 
         public ResultsViewModel? Results { get; set; }
