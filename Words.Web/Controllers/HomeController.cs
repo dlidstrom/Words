@@ -96,8 +96,10 @@ namespace Words.Web.Controllers
 
 #if NET
         [ValidateAntiForgeryToken]
-#endif
         [HttpPost("search")]
+#else
+        [HttpPost]
+#endif
         public async Task<ActionResult> Search(QueryViewModel q, CancellationToken cancellationToken)
         {
             if (ModelState.IsValid == false || q.Text is null)
