@@ -53,11 +53,13 @@ namespace Words.Web.Controllers
             : base(memoryCache, connection, logger, wordFinders)
         {
             this.logger = logger;
+            logger.Information("here i am");
         }
 #endif
 
         public async Task<ActionResult> Index(int? id, CancellationToken cancellationToken)
         {
+            logger.Information("index daniel");
             if (id != null)
             {
                 string text = await Transact(async (conn, tran) =>
@@ -89,6 +91,8 @@ namespace Words.Web.Controllers
                 return View(model);
             }
 
+            logger.Information("get recent queries");
+
             // get recent queries
             RecentQuery[] recentQueries = await GetRecentQueries(cancellationToken);
             return View(new QueryViewModel { Recent = recentQueries });
@@ -102,13 +106,16 @@ namespace Words.Web.Controllers
 #endif
         public async Task<ActionResult> Search(QueryViewModel q, CancellationToken cancellationToken)
         {
+            logger.Information("begin search");
             if (ModelState.IsValid == false || q.Text is null)
             {
-                return View(q);
+                logger.Information("view index");
+                return View("Index", q);
             }
 
             if (CacheGet($"query-{Encoding.UTF8.GetBytes(q.Text).ComputeHash()}") is QueryId cachedQueryId)
             {
+                logger.Information("cache found");
                 return RedirectToAction(nameof(Index), new { id = cachedQueryId.Id });
             }
 

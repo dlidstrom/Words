@@ -22,4 +22,8 @@
     <PackageReference Include="Npgsql" Version="6.0.0-preview7" />
     <ProjectReference Include="../Words/Words.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- <Watch Include="**\*.js" Exclude="node_modules\**\*;**\*.min.js;**\*.js.map;obj\**\*;bin\**\*" /> -->
+    <Watch Include="NLog.config" />
+  </ItemGroup>
 </Project>

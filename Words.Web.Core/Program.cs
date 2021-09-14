@@ -36,8 +36,9 @@ namespace Words.Web.Core
                 })
                 .ConfigureLogging(logging =>
                 {
-                    logging.ClearProviders();
-                    logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                    logging
+                        .ClearProviders()
+                        .SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
                 })
                 .UseNLog();
     }
