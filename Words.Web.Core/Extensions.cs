@@ -3,6 +3,7 @@ namespace Words.Web.Core
     public static class Extensions
     {
         private static readonly Action<ILogger, string, Exception?> information;
+        private static readonly Action<ILogger, string, Exception?> error;
         private static readonly Action<ILogger, object, object, object, Exception?> cacheItemRemoved;
         private static readonly Action<ILogger, string, double, Exception?> queryElapsed;
 
@@ -13,6 +14,11 @@ namespace Words.Web.Core
                 LogLevel.Information,
                 new EventId(eventId++, nameof(Information)),
                 "Informational message: {Information}");
+
+            error = LoggerMessage.Define<string>(
+                LogLevel.Error,
+                new EventId(eventId++, nameof(Error)),
+                "Error message: {Error}");
 
             cacheItemRemoved = LoggerMessage.Define<object, object, object>(
                 LogLevel.Information,
@@ -27,7 +33,12 @@ namespace Words.Web.Core
 
         public static void Information(this ILogger logger, string message)
         {
+            information.Invoke(logger, message, null);
+        }
 
+        public static void Error(this ILogger logger, string message)
+        {
+            error.Invoke(logger, message, null);
         }
 
         public static void CacheItemRemoved(this ILogger logger, object key, object reason, object value)

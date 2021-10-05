@@ -25,5 +25,6 @@
   <ItemGroup>
     <!-- <Watch Include="**\*.js" Exclude="node_modules\**\*;**\*.min.js;**\*.js.map;obj\**\*;bin\**\*" /> -->
     <Watch Include="NLog.config" />
+    <Watch Include="../Words.Web/Controllers/HomeController.cs" />
   </ItemGroup>
 </Project>

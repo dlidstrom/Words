@@ -3,14 +3,14 @@ namespace Words.Web.Core
     using NLog;
     using Npgsql.Logging;
 
-    internal class SqlLoggingProvider : INpgsqlLoggingProvider
+    public class SqlLoggingProvider : INpgsqlLoggingProvider
     {
         public NpgsqlLogger CreateLogger(string name)
         {
             return new CustomLogger(LogManager.GetLogger(name));
         }
 
-        private class CustomLogger : NpgsqlLogger
+        public class CustomLogger : NpgsqlLogger
         {
             private readonly Logger logger;
 
@@ -26,7 +26,10 @@ namespace Words.Web.Core
 
             public override void Log(NpgsqlLogLevel level, int connectorId, string msg, Exception? exception = null)
             {
-                LogEventInfo ev = new(ToNLogLogLevel(level), "", msg);
+                LogEventInfo ev = new(
+                    ToNLogLogLevel(level),
+                    logger.Name,
+                    msg);
                 if (exception != null)
                 {
                     ev.Exception = exception;

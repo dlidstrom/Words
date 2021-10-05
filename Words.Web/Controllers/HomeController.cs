@@ -53,7 +53,7 @@ namespace Words.Web.Controllers
             : base(memoryCache, connection, logger, wordFinders)
         {
             this.logger = logger;
-            logger.Information("here i am");
+            logger.Error("here i am");
         }
 #endif
 
@@ -95,6 +95,7 @@ namespace Words.Web.Controllers
 
             // get recent queries
             RecentQuery[] recentQueries = await GetRecentQueries(cancellationToken);
+            logger.Information(string.Join(", ", recentQueries.Select(x => x.Text)));
             return View(new QueryViewModel { Recent = recentQueries });
         }
 
