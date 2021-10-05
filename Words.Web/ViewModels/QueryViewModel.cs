@@ -8,12 +8,17 @@ namespace Words.Web.ViewModels
     {
         public QueryViewModel()
         {
+#if NET
+            Recent = Array.Empty<RecentQuery>();
+#else
             Recent = new RecentQuery[0];
+#endif
         }
 
         [Required(ErrorMessage = "*")]
         [MinLength(1)]
         [MaxLength(255)]
+        [DataType(DataType.Text)]
         public string? Text { get; set; }
 
         public ResultsViewModel? Results { get; set; }

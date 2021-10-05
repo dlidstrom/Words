@@ -1,19 +1,31 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
 namespace Words.Web.Core
 {
+    using Microsoft.Extensions.Logging;
+    using NLog;
+    using NLog.Web;
+    using Npgsql.Logging;
+
     public class Program
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            NpgsqlLogManager.IsParameterLoggingEnabled = true;
+            NpgsqlLogManager.Provider = new SqlLoggingProvider();
+            var logger = NLogBuilder.ConfigureNLog("NLog.config").GetCurrentClassLogger();
+            try
+            {
+                logger.Debug("starting");
+                CreateHostBuilder(args).Build().Run();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "unhandled exception");
+            }
+            finally
+            {
+                logger.Debug("stopping");
+                LogManager.Shutdown();
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -21,6 +33,13 @@ namespace Words.Web.Core
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+                .ConfigureLogging(logging =>
+                {
+                    logging
+                        .ClearProviders()
+                        .SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                })
+                .UseNLog();
     }
 }

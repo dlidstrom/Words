@@ -3,5 +3,28 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../Words.Web/Controllers/AbstractController.cs" />
+    <Compile Include="../Words.Web/Controllers/HomeController.cs" />
+    <Compile Include="../Words.Web/Infrastructure/Extensions.cs" />
+    <Compile Include="../Words.Web/Entities/Query.cs" />
+    <Compile Include="../Words.Web/Models/QueryType.cs" />
+    <Compile Include="../Words.Web/ViewModels/QueryViewModel.cs" />
+    <Compile Include="../Words.Web/ViewModels/RecentQuery.cs" />
+    <Compile Include="../Words.Web/ViewModels/ResultsViewModel.cs" />
+  </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.90" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.0-preview.7.21377.19" />
+    <PackageReference Include="NLog" Version="4.7.11" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.14.0" />
+    <PackageReference Include="Npgsql" Version="6.0.0-preview7" />
+    <ProjectReference Include="../Words/Words.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- <Watch Include="**\*.js" Exclude="node_modules\**\*;**\*.min.js;**\*.js.map;obj\**\*;bin\**\*" /> -->
+    <Watch Include="NLog.config" />
+    <Watch Include="../Words.Web/Controllers/HomeController.cs" />
+  </ItemGroup>
 </Project>

@@ -97,6 +97,7 @@
     <Content Include="words2x.png" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="controllers\AbstractController.cs" />
     <Compile Include="Controllers\GlobeController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Entities\Query.cs" />
@@ -107,7 +108,7 @@
     <Compile Include="Infrastructure\Extensions.cs" />
     <Compile Include="Infrastructure\JobTimer.cs" />
     <Compile Include="Infrastructure\UserTrackerLogAttribute.cs" />
-    <Compile Include="Models\Query.cs" />
+    <Compile Include="Models\QueryType.cs" />
     <Compile Include="SqlLoggingProvider.cs" />
     <Compile Include="ViewModels\RecentQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -51,3 +51,4 @@ Words.Core/dist
 Words.Console/normalized_to_originals.csv
 Words.Console/word_permutations.csv
 Words.Console/words.json
+internal-nlog-AspNetCore.txt

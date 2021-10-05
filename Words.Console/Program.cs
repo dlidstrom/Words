@@ -134,7 +134,11 @@ namespace Words.Console
                     foreach (WordFinder wordFinder in new[] { ternary, succinct }.Where(x => x != null))
                     {
                         stopwatch.Restart();
-                        List<Match> matches = wordFinder.Matches(input, 2);
+                        List<Match> matches = wordFinder.Matches(
+                            input,
+                            2,
+                            x => x,
+                            x => new[] { x });
                         stopwatch.Stop();
                         if (matches.Count > 0)
                         {
